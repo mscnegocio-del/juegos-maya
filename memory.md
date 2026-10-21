@@ -2,8 +2,7 @@
 > Última actualización: 2026-10-21
 
 ## 🎯 Foco actual
-- SPEC-001 Animales v2 (SVG + sonidos reales). Los sonidos ya están listos. Falta dibujar los 12 SVG
-  e integrar el audio en `juegos/animales/index.html`
+- SPEC-001 Animales v2: implementada salvo la prueba en un dispositivo real (la hace el usuario)
 
 ## ✅ Hecho en esta sesión
 - Base del sitio: menú (`index.html`, 2 columnas en celular) + 4 juegos: Globos, Animales (emojis + voz),
@@ -13,6 +12,8 @@
   (`assets/sonidos/animales/`, 160 KB en total). Créditos en `assets/sonidos/CREDITOS.md`
 - Scripts reutilizables de sonido (`tools/sonidos/`) y smoke test (`tools/smoke.mjs`)
 - Harness creado (AGENTS.md, memory.md, process/)
+- SPEC-001: 12 animales dibujados en SVG (parpadean; boca y orejas se mueven mientras suenan), audio real
+  con `Juegos.sonar()` en common.js (precarga, corta el anterior, voz con el nombre al terminar y respaldo con voz)
 
 ## ⚠️ Decisiones de esta sesión (detalle en process/decisions.md)
 - HTML/CSS/JS puro sin build; Canva descartado (no hay Pro); gráficos con SVG propios
@@ -25,7 +26,6 @@
 - La voz y los sonidos no se han probado en un dispositivo real (en Chromium headless no se escuchan)
 
 ## 📌 Próximos pasos (próxima sesión)
-1. SPEC-001: dibujar los 12 animales en SVG inline, con estilo uniforme y partes animables (ojos, boca, orejas)
-2. SPEC-001: integrar los MP3 (precarga, cortar el sonido anterior, voz con el nombre al terminar)
-3. Correr `tools/smoke.mjs`, revisar capturas y pedir al usuario que pruebe en celular/tablet
-4. Proponer al usuario aprobar SPEC-002 (Contar hasta 5) o SPEC-003 (PWA offline)
+1. Que el usuario pruebe Animales en celular/tablet. Si va bien, marcar SPEC-001 como `implementada`
+2. Pedir aprobación de SPEC-002 (Contar hasta 5) o SPEC-003 (PWA offline)
+3. Backlog: pasar Globos, Colores y el menú a SVG con el mismo estilo

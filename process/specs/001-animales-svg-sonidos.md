@@ -9,14 +9,14 @@ imita el sonido por grabaciones reales, para que se vea y suene igual en cualqui
 
 ## Criterios de aceptación
 - [x] 12 sonidos reales CC0, igualados en volumen, en `assets/sonidos/animales/` y con créditos en CREDITOS.md
-- [ ] 12 animales como SVG inline con un estilo uniforme (misma paleta, grosor de trazo y proporciones)
-- [ ] Al tocar un animal suena su MP3 real sin demora perceptible y el animal se anima (boca u orejas) mientras suena
-- [ ] Al terminar el sonido, la voz dice el nombre ("¡La vaca!")
-- [ ] Tocar otro animal corta el sonido anterior (sin superposiciones)
-- [ ] Animación en reposo sutil (parpadeo) desactivada con `prefers-reduced-motion`
-- [ ] Si el MP3 falla, la voz dice "La vaca hace muuu" (comportamiento v1). Sin `speechSynthesis` el juego sigue funcionando
-- [ ] Página completa (HTML + audio) ≤ 300 KB
-- [ ] `tools/smoke.mjs` sin errores; capturas revisadas a 390 px y en escritorio
+- [x] 12 animales como SVG inline con un estilo uniforme (misma paleta, grosor de trazo y proporciones)
+- [x] Al tocar un animal suena su MP3 real sin demora perceptible y el animal se anima (boca u orejas) mientras suena
+- [x] Al terminar el sonido, la voz dice el nombre ("¡La vaca!")
+- [x] Tocar otro animal corta el sonido anterior (sin superposiciones)
+- [x] Animación en reposo sutil (parpadeo) desactivada con `prefers-reduced-motion`
+- [x] Si el MP3 falla, la voz dice "La vaca hace muuu" (comportamiento v1). Sin `speechSynthesis` el juego sigue funcionando
+- [x] Página completa (HTML + audio) ≤ 300 KB (163 KB)
+- [x] `tools/smoke.mjs` sin errores; capturas revisadas a 390 px y en escritorio
 - [ ] El usuario lo prueba en un celular o tablet real (sonido + voz)
 
 ## Fuera de alcance

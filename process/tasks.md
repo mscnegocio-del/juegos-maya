@@ -19,9 +19,9 @@
 |---|-------|------|--------|
 | 1 | Conseguir 12 sonidos reales CC0, procesarlos y documentar créditos | SPEC-001 | hecho |
 | 2 | Scripts reutilizables de sonido y smoke test en `tools/` | SPEC-001 | hecho |
-| 3 | Dibujar 12 animales en SVG inline (estilo uniforme, partes animables) | SPEC-001 | pendiente |
-| 4 | Integrar audio real en Animales (precarga, sin solapes, voz al terminar) | SPEC-001 | pendiente |
-| 5 | Verificar SPEC-001 (smoke + capturas + dispositivo real) | SPEC-001 | pendiente |
+| 3 | Dibujar 12 animales en SVG inline (estilo uniforme, partes animables) | SPEC-001 | hecho |
+| 4 | Integrar audio real en Animales (precarga, sin solapes, voz al terminar) | SPEC-001 | hecho |
+| 5 | Verificar SPEC-001 (smoke + capturas hechos; falta dispositivo real) | SPEC-001 | en progreso (usuario) |
 
 ## Backlog (priorizado)
 | # | Idea | Spec | Estado |

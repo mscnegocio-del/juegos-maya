@@ -5,3 +5,4 @@
 - Workflow de GitHub Pages; rama `ccr-0e68d57f-4s0qxp` (aún sin `main`)
 - Sonidos CC0 de los 12 animales procesados (SPEC-001, en progreso)
 - Harness creado
+- SPEC-001: 12 animales en SVG + audio real integrado (falta prueba en dispositivo)

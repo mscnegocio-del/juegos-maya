@@ -84,5 +84,43 @@ const Juegos = (() => {
     el.classList.add(clase);
   }
 
-  return { decir, tono, pop, fiesta, confeti, azar, mezclar, animar, COLORES };
+  // Sonidos MP3 decodificados a AudioBuffer: menor latencia que <audio>, sobre todo en iOS
+  const buffers = new Map();
+  let fuenteActual, turno = 0;
+
+  function cargar(url) {
+    if (!buffers.has(url)) {
+      buffers.set(url, fetch(url)
+        .then(r => { if (!r.ok) throw new Error(url); return r.arrayBuffer(); })
+        .then(datos => audio().decodeAudioData(datos))
+        .catch(e => { buffers.delete(url); throw e; }));
+    }
+    return buffers.get(url);
+  }
+
+  function callar() {
+    turno++;
+    if (fuenteActual) { fuenteActual.onended = null; try { fuenteActual.stop(); } catch {} fuenteActual = null; }
+  }
+
+  // Reproduce un MP3 cortando el anterior; la promesa se resuelve al terminar (o rechaza si falla)
+  // Si se corta por otro sonido, la promesa queda pendiente (no dispara lo que venía después)
+  async function sonar(url) {
+    callar();
+    const mio = turno;
+    const a = audio();
+    if (a.state === "suspended") a.resume();
+    const buffer = await cargar(url);
+    if (mio !== turno) return new Promise(() => {});
+    return new Promise(resolve => {
+      const f = a.createBufferSource();
+      f.buffer = buffer;
+      f.connect(a.destination);
+      f.onended = () => { if (fuenteActual === f) fuenteActual = null; resolve(); };
+      fuenteActual = f;
+      f.start();
+    });
+  }
+
+  return { decir, tono, pop, fiesta, confeti, azar, mezclar, animar, cargar, sonar, callar, COLORES };
 })();

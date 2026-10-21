@@ -30,7 +30,16 @@ tools/
 | `Juegos.confeti(n)` | Solo confeti; respeta prefers-reduced-motion |
 | `Juegos.azar(arr)` / `Juegos.mezclar(arr)` | Elemento al azar / copia mezclada |
 | `Juegos.animar(el, clase)` | Reinicia una animación CSS (`pop`, `wiggle`) |
+| `Juegos.cargar(url)` | Precarga y decodifica un MP3 (AudioBuffer en caché) |
+| `Juegos.sonar(url)` | Reproduce un MP3 cortando el anterior; la promesa se resuelve al terminar, rechaza si falla y queda pendiente si otro sonido lo corta |
+| `Juegos.callar()` | Detiene el sonido actual |
 | `Juegos.COLORES` | Paleta de 7 colores de los juegos |
+
+## Estilo de los dibujos SVG (juegos/animales)
+- viewBox 200×200, trazo `#3b2a4a` de 5 px con uniones redondeadas, cabezas frontales tipo kawaii
+- Piezas compartidas: `ojos()` (parpadean), `mejillas()`, `boca()` (cerrada/abierta), `svg()`
+- Clases animables: `.cabeza`, `.ojos`, `.oreja-i`, `.oreja-d`, `.boca`/`.boca-abierta`; el estado `.sonando` en el botón las activa
+- `transform-box: fill-box` solo en las clases animadas. Si una pieza lleva el atributo `transform`, la clase va en un `<g>` envolvente
 
 ## Pipeline de sonidos
 1. `python3 tools/sonidos/buscar.py "cow moo" "dog bark"` → lista CC0 con duración y descargas
