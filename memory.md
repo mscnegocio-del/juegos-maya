@@ -32,5 +32,4 @@
 ## 📌 Próximos pasos (próxima sesión)
 1. Que el usuario pruebe Contar en un dispositivo real
 2. Que el usuario instale la app desde https://mscnegocio-del.github.io/juegos-maya/ y la pruebe en modo avión
-3. Elegir un 6.º juego (el menú tiene 5 tarjetas) y redactar su spec
-4. Backlog: pasar Globos, Colores y el menú a SVG con el mismo estilo
+3. Revisar y aprobar SPEC-005 (SVG en Globos, Colores y menú) y SPEC-004 (Piano de colores). Orden sugerido: primero 005

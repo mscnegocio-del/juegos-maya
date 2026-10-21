@@ -28,9 +28,9 @@
 ## Backlog (priorizado)
 | # | Idea | Spec | Estado |
 |---|------|------|--------|
-| 3 | Pasar Globos, Colores y el menú de emojis a SVG propios | — | idea |
+| 1 | Globos, Colores y el menú con SVG propios (+ `dibujos.js` compartido) | SPEC-005 | borrador |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
-| 5 | Piano de colores (teclas gigantes con nota + animal) | — | idea |
+| 2 | Piano de colores (teclas gigantes con nota + animal) | SPEC-004 | borrador |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |
 | 7 | Vestir al osito (arrastrar gorro, lentes, bufanda) | — | idea |
 | 8 | Rompecabezas de 2 o 4 piezas (con ilustraciones, sin fotos reales) | — | idea |
