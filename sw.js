@@ -1,5 +1,5 @@
 // Plantilla del service worker. NO editar sw.js a mano: se genera con tools/actualizar-sw.py
-const VERSION = "maya-80071d6aec";
+const VERSION = "maya-626d3da336";
 const ARCHIVOS = [
   "./",
   "juegos/animales/",
@@ -17,9 +17,26 @@ const ARCHIVOS = [
   "assets/iconos/icono-192.png",
   "assets/iconos/icono-512.png",
   "assets/iconos/icono.svg",
+  "assets/img/casa/banera.webp",
+  "assets/img/casa/fondo-bano.webp",
+  "assets/img/casa/fondo-sala.webp",
+  "assets/img/casa/inodoro.webp",
+  "assets/img/casa/lavamanos.webp",
+  "assets/img/michi/banera-gato.webp",
+  "assets/img/michi/base.webp",
+  "assets/img/michi/boca.webp",
+  "assets/img/michi/esfuerzo.webp",
+  "assets/img/michi/feliz.webp",
+  "assets/img/michi/lavarse.webp",
+  "assets/img/michi/mojado.webp",
+  "assets/img/michi/riendo.webp",
+  "assets/img/michi/saltando.webp",
+  "assets/img/michi/satisfecho.webp",
+  "assets/img/michi/sorprendido.webp",
   "assets/js/colorear.js",
   "assets/js/common.js",
   "assets/js/dibujos.js",
+  "assets/js/michi-casa.js",
   "assets/js/michi.js",
   "assets/sonidos/animales/caballo.mp3",
   "assets/sonidos/animales/chancho.mp3",

@@ -1,6 +1,10 @@
 # SPEC-009 — Michi con nuevo estilo visual (nivel "Boba Cat")
 Estado: aprobada
 > Aprobada por el usuario en el chat el 2026-10-21. Michi se queda gris con ojos verdes.
+> **Cambio de rumbo (2026-10-21):** el usuario descartó el dibujo SVG y generó con ChatGPT las imágenes de Michi
+> (10 poses), muebles del baño y fondos de sala y baño. Michi pasa a usar esas imágenes (`assets/img/`); el SVG
+> queda solo para íconos, cocina y dormitorio. **Propuesta pendiente de aprobación:** cambiar el criterio de peso
+> de "≤ 150 KB" a "imágenes ≤ 1,5 MB en total (webp)"; hoy pesan 1,3 MB.
 > Depende de SPEC-006. Referencia visual: "Boba Cat" de gbadebob (Rive, CC BY 4.0), solo como inspiración de estilo.
 
 ## Qué

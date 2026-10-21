@@ -27,13 +27,13 @@
 | 9 | Juego Piano de colores (7 teclas, animales, multitáctil, canción Estrellita) | SPEC-004 | hecho |
 | 10 | Colorear: galería de 12 dibujos, balde por zonas, pincel, goma, deshacer, guardado, "cobra vida" | SPEC-008 | hecho |
 | 11 | Michi, mascota virtual: reacciones, 4 cuartos, necesidades, detalles visuales | SPEC-006 | hecho (falta risa real) |
+| 12 | Michi con imágenes (10 poses), fondos de sala y baño, barra inferior, escenas del baño (inodoro, lavamanos, bañera, dientes) | SPEC-009/010 | hecho (parte 1) |
 | 6 | Juego Contar hasta 5 (manzanas, estrellas, flores, pelotas; voz cuenta; dificultad progresiva) | SPEC-002 | hecho |
 
 ## Backlog (priorizado)
 | # | Idea | Spec | Estado |
 |---|------|------|--------|
-| 1 | Michi con nuevo estilo visual (nivel Boba Cat, dibujo propio) | SPEC-009 | borrador |
-| 1b | Michi: escenas enfocadas (zoom), baño completo, dientes, mesa, barra inferior | SPEC-010 | borrador |
+| 1 | Michi parte 2: mesa de cocina con 3 platos, dormitorio con cama y mantita, juguetes en la bañera (faltan imágenes) | SPEC-009/010 | aprobada |
 | 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |

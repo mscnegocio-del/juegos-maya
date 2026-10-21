@@ -27,10 +27,10 @@ const PAGINAS = {
   },
   "juegos/gato/": async p => {
     await p.waitForTimeout(2600);                                     // saludo inicial
-    await p.locator(".bandeja .item").first().click(); await p.waitForTimeout(2600);   // cocina: come pescado
-    await p.click("#der"); await p.locator('.bandeja [data-h="esponja"]').click(); await p.waitForTimeout(1800);
-    await p.click("#der"); await p.click("#inodoro"); await p.waitForTimeout(500);
-    await p.click("#der"); await p.click("#lampara"); await p.waitForTimeout(1500); await p.click("#lampara");
+    await p.click("#nav-cocina"); await p.locator(".bandeja .item").first().click(); await p.waitForTimeout(2600); // come pescado
+    await p.click("#nav-bano"); await p.click('[data-escena="banera"]'); await p.waitForTimeout(1600);         // escena bañera
+    await p.locator('.bandeja [data-h="esponja"]').click(); await p.click("#volver"); await p.waitForTimeout(900);
+    await p.click("#nav-dormitorio"); await p.click("#lampara"); await p.waitForTimeout(1500);
   },
   "juegos/pintar/": async p => {
     await p.locator(".tarjeta").nth(1).click();                       // abre la vaca
