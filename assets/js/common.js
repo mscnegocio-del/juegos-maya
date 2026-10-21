@@ -1,6 +1,13 @@
 // Utilidades compartidas por todos los juegos: voz, sonidos y confeti.
 
 const Juegos = (() => {
+  // Service worker para instalar la app y jugar sin internet. sw.js está en la raíz del sitio,
+  // dos carpetas arriba de este script, así que su alcance cubre el menú y todos los juegos
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    const sw = new URL("../../sw.js", document.currentScript.src);
+    addEventListener("load", () => navigator.serviceWorker.register(sw).catch(() => {}));
+  }
+
   let ctx;
   const audio = () => (ctx ??= new (window.AudioContext || window.webkitAudioContext)());
 

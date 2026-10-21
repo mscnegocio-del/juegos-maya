@@ -4,6 +4,7 @@
 ## 🎯 Foco actual
 - SPEC-001 Animales v2: implementada (el usuario la probó en un dispositivo real)
 - SPEC-002 Contar hasta 5: implementada
+- SPEC-003 PWA offline: implementada (falta probar la instalación en el dispositivo del usuario)
 
 ## ✅ Hecho en esta sesión
 - Base del sitio: menú (`index.html`, 2 columnas en celular) + 4 juegos: Globos, Animales (emojis + voz),
@@ -16,6 +17,7 @@
 - SPEC-001: 12 animales dibujados en SVG (parpadean; boca y orejas se mueven mientras suenan), audio real
   con `Juegos.sonar()` en common.js (precarga, corta el anterior, voz con el nombre al terminar y respaldo con voz)
 - SPEC-002: juego Contar (`juegos/contar/`), tarjeta en el menú y caso en el smoke test
+- SPEC-003: manifest, ícono (la vaca), fuente local, `sw.js` generado por `tools/actualizar-sw.py` (también en CI)
 
 ## ⚠️ Decisiones de esta sesión (detalle en process/decisions.md)
 - HTML/CSS/JS puro sin build; Canva descartado (no hay Pro); gráficos con SVG propios
@@ -29,5 +31,6 @@
 
 ## 📌 Próximos pasos (próxima sesión)
 1. Que el usuario pruebe Contar en un dispositivo real
-2. Pedir aprobación de SPEC-003 (PWA offline). El menú tiene 5 tarjetas: la última queda sola en la fila; un 6.º juego lo completa
-3. Backlog: pasar Globos, Colores y el menú a SVG con el mismo estilo
+2. Publicar (merge a main + Pages) y que el usuario instale la app en su celular/tablet y la pruebe en modo avión
+3. Elegir un 6.º juego (el menú tiene 5 tarjetas) y redactar su spec
+4. Backlog: pasar Globos, Colores y el menú a SVG con el mismo estilo

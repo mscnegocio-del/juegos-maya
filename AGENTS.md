@@ -4,7 +4,8 @@
 Juegos web educativos para una niña de 3 años (Maya), con un menú principal, publicados en GitHub Pages.
 
 ## Stack técnico
-- Frontend: HTML + CSS + JavaScript puro (sin framework, sin build). Fuente Baloo 2 (Google Fonts)
+- Frontend: HTML + CSS + JavaScript puro (sin framework, sin build). Fuente Baloo 2 local (`assets/fuentes/`)
+- PWA: `manifest.webmanifest` + `sw.js` (instalable, funciona sin internet)
 - Audio: Web Audio API (efectos sintéticos) + MP3 CC0 en `assets/sonidos/` + `speechSynthesis` (voz es)
 - Gráficos: SVG propios inline (dirección actual); emojis solo como provisional
 - DB: no aplica
@@ -16,12 +17,14 @@ Juegos web educativos para una niña de 3 años (Maya), con un menú principal, 
 - Desarrollo: `python3 -m http.server 8000` → http://localhost:8000
 - Test (smoke): `python3 -m http.server 8765 &` y `npm i --no-save playwright@1 && node tools/smoke.mjs`
   (en la nube de Claude Code: `CHROMIUM=/opt/pw-browsers/chromium node tools/smoke.mjs`)
+- Offline/PWA: `python3 tools/actualizar-sw.py` tras cambiar cualquier archivo del sitio (regenera `sw.js`;
+  el workflow de Pages también lo corre). NUNCA editar `sw.js` a mano (plantilla: `tools/sw.plantilla.js`)
 - Sonidos: `tools/sonidos/{buscar,bajar,procesar}.py` (requiere ffmpeg) → ver process/architecture.md
 
 ## Convenciones obligatorias
 - Cada juego vive en `juegos/<nombre>/index.html`, autocontenido, e incluye
   `../../assets/css/base.css`, `../../assets/js/common.js` y el botón `.btn-casa` (volver al menú)
-- Todo juego nuevo se agrega como tarjeta en `index.html`
+- Todo juego nuevo se agrega como tarjeta en `index.html` y copia del `<head>` de otro juego los tags de manifest/íconos
 - Reutilizar `Juegos.decir()`, `Juegos.fiesta()`, `Juegos.pop()`, `Juegos.azar()`… antes de crear utilidades nuevas
 - Nombres de variables/funciones y textos en español; comentarios breves solo donde aporten el "por qué"
 - Diseño para 3 años: nada depende de leer (todo se dice en voz alta), objetivos táctiles grandes (≥ 72 px),
@@ -31,7 +34,7 @@ Juegos web educativos para una niña de 3 años (Maya), con un menú principal, 
 - NUNCA rutas absolutas (`/assets/...`): Pages sirve el sitio bajo `/juegos-maya/`
 - NUNCA usar assets sin licencia clara: solo propios o CC0; registrar cada sonido en `assets/sonidos/CREDITOS.md`
 - NUNCA subir fotos reales de Maya ni de la familia: el repo y el sitio son públicos
-- NUNCA agregar librerías/CDN nuevas sin registrarlo en process/decisions.md (hoy solo Google Fonts)
+- NUNCA agregar librerías/CDN externos: todo debe funcionar sin internet (registrar excepciones en decisions.md)
 - NUNCA versionar credenciales ni .env
 - Commits en español, descriptivos (qué y por qué)
 

@@ -2,8 +2,12 @@
 
 ## Estructura
 ```
+manifest.webmanifest        ← PWA: nombre, íconos, display fullscreen, start_url/scope relativos
+sw.js                       ← GENERADO por tools/actualizar-sw.py (no editar)
 index.html                  ← menú: tarjetas grandes; al tocar dice el nombre y entra a los 700 ms
 assets/
+  fuentes/baloo2-latin.woff2 ← fuente local (OFL), variable 400-800
+  iconos/                   ← icono.svg (fuente) + PNG 180/192/512 renderizados desde el SVG
   css/base.css              ← variables de color (:root), .btn-casa, animaciones pop/wiggle/confeti
   js/common.js              ← objeto global `Juegos` (ver API abajo)
   sonidos/
@@ -40,6 +44,12 @@ tools/
 - Piezas compartidas: `ojos()` (parpadean), `mejillas()`, `boca()` (cerrada/abierta), `svg()`
 - Clases animables: `.cabeza`, `.ojos`, `.oreja-i`, `.oreja-d`, `.boca`/`.boca-abierta`; el estado `.sonando` en el botón las activa
 - `transform-box: fill-box` solo en las clases animadas. Si una pieza lleva el atributo `transform`, la clase va en un `<g>` envolvente
+
+## Offline (service worker)
+- `common.js` registra `../../sw.js` (relativo al propio script), así su alcance cubre todo el sitio también bajo `/juegos-maya/`
+- `sw.js` precachea index, manifest, todo `assets/` y `juegos/` (las páginas también con URL de carpeta `juegos/x/`)
+- Primero la caché; versión `maya-<hash del contenido>`; al activar una versión nueva se borran las anteriores
+- Los íconos PNG se regeneran renderizando `icono.svg` con Chromium si cambia el diseño
 
 ## Pipeline de sonidos
 1. `python3 tools/sonidos/buscar.py "cow moo" "dog bark"` → lista CC0 con duración y descargas

@@ -1,3 +1,11 @@
+/* Baloo 2 (OFL) servida localmente para que funcione sin internet; fuente variable 400-800 */
+@font-face {
+  font-family: "Baloo 2";
+  src: url("../fuentes/baloo2-latin.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+}
+
 :root {
   --bg: #fff7ec;
   --ink: #3b2a4a;
