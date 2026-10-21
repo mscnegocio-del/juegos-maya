@@ -9,6 +9,8 @@
 - SPEC-004 Piano de colores: implementada y publicada (PR #3)
 - SPEC-008 Colorear con galería: implementada (falta publicar y probar en dispositivo)
 - SPEC-006 Michi: implementado y verificado salvo la risa real (sintetizada). SPEC-007 en borrador
+- SPEC-009/010 (aprobadas): parte 1 hecha — Michi con las imágenes de ChatGPT, sala y baño ilustrados, barra inferior
+  y las 4 escenas del baño. Falta parte 2 (mesa de cocina, dormitorio, juguetes en la bañera)
 
 ## ✅ Hecho en esta sesión
 - Base del sitio: menú (`index.html`, 2 columnas en celular) + 4 juegos: Globos, Animales (emojis + voz),
@@ -26,11 +28,14 @@
 - SPEC-008: Pintar con galería de 12 dibujos en líneas + hoja en blanco, balde por zonas, pincel, estrellitas, goma, deshacer, guardado y "cobra vida"
 - SPEC-006: Michi (`juegos/gato/`), reacciones, 4 cuartos, necesidades, detalles visuales (iris, collar con cascabel, rayas)
 - Publicado en GitHub Pages: el sitio en vivo es instalable y abre sin conexión (verificado con Chromium)
+- Michi con imágenes: 10 poses en `assets/img/michi/` (marco común 661x760; la cara cambia según la clase de estado),
+  muebles y fondos en `assets/img/casa/`, capa invisible con zonas tocables y barro; escenas en `#capa`
 - SPEC-003: manifest, ícono (la vaca), fuente local, `sw.js` generado por `tools/actualizar-sw.py` (también en CI)
 
 ## ⚠️ Decisiones de esta sesión (detalle en process/decisions.md)
 - HTML/CSS/JS puro sin build; Canva descartado (no hay Pro); gráficos con SVG propios
 - Sonidos: solo CC0 de Freesound. La llama pasa a elefante y el mono a gallo
+- Michi usa imágenes webp generadas por el usuario (ChatGPT); el SVG queda para íconos, cocina y dormitorio
 - Videos (premios, canciones): se propuso HyperFrames en vez de Remotion. **Pendiente de que el usuario confirme**
 
 ## 🔴 Bloqueantes
@@ -41,6 +46,7 @@
 ## 📌 Próximos pasos (próxima sesión)
 1. Que el usuario pruebe Contar en un dispositivo real
 2. Que el usuario instale la app desde https://mscnegocio-del.github.io/juegos-maya/ y la pruebe en modo avión
-3. Publicar SPEC-008 (PR hacia main) y que el usuario pruebe Piano y Colorear en la tablet
+3. Michi parte 2: pedir al usuario imágenes nuevas (fondo de cocina y dormitorio, mesa con mantel, cama de gato,
+   Michi comiendo y durmiendo). Que apruebe el nuevo criterio de peso de SPEC-009 (1,5 MB de imágenes)
 4. Conseguir una risa CC0 real para Michi (cerrar SPEC-006) y aprobar SPEC-007 (ropa, minijuegos)
 5. Ideas del backlog: ¿Quién se esconde?, Memoria de 4 cartas, sonidos reales en Globos
