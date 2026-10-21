@@ -33,6 +33,7 @@
 | # | Idea | Spec | Estado |
 |---|------|------|--------|
 | 1 | Michi con nuevo estilo visual (nivel Boba Cat, dibujo propio) | SPEC-009 | borrador |
+| 1b | Michi: escenas enfocadas (zoom), baño completo, dientes, mesa, barra inferior | SPEC-010 | borrador |
 | 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |

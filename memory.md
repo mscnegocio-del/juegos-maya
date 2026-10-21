@@ -41,6 +41,6 @@
 ## 📌 Próximos pasos (próxima sesión)
 1. Que el usuario pruebe Contar en un dispositivo real
 2. Que el usuario instale la app desde https://mscnegocio-del.github.io/juegos-maya/ y la pruebe en modo avión
-3. Aprobar SPEC-009 (Michi con estilo visual nivel Boba Cat) y responder si Michi sigue gris
+3. Aprobar SPEC-009 (estilo visual) y SPEC-010 (escenas enfocadas tipo My Talking Tom); se implementan juntas. Pregunta abierta: color de Michi
 4. Conseguir una risa CC0 real para Michi (cerrar SPEC-006) y aprobar SPEC-007 (ropa, minijuegos)
 5. Ideas del backlog: ¿Quién se esconde?, Memoria de 4 cartas, sonidos reales en Globos
