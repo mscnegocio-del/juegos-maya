@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Fondo a sangre para íconos "maskable"; la vaca va dentro de la zona segura (80 %) -->
+  <rect width="200" height="200" fill="#ffd23f"/>
+  <circle cx="100" cy="100" r="78" fill="#fff7ec"/>
+  <g transform="translate(30 30) scale(.7)" stroke="#3b2a4a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M58 58 Q44 30 34 38 Q40 52 56 66Z" fill="#ffd36b"/><path d="M142 58 Q156 30 166 38 Q160 52 144 66Z" fill="#ffd36b"/>
+    <ellipse cx="34" cy="86" rx="24" ry="13" fill="#fff" transform="rotate(-20 34 86)"/>
+    <ellipse cx="166" cy="86" rx="24" ry="13" fill="#fff" transform="rotate(20 166 86)"/>
+    <ellipse cx="100" cy="98" rx="62" ry="58" fill="#fff"/>
+    <path d="M60 64 Q78 58 82 74 Q78 92 60 86 Q50 74 60 64Z" fill="#3b2a4a" stroke="none"/>
+    <path d="M134 116 Q150 104 158 116 Q156 132 140 130Z" fill="#3b2a4a" stroke="none"/>
+    <g stroke="none"><circle cx="76" cy="94" r="9" fill="#3b2a4a"/><circle cx="79" cy="91" r="3" fill="#fff"/>
+    <circle cx="124" cy="94" r="9" fill="#3b2a4a"/><circle cx="127" cy="91" r="3" fill="#fff"/></g>
+    <ellipse cx="100" cy="138" rx="46" ry="30" fill="#ffc2d1"/>
+    <ellipse cx="84" cy="132" rx="6" ry="8" fill="#3b2a4a" stroke="none"/><ellipse cx="116" cy="132" rx="6" ry="8" fill="#3b2a4a" stroke="none"/>
+    <path d="M88 150 Q100 161 112 150" fill="none" stroke-width="4.5"/>
+  </g>
+</svg>

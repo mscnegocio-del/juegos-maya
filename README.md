@@ -19,8 +19,15 @@ HTML + CSS + JS puro, sin build. Se publica tal cual en GitHub Pages.
 index.html              ← menú de juegos
 assets/css/base.css     ← estilos comunes (botón casita, animaciones)
 assets/js/common.js     ← Juegos.decir(), sonidos, confeti
+assets/sonidos/          ← sonidos CC0 (créditos en CREDITOS.md)
 juegos/<nombre>/index.html
+tools/                   ← smoke test y scripts para conseguir/procesar sonidos
 ```
+
+## Para agentes IA (harness)
+
+`CLAUDE.md` → `AGENTS.md` (reglas y comandos), `memory.md` (estado actual) y `process/`
+(arquitectura, tareas, decisiones y specs). Ninguna feature se programa sin una spec `aprobada` en `process/specs/`.
 
 ## Agregar un juego nuevo
 
