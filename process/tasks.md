@@ -30,6 +30,9 @@
 ## Backlog (priorizado)
 | # | Idea | Spec | Estado |
 |---|------|------|--------|
+| 1 | Mascota virtual: gato propio con cuidados y reacciones | SPEC-006 | borrador |
+| 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
+| 3 | Colorear: galería de dibujos + relleno por zonas | SPEC-008 | borrador |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |
 | 7 | Vestir al osito (arrastrar gorro, lentes, bufanda) | — | idea |

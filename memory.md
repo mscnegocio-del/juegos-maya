@@ -37,4 +37,5 @@
 1. Que el usuario pruebe Contar en un dispositivo real
 2. Que el usuario instale la app desde https://mscnegocio-del.github.io/juegos-maya/ y la pruebe en modo avión
 3. Publicar SPEC-004 (PR hacia main) y que el usuario pruebe Piano en la tablet (multitáctil real)
-4. Ideas del backlog: ¿Quién se esconde?, Memoria de 4 cartas, sonidos reales en Globos
+4. Revisar y aprobar SPEC-006/007 (mascota gato) y SPEC-008 (colorear). Orden sugerido: 008, luego 006, luego 007
+5. Ideas del backlog: ¿Quién se esconde?, Memoria de 4 cartas, sonidos reales en Globos
