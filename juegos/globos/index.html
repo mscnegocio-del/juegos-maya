@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Globos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <style>
+    body { overflow: hidden; background: linear-gradient(#bfe6ff, #fff7ec); }
+    .globo {
+      position: absolute;
+      bottom: -180px;
+      width: 110px;
+      height: 135px;
+      border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+      animation: subir linear forwards;
+      box-shadow: inset -14px -10px 0 rgba(0, 0, 0, .1);
+    }
+    .globo::before {
+      content: "";
+      position: absolute;
+      top: 22px; left: 24px;
+      width: 18px; height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .55);
+      transform: rotate(25deg);
+    }
+    .globo::after {
+      content: "";
+      position: absolute;
+      left: 50%; bottom: -60px;
+      width: 2px; height: 60px;
+      background: rgba(0, 0, 0, .25);
+    }
+    @keyframes subir { to { transform: translateY(calc(-100vh - 260px)); } }
+    .reventado { animation: reventar .2s forwards !important; }
+    @keyframes reventar { to { transform: scale(1.6); opacity: 0; } }
+    .contador {
+      position: fixed; top: 20px; right: 20px;
+      font-size: 44px; font-weight: 800;
+      background: #fff; border-radius: 40px; padding: 4px 22px;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
+    }
+  </style>
+</head>
+<body>
+  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
+  <div class="contador" id="contador">🎈 0</div>
+
+  <script src="../../assets/js/common.js"></script>
+  <script>
+    const NOMBRES = { "#ff5a5f": "rojo", "#3fa7ff": "azul", "#ffd23f": "amarillo", "#4cd17a": "verde",
+                      "#a66bff": "morado", "#ff9f43": "naranja", "#ff7eb6": "rosado" };
+    let total = 0;
+    const contador = document.getElementById("contador");
+
+    function crearGlobo() {
+      const color = Juegos.azar(Juegos.COLORES);
+      const g = document.createElement("div");
+      g.className = "globo";
+      g.style.background = color;
+      g.style.left = Math.random() * (innerWidth - 120) + "px";
+      g.style.animationDuration = 6 + Math.random() * 4 + "s";
+      g.addEventListener("pointerdown", () => {
+        if (g.classList.contains("reventado")) return;
+        Juegos.pop();
+        Juegos.decir(NOMBRES[color]);
+        g.classList.add("reventado");
+        total++;
+        contador.textContent = "🎈 " + total;
+        Juegos.animar(contador, "pop");
+        if (total % 10 === 0) setTimeout(() => { Juegos.fiesta(); Juegos.decir("¡Muy bien, Maya!"); }, 400);
+        setTimeout(() => g.remove(), 200);
+      });
+      g.addEventListener("animationend", e => e.animationName === "subir" && g.remove());
+      document.body.appendChild(g);
+    }
+
+    setInterval(crearGlobo, 1100);
+    crearGlobo();
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Animales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <style>
+    body { background: linear-gradient(#c9f0d3, #fff7ec); min-height: 100%; }
+    .granja {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(150px, 45%), 1fr));
+      gap: 18px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 104px 16px 32px;
+    }
+    .animal {
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius);
+      background: #fff;
+      font-size: clamp(70px, 16vw, 110px);
+      box-shadow: 0 8px 0 rgba(0, 0, 0, .1);
+      display: grid;
+      place-items: center;
+    }
+    .animal:active { transform: translateY(6px); box-shadow: 0 2px 0 rgba(0, 0, 0, .1); }
+    .burbuja {
+      position: fixed; left: 50%; bottom: 24px;
+      transform: translateX(-50%);
+      background: #fff; border-radius: 40px; padding: 10px 28px;
+      font-size: 34px; font-weight: 800; white-space: nowrap;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
+      opacity: 0; transition: opacity .2s;
+    }
+    .burbuja.ver { opacity: 1; }
+  </style>
+</head>
+<body>
+  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
+  <main class="granja" id="granja"></main>
+  <div class="burbuja" id="burbuja"></div>
+
+  <script src="../../assets/js/common.js"></script>
+  <script>
+    const ANIMALES = [
+      { e: "🐮", nombre: "La vaca", sonido: "muuuu" },
+      { e: "🐶", nombre: "El perrito", sonido: "guau guau" },
+      { e: "🐱", nombre: "El gatito", sonido: "miau" },
+      { e: "🐷", nombre: "El chanchito", sonido: "oink oink" },
+      { e: "🐔", nombre: "La gallina", sonido: "clo clo clo" },
+      { e: "🐑", nombre: "La ovejita", sonido: "beee" },
+      { e: "🦆", nombre: "El pato", sonido: "cuac cuac" },
+      { e: "🐴", nombre: "El caballo", sonido: "iiiijiji" },
+      { e: "🦁", nombre: "El león", sonido: "groaaar" },
+      { e: "🐸", nombre: "La ranita", sonido: "croac croac" },
+      { e: "🦙", nombre: "La llama", sonido: "mmmm" },
+      { e: "🐵", nombre: "El monito", sonido: "u u a a" },
+    ];
+
+    const granja = document.getElementById("granja");
+    const burbuja = document.getElementById("burbuja");
+    let ocultar;
+
+    ANIMALES.forEach(a => {
+      const b = document.createElement("button");
+      b.className = "animal";
+      b.textContent = a.e;
+      b.setAttribute("aria-label", a.nombre);
+      b.addEventListener("click", () => {
+        Juegos.animar(b, "wiggle");
+        Juegos.decir(`${a.nombre} hace ${a.sonido}`);
+        burbuja.textContent = `${a.e} ¡${a.sonido}!`;
+        burbuja.classList.add("ver");
+        clearTimeout(ocultar);
+        ocultar = setTimeout(() => burbuja.classList.remove("ver"), 2200);
+      });
+      granja.appendChild(b);
+    });
+  </script>
+</body>
+</html>

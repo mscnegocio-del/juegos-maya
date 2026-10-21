@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Colores</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <style>
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 100px 16px 24px; }
+    .pregunta {
+      display: flex; align-items: center; gap: 14px;
+      font-size: clamp(32px, 7vw, 52px); font-weight: 800; text-align: center;
+      background: #fff; border-radius: 40px; padding: 8px 28px;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, .1);
+    }
+    .repetir { background: none; font-size: 40px; }
+    .opciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; margin-top: 40px; }
+    .opcion {
+      width: clamp(120px, 26vw, 200px);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      box-shadow: 0 10px 0 rgba(0, 0, 0, .15), inset -16px -16px 0 rgba(0, 0, 0, .08);
+      transition: transform .2s, opacity .3s;
+    }
+    .opcion:active { transform: scale(.92); }
+    .opcion.no { opacity: .35; }
+    .opcion.si { transform: scale(1.15); }
+  </style>
+</head>
+<body>
+  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
+  <div class="pregunta">
+    <span id="texto">¿Dónde está el...?</span>
+    <button class="repetir" id="repetir" aria-label="Repetir">🔊</button>
+  </div>
+  <div class="opciones" id="opciones"></div>
+
+  <script src="../../assets/js/common.js"></script>
+  <script>
+    const COLORES = [
+      { nombre: "rojo", hex: "#ff5a5f" },
+      { nombre: "azul", hex: "#3fa7ff" },
+      { nombre: "amarillo", hex: "#ffd23f" },
+      { nombre: "verde", hex: "#4cd17a" },
+      { nombre: "morado", hex: "#a66bff" },
+      { nombre: "naranja", hex: "#ff9f43" },
+      { nombre: "rosado", hex: "#ff7eb6" },
+    ];
+
+    const texto = document.getElementById("texto");
+    const opciones = document.getElementById("opciones");
+    let objetivo, bloqueado = false, aciertos = 0;
+
+    const preguntar = () => Juegos.decir(`¿Dónde está el ${objetivo.nombre}?`);
+
+    function ronda() {
+      bloqueado = false;
+      // Empieza con 2 opciones y sube a 3 cuando ya va acertando
+      const n = aciertos < 3 ? 2 : 3;
+      const elegidos = Juegos.mezclar(COLORES).slice(0, n);
+      objetivo = Juegos.azar(elegidos);
+      texto.innerHTML = `¿Dónde está el <span style="color:${objetivo.hex}">${objetivo.nombre}</span>?`;
+      opciones.innerHTML = "";
+      elegidos.forEach(c => {
+        const b = document.createElement("button");
+        b.className = "opcion pop";
+        b.style.background = c.hex;
+        b.setAttribute("aria-label", c.nombre);
+        b.addEventListener("click", () => elegir(b, c));
+        opciones.appendChild(b);
+      });
+      preguntar();
+    }
+
+    function elegir(boton, color) {
+      if (bloqueado) return;
+      if (color === objetivo) {
+        bloqueado = true;
+        aciertos++;
+        boton.classList.add("si");
+        opciones.querySelectorAll(".opcion").forEach(o => o !== boton && o.classList.add("no"));
+        Juegos.fiesta();
+        Juegos.decir(Juegos.azar(["¡Muy bien!", "¡Sí! Es el " + color.nombre, "¡Excelente, Maya!"]));
+        setTimeout(ronda, 2200);
+      } else {
+        // Sin castigo: solo un movimiento suave y se repite la pregunta
+        Juegos.animar(boton, "wiggle");
+        Juegos.tono(220, 0.2, "triangle", 0.15);
+        Juegos.decir(`Ese es ${color.nombre}. Busca el ${objetivo.nombre}`);
+      }
+    }
+
+    document.getElementById("repetir").addEventListener("click", preguntar);
+    ronda();
+  </script>
+</body>
+</html>

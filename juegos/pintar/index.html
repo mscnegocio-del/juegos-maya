@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Pintar</title>
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <style>
+    body { overflow: hidden; background: #fff; }
+    canvas { position: fixed; inset: 0; touch-action: none; }
+    .paleta {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 12px;
+      padding: 12px 16px 18px;
+      background: rgba(255, 247, 236, .92);
+      box-shadow: 0 -4px 0 rgba(0, 0, 0, .06);
+    }
+    .color, .accion {
+      width: 60px; height: 60px; border-radius: 50%;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, .15);
+      transition: transform .15s;
+    }
+    .color.activo { transform: scale(1.25); outline: 5px solid #fff; outline-offset: -5px; }
+    .accion { background: #fff; font-size: 32px; }
+    .accion:active { transform: scale(.9); }
+  </style>
+</head>
+<body>
+  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
+  <canvas id="lienzo"></canvas>
+  <div class="paleta" id="paleta">
+    <button class="accion" id="estrellas" aria-label="Estrellas">⭐</button>
+    <button class="accion" id="borrar" aria-label="Borrar todo">🧽</button>
+  </div>
+
+  <script src="../../assets/js/common.js"></script>
+  <script>
+    const NOMBRES = ["rojo", "azul", "amarillo", "verde", "morado", "naranja", "rosado"];
+    const lienzo = document.getElementById("lienzo");
+    const ctx = lienzo.getContext("2d");
+    const paleta = document.getElementById("paleta");
+    let color = Juegos.COLORES[0], modoEstrellas = false;
+    const trazos = new Map(); // un trazo por dedo (multitáctil)
+
+    function ajustar() {
+      const dpr = devicePixelRatio || 1;
+      const copia = document.createElement("canvas");
+      copia.width = lienzo.width; copia.height = lienzo.height;
+      if (lienzo.width) copia.getContext("2d").drawImage(lienzo, 0, 0);
+      lienzo.width = innerWidth * dpr;
+      lienzo.height = innerHeight * dpr;
+      lienzo.style.width = innerWidth + "px";
+      lienzo.style.height = innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.drawImage(copia, 0, 0, copia.width / dpr, copia.height / dpr);
+      ctx.lineCap = ctx.lineJoin = "round";
+    }
+    addEventListener("resize", ajustar);
+    ajustar();
+
+    Juegos.COLORES.forEach((c, i) => {
+      const b = document.createElement("button");
+      b.className = "color" + (i === 0 ? " activo" : "");
+      b.style.background = c;
+      b.setAttribute("aria-label", NOMBRES[i]);
+      b.addEventListener("click", () => {
+        color = c; modoEstrellas = false;
+        paleta.querySelectorAll(".color").forEach(x => x.classList.toggle("activo", x === b));
+        Juegos.decir(NOMBRES[i]);
+      });
+      paleta.insertBefore(b, document.getElementById("estrellas"));
+    });
+
+    function estrella(x, y) {
+      ctx.font = 28 + Math.random() * 24 + "px serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(Juegos.azar(["⭐", "🌟", "💖", "🌸", "✨"]), x, y);
+    }
+
+    lienzo.addEventListener("pointerdown", e => {
+      lienzo.setPointerCapture(e.pointerId);
+      trazos.set(e.pointerId, { x: e.clientX, y: e.clientY, n: 0 });
+      if (modoEstrellas) { estrella(e.clientX, e.clientY); Juegos.tono(800 + Math.random() * 600, 0.1); }
+    });
+    lienzo.addEventListener("pointermove", e => {
+      const t = trazos.get(e.pointerId);
+      if (!t) return;
+      if (modoEstrellas) {
+        if (++t.n % 6 === 0) estrella(e.clientX, e.clientY);
+      } else {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 22;
+        ctx.beginPath();
+        ctx.moveTo(t.x, t.y);
+        ctx.lineTo(e.clientX, e.clientY);
+        ctx.stroke();
+      }
+      t.x = e.clientX; t.y = e.clientY;
+    });
+    ["pointerup", "pointercancel"].forEach(ev => lienzo.addEventListener(ev, e => trazos.delete(e.pointerId)));
+
+    document.getElementById("estrellas").addEventListener("click", () => {
+      modoEstrellas = true;
+      paleta.querySelectorAll(".color").forEach(x => x.classList.remove("activo"));
+      Juegos.decir("¡Estrellitas!");
+    });
+    document.getElementById("borrar").addEventListener("click", () => {
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      Juegos.tono(400, 0.3, "sine");
+      Juegos.decir("¡Nueva hoja!");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+:root {
+  --bg: #fff7ec;
+  --ink: #3b2a4a;
+  --rojo: #ff5a5f;
+  --azul: #3fa7ff;
+  --amarillo: #ffd23f;
+  --verde: #4cd17a;
+  --morado: #a66bff;
+  --naranja: #ff9f43;
+  --rosa: #ff7eb6;
+  --radius: 32px;
+  --font: "Baloo 2", "Comic Sans MS", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+
+/* Botón "casita" para volver al menú: grande y siempre en la misma esquina */
+.btn-casa {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 50;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 40px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
+  text-decoration: none;
+  transition: transform .15s;
+}
+.btn-casa:active { transform: scale(.9); }
+
+.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pop {
+  0% { transform: scale(.6); }
+  100% { transform: scale(1); }
+}
+
+.wiggle { animation: wiggle .5s ease-in-out; }
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+.confeti {
+  position: fixed;
+  top: -20px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 100;
+  animation: caer linear forwards;
+}
+@keyframes caer {
+  to { transform: translateY(110vh) rotate(720deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop, .wiggle, .confeti { animation: none; }
+}

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#fff7ec">
+  <title>Juegos de Maya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    body {
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 10% 10%, #ffe3f1 0 120px, transparent 121px),
+        radial-gradient(circle at 90% 85%, #e1f2ff 0 160px, transparent 161px),
+        var(--bg);
+    }
+    header { text-align: center; padding: 28px 16px 8px; }
+    h1 {
+      margin: 0;
+      font-size: clamp(40px, 9vw, 72px);
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    h1 span:nth-child(1) { color: var(--rojo); }
+    h1 span:nth-child(2) { color: var(--azul); }
+    h1 span:nth-child(3) { color: var(--verde); }
+    h1 span:nth-child(4) { color: var(--morado); }
+    .sub { margin: 0; font-size: 22px; opacity: .7; }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(220px, 40%), 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 24px auto;
+      padding: 0 16px 40px;
+    }
+    .juego {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: #fff;
+      font-size: clamp(22px, 5vw, 30px);
+      font-weight: 800;
+      box-shadow: 0 10px 0 rgba(0, 0, 0, .15);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .juego:active { transform: translateY(8px); box-shadow: 0 2px 0 rgba(0, 0, 0, .15); }
+    .juego .emoji { font-size: clamp(64px, 16vw, 120px); line-height: 1; filter: drop-shadow(0 6px 0 rgba(0,0,0,.12)); }
+    .juego:hover .emoji { animation: wiggle .5s; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span>M</span><span>a</span><span>y</span><span>a</span></h1>
+    <p class="sub">¿A qué jugamos hoy?</p>
+  </header>
+
+  <main class="menu">
+    <a class="juego" href="juegos/globos/" data-voz="Globos" style="background: var(--rojo)">
+      <span class="emoji">🎈</span>Globos
+    </a>
+    <a class="juego" href="juegos/animales/" data-voz="Animales" style="background: var(--verde)">
+      <span class="emoji">🐮</span>Animales
+    </a>
+    <a class="juego" href="juegos/colores/" data-voz="Colores" style="background: var(--azul)">
+      <span class="emoji">🎨</span>Colores
+    </a>
+    <a class="juego" href="juegos/pintar/" data-voz="A pintar" style="background: var(--morado)">
+      <span class="emoji">🖍️</span>Pintar
+    </a>
+  </main>
+
+  <script src="assets/js/common.js"></script>
+  <script>
+    // Dice el nombre del juego y luego entra, para que la niña asocie dibujo y palabra
+    document.querySelectorAll(".juego").forEach(a => {
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        Juegos.decir(a.dataset.voz);
+        Juegos.animar(a.querySelector(".emoji"), "wiggle");
+        setTimeout(() => (location.href = a.href), 700);
+      });
+    });
+  </script>
+</body>
+</html>
