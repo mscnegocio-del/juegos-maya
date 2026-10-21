@@ -10,6 +10,7 @@ assets/
   iconos/                   ← icono.svg (fuente) + PNG 180/192/512 renderizados desde el SVG
   css/base.css              ← variables de color (:root), .btn-casa, animaciones pop/wiggle/confeti
   js/common.js              ← objeto global `Juegos` (ver API abajo)
+  js/dibujos.js             ← objeto global `Dibujos`: todos los SVG (animales, objetos, íconos, casita)
   sonidos/
     CREDITOS.md             ← origen y licencia de cada sonido (obligatorio mantenerlo)
     animales/*.mp3          ← 12 sonidos CC0 procesados (vaca, perro, gato, chancho, gallina, gallo,
@@ -39,7 +40,13 @@ tools/
 | `Juegos.callar()` | Detiene el sonido actual |
 | `Juegos.COLORES` | Paleta de 7 colores de los juegos |
 
-## Estilo de los dibujos SVG (juegos/animales)
+## Dibujos SVG (`assets/js/dibujos.js`)
+- `Dibujos.ANIMALES.<id>`, `Dibujos.OBJETOS_CONTAR`, `Dibujos.globo|pelota|flor|estrella(color)`, `Dibujos.paleta|crayon|casita`
+- Piezas para dibujos nuevos: `svg(cuerpo, {cabeza})`, `plano()`, `ojos()`, `mejillas()`, `boca()`, `carita()`
+- Al cargar rellena `.btn-casa` con la casita. Toda página que use dibujos lo incluye después de common.js
+- Las animaciones compartidas (parpadeo, `.sonando`) viven en base.css
+
+## Estilo de los dibujos SVG
 - viewBox 200×200, trazo `#3b2a4a` de 5 px con uniones redondeadas, cabezas frontales tipo kawaii
 - Piezas compartidas: `ojos()` (parpadean), `mejillas()`, `boca()` (cerrada/abierta), `svg()`
 - Clases animables: `.cabeza`, `.ojos`, `.oreja-i`, `.oreja-d`, `.boca`/`.boca-abierta`; el estado `.sonando` en el botón las activa

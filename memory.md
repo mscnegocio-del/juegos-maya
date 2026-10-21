@@ -5,6 +5,7 @@
 - SPEC-001 Animales v2: implementada (el usuario la probó en un dispositivo real)
 - SPEC-002 Contar hasta 5: implementada
 - SPEC-003 PWA offline: implementada (falta probar la instalación en el dispositivo del usuario)
+- SPEC-005 SVG en Globos, Colores y menú: implementada
 
 ## ✅ Hecho en esta sesión
 - Base del sitio: menú (`index.html`, 2 columnas en celular) + 4 juegos: Globos, Animales (emojis + voz),
@@ -17,6 +18,8 @@
 - SPEC-001: 12 animales dibujados en SVG (parpadean; boca y orejas se mueven mientras suenan), audio real
   con `Juegos.sonar()` en common.js (precarga, corta el anterior, voz con el nombre al terminar y respaldo con voz)
 - SPEC-002: juego Contar (`juegos/contar/`), tarjeta en el menú y caso en el smoke test
+- SPEC-005: `dibujos.js` compartido; menú, Globos (partículas al reventar), Colores (objetos con carita) y casita en SVG
+- Publicado en GitHub Pages: el sitio en vivo es instalable y abre sin conexión (verificado con Chromium)
 - SPEC-003: manifest, ícono (la vaca), fuente local, `sw.js` generado por `tools/actualizar-sw.py` (también en CI)
 
 ## ⚠️ Decisiones de esta sesión (detalle en process/decisions.md)
@@ -26,11 +29,10 @@
 
 ## 🔴 Bloqueantes
 - Ninguno para desarrollar
-- Publicar requiere una acción del usuario: llevar la rama a `main` y activar Settings → Pages → Source: GitHub Actions
 - Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
 1. Que el usuario pruebe Contar en un dispositivo real
-2. Publicar (merge a main + Pages) y que el usuario instale la app en su celular/tablet y la pruebe en modo avión
-3. Elegir un 6.º juego (el menú tiene 5 tarjetas) y redactar su spec
-4. Backlog: pasar Globos, Colores y el menú a SVG con el mismo estilo
+2. Que el usuario instale la app desde https://mscnegocio-del.github.io/juegos-maya/ y la pruebe en modo avión
+3. Abrir PR de SPEC-005 hacia main para publicarla
+4. Revisar y aprobar SPEC-004 (Piano de colores), que ya puede usar `dibujos.js`

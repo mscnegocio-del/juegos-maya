@@ -7,7 +7,7 @@ Juegos web educativos para una niña de 3 años (Maya), con un menú principal, 
 - Frontend: HTML + CSS + JavaScript puro (sin framework, sin build). Fuente Baloo 2 local (`assets/fuentes/`)
 - PWA: `manifest.webmanifest` + `sw.js` (instalable, funciona sin internet)
 - Audio: Web Audio API (efectos sintéticos) + MP3 CC0 en `assets/sonidos/` + `speechSynthesis` (voz es)
-- Gráficos: SVG propios inline (dirección actual); emojis solo como provisional
+- Gráficos: SVG propios en `assets/js/dibujos.js` (sin emojis en la interfaz)
 - DB: no aplica
 - Deploy: GitHub Pages vía GitHub Actions (`.github/workflows/pages.yml`) en cada push a `main`
 - URL: https://mscnegocio-del.github.io/juegos-maya/ (subruta → rutas siempre relativas)
@@ -25,6 +25,7 @@ Juegos web educativos para una niña de 3 años (Maya), con un menú principal, 
 - Cada juego vive en `juegos/<nombre>/index.html`, autocontenido, e incluye
   `../../assets/css/base.css`, `../../assets/js/common.js` y el botón `.btn-casa` (volver al menú)
 - Todo juego nuevo se agrega como tarjeta en `index.html` y copia del `<head>` de otro juego los tags de manifest/íconos
+- Dibujos: reutilizar o agregar en `assets/js/dibujos.js` (nunca SVG duplicado en un juego); no usar emojis en la interfaz
 - Reutilizar `Juegos.decir()`, `Juegos.fiesta()`, `Juegos.pop()`, `Juegos.azar()`… antes de crear utilidades nuevas
 - Nombres de variables/funciones y textos en español; comentarios breves solo donde aporten el "por qué"
 - Diseño para 3 años: nada depende de leer (todo se dice en voz alta), objetivos táctiles grandes (≥ 72 px),

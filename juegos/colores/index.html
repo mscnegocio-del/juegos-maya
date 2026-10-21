@@ -25,10 +25,14 @@
     .opcion {
       width: clamp(120px, 26vw, 200px);
       aspect-ratio: 1 / 1;
-      border-radius: 50%;
-      box-shadow: 0 10px 0 rgba(0, 0, 0, .15), inset -16px -16px 0 rgba(0, 0, 0, .08);
+      background: none;
+      filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .12));
       transition: transform .2s, opacity .3s;
     }
+    .opcion svg { width: 100%; height: 100%; overflow: visible; display: block; }
+    .opcion.si { animation: festejar .5s cubic-bezier(.3, 1.6, .5, 1) 2 alternate; }
+    @keyframes festejar { from { transform: scale(1.15) translateY(0); } to { transform: scale(1.15) translateY(-24px); } }
+    @media (prefers-reduced-motion: reduce) { .opcion.si { animation: none; } }
     .opcion:active { transform: scale(.92); }
     .opcion.no { opacity: .35; }
     .opcion.si { transform: scale(1.15); }
@@ -43,6 +47,7 @@
   <div class="opciones" id="opciones"></div>
 
   <script src="../../assets/js/common.js"></script>
+  <script src="../../assets/js/dibujos.js"></script>
   <script>
     const COLORES = [
       { nombre: "rojo", hex: "#ff5a5f" },
@@ -60,7 +65,12 @@
 
     const preguntar = () => Juegos.decir(`¿Dónde está el ${objetivo.nombre}?`);
 
+    // En cada ronda todas las opciones son el mismo objeto, así solo cambia el color
+    const FORMAS = [Dibujos.globo, Dibujos.pelota, Dibujos.flor, Dibujos.estrella];
+    let forma = FORMAS[0];
+
     function ronda() {
+      forma = Juegos.azar(FORMAS);
       bloqueado = false;
       // Empieza con 2 opciones y sube a 3 cuando ya va acertando
       const n = aciertos < 3 ? 2 : 3;
@@ -71,7 +81,7 @@
       elegidos.forEach(c => {
         const b = document.createElement("button");
         b.className = "opcion pop";
-        b.style.background = c.hex;
+        b.innerHTML = forma(c.hex);
         b.setAttribute("aria-label", c.nombre);
         b.addEventListener("click", () => elegir(b, c));
         opciones.appendChild(b);
@@ -84,7 +94,7 @@
       if (color === objetivo) {
         bloqueado = true;
         aciertos++;
-        boton.classList.add("si");
+        boton.classList.add("si", "sonando"); // .sonando abre la boca: el objeto sonríe
         opciones.querySelectorAll(".opcion").forEach(o => o !== boton && o.classList.add("no"));
         Juegos.fiesta();
         Juegos.decir(Juegos.azar(["¡Muy bien!", "¡Sí! Es el " + color.nombre, "¡Excelente, Maya!"]));
