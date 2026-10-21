@@ -1,0 +1,7 @@
+# Historial — Juegos de Maya
+
+## 2026-10-21 — Sprint 1
+- Repo creado desde cero: menú + Globos, Animales v1, Colores y Pintar (previo al harness, sin spec)
+- Workflow de GitHub Pages; rama `ccr-0e68d57f-4s0qxp` (aún sin `main`)
+- Sonidos CC0 de los 12 animales procesados (SPEC-001, en progreso)
+- Harness creado
