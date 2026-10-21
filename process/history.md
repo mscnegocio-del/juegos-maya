@@ -9,3 +9,4 @@
 - SPEC-002: juego Contar hasta 5 implementado
 - SPEC-001 cerrada: el usuario confirmó que funciona en un dispositivo real
 - SPEC-003: app instalable y offline
+- Publicado en GitHub Pages (PR #1). El primer despliegue falló hasta poner `main` como rama por defecto

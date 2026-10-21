@@ -11,7 +11,7 @@
 | 5 | Juego Pintar (multitáctil, 7 colores, estrellitas, esponja) | — (previo al harness) | hecho |
 | 6 | Utilidades comunes `common.js` + `base.css` | — | hecho |
 | 7 | Workflow GitHub Pages | — | hecho |
-| 8 | Llevar la rama a `main` y activar Pages (Settings → Pages → GitHub Actions) | — | pendiente (acción del usuario) |
+| 8 | Llevar la rama a `main` y activar Pages (PR #1 mergeado; rama por defecto = main) | — | hecho |
 | 9 | Probar voz y sonidos en celular/tablet real | — | hecho (Animales confirmado por el usuario) |
 
 ## Sprint 2 — Calidad visual y sonora
