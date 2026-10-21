@@ -48,6 +48,28 @@ const Juegos = (() => {
     o.stop(a.currentTime + dur);
   }
 
+  // Nota tipo xilófono: ataque corto y caída suave. Cada llamada es independiente (polifónico)
+  function nota(freq, dur = 0.9) {
+    const a = audio();
+    if (a.state === "suspended") a.resume();
+    const t = a.currentTime;
+    const g = a.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.3, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.connect(a.destination);
+    [[1, "triangle"], [4, "sine"]].forEach(([mult, tipo], i) => {
+      const o = a.createOscillator();
+      o.type = tipo;
+      o.frequency.value = freq * mult;
+      const v = a.createGain();
+      v.gain.value = i ? 0.15 : 1; // armónico agudo suave: le da brillo de xilófono
+      o.connect(v).connect(g);
+      o.start(t);
+      o.stop(t + dur);
+    });
+  }
+
   function pop() {
     const a = audio();
     const o = a.createOscillator();
@@ -129,5 +151,5 @@ const Juegos = (() => {
     });
   }
 
-  return { decir, tono, pop, fiesta, confeti, azar, mezclar, animar, cargar, sonar, callar, COLORES };
+  return { decir, tono, nota, pop, fiesta, confeti, azar, mezclar, animar, cargar, sonar, callar, COLORES };
 })();
