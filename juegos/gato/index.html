@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="theme-color" content="#fff7ec">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Michi</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../assets/iconos/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../assets/iconos/icono-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Maya">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+    body { touch-action: none; transition: background .5s; }
+    body.cuarto-cocina { background: linear-gradient(#fff1d6 0 62%, #e9c79a 62%); }
+    body.cuarto-banera { background: linear-gradient(#d9f2ff 0 62%, #a9d8f0 62%); }
+    body.cuarto-inodoro { background: linear-gradient(#e6fbe9 0 62%, #b9e6c2 62%); }
+    body.cuarto-dormitorio { background: linear-gradient(#efe4ff 0 62%, #c9b3ef 62%); }
+    [hidden] { display: none !important; }
+
+    .escena { position: fixed; inset: 0; }
+    .decoracion { position: absolute; pointer-events: none; }
+    .decoracion svg, .prop svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+    /* ---------- Michi ---------- */
+    #michi {
+      position: absolute; left: 50%; bottom: 128px;
+      height: min(54dvh, 92vw); aspect-ratio: 240 / 320;
+      transform: translateX(-50%);
+      transition: left .7s ease-in-out, bottom .7s ease-in-out, transform .7s ease-in-out;
+      z-index: 5;
+    }
+    #michi svg { width: 100%; height: 100%; overflow: visible; display: block; }
+    /* fill-box solo en los grupos animados: las piezas con atributo transform (brazos, orejas de la vaca…) se desplazarían */
+    .cola, .cabeza, .pata-i, .pata-d, .ojos-abiertos, .oreja-i, .oreja-d { transform-box: fill-box; }
+    .ojos-cerrados, .ojos-felices, .boca-abierta, .lengua { display: none; }
+    #michi.cerrados .ojos-abiertos, #michi.felices .ojos-abiertos { display: none; }
+    #michi.cerrados .ojos-cerrados, #michi.felices .ojos-felices { display: inline; }
+    #michi.abierta .boca, #michi.lengua .boca { display: none; }
+    #michi.abierta .boca-abierta, #michi.lengua .lengua { display: inline; }
+    #michi.abierta.lengua .lengua { display: none; }
+
+    .michi { animation: respirar 3s ease-in-out infinite; transform-origin: 50% 100%; }
+    @keyframes respirar { 50% { transform: scale(1.015, .985); } }
+    .cola { transform-origin: 0% 100%; animation: cola 2.4s ease-in-out infinite; }
+    @keyframes cola { 50% { transform: rotate(-12deg); } }
+    .ojos-abiertos { transform-origin: center; animation: parpadeo 4.5s infinite; }
+    .pupilas { transition: transform .15s; transform: translate(var(--px, 0px), var(--py, 0px)); }
+    .cabeza { transform-origin: 50% 90%; }
+    .pata-d { transform-origin: 50% 10%; }
+    .pata-i { transform-origin: 50% 10%; }
+    .mejilla { transition: opacity .3s; }
+    #michi.sonrojado .mejilla { opacity: 1; }
+
+    #michi.ronronea .cabeza { animation: ladear 1.2s ease-in-out infinite alternate; }
+    @keyframes ladear { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+    #michi.cosquillas svg { animation: cosquillas .18s linear infinite; }
+    @keyframes cosquillas { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+    #michi.estornudo .cabeza { animation: estornudo 1s ease-in-out; }
+    @keyframes estornudo { 0% { transform: none; } 50% { transform: rotate(-6deg) translateY(-6px); } 65% { transform: rotate(4deg) translateY(10px) scale(1.04); } 100% { transform: none; } }
+    #michi.salta svg { animation: saltar .7s cubic-bezier(.3, 1.4, .5, 1); }
+    @keyframes saltar { 40% { transform: translateY(-22%) scale(1.03, .97); } }
+    #michi.saluda .pata-d { animation: saludar .4s ease-in-out 4 alternate; }
+    @keyframes saludar { from { transform: rotate(-150deg); } to { transform: rotate(-115deg); } }
+    #michi.mareado .cabeza { animation: marear .8s linear infinite; }
+    @keyframes marear { 0% { transform: rotate(-8deg) translateX(-4px); } 50% { transform: rotate(8deg) translateX(4px); } 100% { transform: rotate(-8deg) translateX(-4px); } }
+    #michi.baila svg { animation: bailar .5s ease-in-out infinite alternate; }
+    @keyframes bailar { from { transform: rotate(-8deg) translateY(0); } to { transform: rotate(8deg) translateY(-6%); } }
+    #michi.baila .pata-i, #michi.estirarse .pata-i { animation: brazo-i .5s ease-in-out infinite alternate; }
+    #michi.baila .pata-d, #michi.estirarse .pata-d { animation: brazo-d .5s ease-in-out infinite alternate; }
+    @keyframes brazo-i { to { transform: rotate(140deg); } }
+    @keyframes brazo-d { to { transform: rotate(-140deg); } }
+    #michi.estirarse svg { animation: estirar 1.4s ease-in-out; }
+    @keyframes estirar { 40% { transform: scale(.95, 1.12); } }
+    #michi.bosteza .cabeza { animation: bostezo 1.6s ease-in-out; }
+    @keyframes bostezo { 50% { transform: rotate(-8deg) scale(1.04); } }
+    #michi.pancita .pata-d { animation: pancita .5s ease-in-out 3 alternate; }
+    @keyframes pancita { from { transform: rotate(0deg); } to { transform: rotate(40deg) translate(-30%, 10%); } }
+    #michi.rascarse .pata-i { animation: rascar .2s linear 8 alternate; }
+    @keyframes rascar { to { transform: rotate(-60deg); } }
+    #michi.apurado svg { animation: apurado .3s ease-in-out 6 alternate; }
+    @keyframes apurado { to { transform: translateY(-4%) rotate(3deg); } }
+    #michi.sacudir svg { animation: cosquillas .1s linear 10; }
+    #michi.mojado .michi { filter: saturate(.7) brightness(.85); }
+    #michi.duerme { bottom: max(40px, 6dvh); transform: translateX(-50%) rotate(-80deg) scale(.6); }
+    #michi.duerme .michi, #michi.duerme .cola { animation-duration: 5s; }
+    #michi.en-inodoro { left: calc(8% + min(18vw, 110px)); bottom: 150px; transform: translateX(-50%) scale(.62); z-index: 7; }
+    #michi.en-lavamanos { left: 62%; }
+
+    /* ---------- Efectos ---------- */
+    .efecto { position: fixed; pointer-events: none; z-index: 20; }
+    .corazon { width: 34px; height: 34px; animation: flotar 1.4s ease-out forwards; }
+    @keyframes flotar { to { transform: translate(var(--dx, 0), -140px) scale(1.4); opacity: 0; } }
+    .zeta { font: 800 40px var(--font); color: #fff; text-shadow: 0 3px 0 var(--ink); animation: flotar 2.4s ease-out forwards; }
+    .burbuja { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, #d8f3ff 60%, #a8dcf5);
+               border: 2px solid #7cc4e6; position: absolute; pointer-events: none; z-index: 7; animation: aparecer .3s ease-out; }
+    @keyframes aparecer { from { transform: scale(0); } }
+    .burbuja.revienta { animation: reventar .4s ease-out forwards; }
+    @keyframes reventar { to { transform: scale(1.8); opacity: 0; } }
+    .gota { width: 10px; height: 18px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #5bb8f0; animation: caer-gota .9s linear forwards; }
+    @keyframes caer-gota { to { transform: translateY(260px); opacity: .2; } }
+    .estrellas-mareo { position: absolute; left: 20%; right: 20%; top: -4%; height: 18%; z-index: 6; pointer-events: none;
+                       animation: girar 1.2s linear infinite; }
+    @keyframes girar { to { transform: rotate(360deg); } }
+
+    .noche { position: fixed; inset: 0; background: rgba(20, 16, 60, .62); pointer-events: none; opacity: 0; transition: opacity .8s; z-index: 4; }
+    body.oscuro .noche { opacity: 1; }
+
+    /* ---------- Interfaz ---------- */
+    .necesidades { position: fixed; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 30; }
+    .necesidad {
+      width: 56px; height: 56px; border-radius: 50%; position: relative;
+      background: conic-gradient(var(--color) calc(var(--nivel) * 1%), #ffffffaa 0);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, .12);
+      display: grid; place-items: center;
+    }
+    .necesidad::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: #fff; }
+    .necesidad svg { position: relative; width: 30px; height: 30px; }
+    .necesidad.baja { animation: wiggle .6s ease-in-out infinite; }
+
+    .flecha { position: fixed; top: 46%; width: 64px; height: 64px; border-radius: 50%; background: #fff; z-index: 30;
+              box-shadow: 0 5px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; }
+    .flecha svg { width: 34px; height: 34px; }
+    .flecha:active { transform: scale(.9); }
+    #izq { left: 10px; } #der { right: 10px; }
+    .puntos { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 30; }
+    .puntos span { width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+    .puntos span.activo { background: var(--ink); }
+
+    .bandeja { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; gap: 8px; z-index: 12;
+               background: #fff; padding: 8px 12px; border-radius: 40px; box-shadow: 0 6px 0 rgba(0, 0, 0, .12); max-width: calc(100vw - 24px); }
+    .item { width: min(64px, calc((100vw - 84px) / 6)); height: auto; aspect-ratio: 1 / 1; border-radius: 50%; display: grid; place-items: center; background: #fff7ec; flex: none;
+            touch-action: none; transition: transform .12s; }
+    .item svg { width: 75%; height: 75%; pointer-events: none; }
+    .item:active, .item.activo { transform: scale(1.12); background: var(--amarillo); }
+    .arrastrando { position: fixed; width: 72px; height: 72px; z-index: 40; pointer-events: none; transform: translate(-50%, -50%) scale(1.15); }
+    .arrastrando svg { width: 100%; height: 100%; }
+    .volando { position: fixed; width: 64px; height: 64px; z-index: 40; pointer-events: none; transition: transform .1s; }
+    .volando svg { width: 100%; height: 100%; }
+
+    .prop { position: absolute; z-index: 6; background: none; padding: 0; }
+    .prop.tocable { cursor: pointer; }
+    .prop.brilla { animation: brillo .7s ease-in-out infinite alternate; }
+    @keyframes brillo { to { filter: drop-shadow(0 0 14px #fff) brightness(1.15); } }
+
+    .pensamiento { position: absolute; z-index: 9; width: 84px; height: 72px; background: #fff; border-radius: 40px;
+                   box-shadow: 0 5px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; animation: aparecer .3s ease-out; }
+    .pensamiento svg { width: 46px; height: 46px; }
+    .pensamiento::after { content: ""; position: absolute; left: 14px; bottom: -16px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .michi, .cola, .ojos-abiertos, #michi * , #michi svg, .estrellas-mareo, .necesidad.baja, .prop.brilla { animation: none !important; }
+      .corazon, .zeta, .gota { animation-duration: .01s; }
+    }
+  </style>
+</head>
+<body class="cuarto-cocina">
+  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
+  <div class="necesidades" id="necesidades"></div>
+  <main class="escena" id="escena">
+    <div id="decoracion"></div>
+    <div id="michi"></div>
+    <div id="props"></div>
+  </main>
+  <div class="noche"></div>
+  <button class="flecha" id="izq" aria-label="Cuarto anterior"></button>
+  <button class="flecha" id="der" aria-label="Cuarto siguiente"></button>
+  <div class="bandeja" id="bandeja" hidden></div>
+  <div class="puntos" id="puntos"></div>
+
+  <script src="../../assets/js/common.js"></script>
+  <script src="../../assets/js/dibujos.js"></script>
+  <script src="../../assets/js/michi.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const michi = $("michi"), escena = $("escena"), props = $("props"), decoracion = $("decoracion"), bandeja = $("bandeja");
+    michi.innerHTML = Michi.svg;
+    const svgMichi = michi.querySelector("svg");
+
+    // ================= Sonidos =================
+    // Grabaciones reales CC0 cuando existen; si no, un efecto sintetizado para que siempre suene algo
+    const ARCHIVOS = {
+      maullido: "../../assets/sonidos/animales/gato.mp3",
+      ronroneo: "../../assets/sonidos/michi/ronroneo.mp3",
+      risa: "../../assets/sonidos/michi/risa.mp3",
+      estornudo: "../../assets/sonidos/michi/estornudo.mp3",
+      bostezo: "../../assets/sonidos/michi/bostezo.mp3",
+      mordisco: "../../assets/sonidos/michi/mordisco.mp3",
+      agua: "../../assets/sonidos/michi/agua.mp3",
+      descarga: "../../assets/sonidos/michi/descarga.mp3",
+      aplausos: "../../assets/sonidos/michi/aplausos.mp3",
+    };
+    let ctxAudio;
+    const audio = () => (ctxAudio ??= new (window.AudioContext || window.webkitAudioContext)());
+    function ruido(dur, { filtro = "lowpass", f1 = 1000, f2 = f1, vol = .3, am = 0 } = {}) {
+      const a = audio(), n = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (am ? (0.5 + 0.5 * Math.sin(i / a.sampleRate * am * 2 * Math.PI)) : 1);
+      const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      s.buffer = buf; f.type = filtro;
+      f.frequency.setValueAtTime(f1, a.currentTime); f.frequency.exponentialRampToValueAtTime(f2, a.currentTime + dur);
+      g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
+      s.connect(f).connect(g).connect(a.destination); s.start();
+    }
+    const SINTETICOS = {
+      ronroneo: () => ruido(1.6, { f1: 180, vol: .5, am: 24 }),
+      risa: () => [0, 1, 2, 3].forEach(k => setTimeout(() => Juegos.tono(820 - k * 60, .09, "triangle", .2), k * 120)),
+      estornudo: () => { Juegos.tono(420, .25, "sine", .15); setTimeout(() => Juegos.tono(500, .25, "sine", .15), 280); setTimeout(() => ruido(.35, { filtro: "bandpass", f1: 3000, f2: 800, vol: .6 }), 620); },
+      bostezo: () => { const a = audio(), o = a.createOscillator(), g = a.createGain(); o.frequency.setValueAtTime(420, a.currentTime); o.frequency.exponentialRampToValueAtTime(180, a.currentTime + 1);
+        g.gain.setValueAtTime(.15, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + 1.1); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + 1.1); },
+      mordisco: () => [0, 90].forEach(t => setTimeout(() => ruido(.07, { filtro: "highpass", f1: 1500, vol: .5 }), t)),
+      agua: () => ruido(1.8, { filtro: "bandpass", f1: 2500, f2: 1800, vol: .35 }),
+      descarga: () => ruido(1.6, { filtro: "lowpass", f1: 2500, f2: 300, vol: .5 }),
+      aplausos: () => { for (let k = 0; k < 14; k++) setTimeout(() => ruido(.05, { filtro: "bandpass", f1: 1800 + Math.random() * 800, vol: .5 }), k * 90 + Math.random() * 40); },
+    };
+    const existe = {};
+    Object.entries(ARCHIVOS).forEach(([n, url]) => Juegos.cargar(url).then(() => (existe[n] = true)).catch(() => {}));
+    // Los efectos usan su propio canal (no cortan la voz ni otros efectos); Juegos.sonar se reserva al maullido
+    async function sonido(n) {
+      if (existe[n]) {
+        try {
+          const a = audio(), buf = await Juegos.cargar(ARCHIVOS[n]), s = a.createBufferSource();
+          if (a.state === "suspended") a.resume();
+          s.buffer = buf; s.connect(a.destination); s.start();
+          return new Promise(r => (s.onended = r));
+        } catch {}
+      }
+      if (audio().state === "suspended") audio().resume();
+      SINTETICOS[n]?.();
+    }
+
+    // ================= Necesidades =================
+    const NECESIDADES = [
+      { id: "hambre", color: "#ff9f43", cuarto: "cocina", ritmo: 5 },
+      { id: "limpieza", color: "#3fa7ff", cuarto: "banera", ritmo: 4 },
+      { id: "bano", color: "#4cd17a", cuarto: "inodoro", ritmo: 5 },
+      { id: "sueno", color: "#a66bff", cuarto: "dormitorio", ritmo: 3 },
+    ]; // ritmo: puntos que baja por minuto de juego (de 100 a "baja" en ~12 min)
+    const BAJA = 35;
+    let nivel = { hambre: 100, limpieza: 100, bano: 100, sueno: 100 };
+    try {
+      const g = JSON.parse(localStorage.getItem("maya.michi"));
+      if (g?.nivel) {
+        const min = Math.min((Date.now() - g.t) / 60000, 60); // al volver nunca baja más de lo que bajaría en una hora
+        NECESIDADES.forEach(n => (nivel[n.id] = Math.max(40, (g.nivel[n.id] ?? 100) - n.ritmo * min * .5)));
+      }
+    } catch {}
+    const guardar = () => { try { localStorage.setItem("maya.michi", JSON.stringify({ nivel, t: Date.now() })); } catch {} };
+
+    NECESIDADES.forEach(n => {
+      const b = document.createElement("button");
+      b.className = "necesidad"; b.id = "nec-" + n.id;
+      b.style.setProperty("--color", n.color);
+      b.innerHTML = Michi.ICONOS[n.id];
+      b.setAttribute("aria-label", n.id);
+      b.addEventListener("click", () => irA(n.cuarto));
+      $("necesidades").appendChild(b);
+    });
+    let todoLleno = false;
+    function pintarNecesidades() {
+      NECESIDADES.forEach(n => {
+        const b = $("nec-" + n.id);
+        b.style.setProperty("--nivel", Math.round(nivel[n.id]));
+        b.classList.toggle("baja", nivel[n.id] < BAJA);
+      });
+      const lleno = NECESIDADES.every(n => nivel[n.id] >= 95);
+      if (lleno && !todoLleno && !ocupado) setTimeout(festejar, 900);
+      if (!lleno && NECESIDADES.some(n => nivel[n.id] < 85)) todoLleno = false;
+      if (lleno) todoLleno = true;
+    }
+    function subir(id, cuanto) { nivel[id] = Math.min(100, nivel[id] + cuanto); pintarNecesidades(); guardar(); }
+    setInterval(() => {
+      NECESIDADES.forEach(n => { if (!(n.id === "sueno" && durmiendo)) nivel[n.id] = Math.max(0, nivel[n.id] - n.ritmo / 12); });
+      pintarNecesidades(); guardar();
+    }, 5000);
+
+    // ================= Estados y reacciones =================
+    let ocupado = false, durmiendo = false, ultimoToque = Date.now();
+    const esperar = ms => new Promise(r => setTimeout(r, ms));
+    function estado(clases, ms) {
+      clases.split(" ").forEach(c => michi.classList.add(c));
+      if (ms) setTimeout(() => clases.split(" ").forEach(c => michi.classList.remove(c)), ms);
+    }
+    function centroDe(el, fx = .5, fy = .5) { const r = el.getBoundingClientRect(); return [r.left + r.width * fx, r.top + r.height * fy]; }
+    function puntoMichi(x, y) { const r = svgMichi.getBoundingClientRect(); return [r.left + r.width * x / 240, r.top + r.height * y / 320]; }
+
+    function efecto(clase, x, y, html = "", ms = 1500, estilo = "") {
+      const e = document.createElement("div");
+      e.className = "efecto " + clase;
+      e.style.cssText = `left:${x}px;top:${y}px;${estilo}`;
+      e.innerHTML = html;
+      document.body.appendChild(e);
+      setTimeout(() => e.remove(), ms);
+      return e;
+    }
+    const CORAZON = `<svg viewBox="0 0 100 100" stroke="#3b2a4a" stroke-width="6" stroke-linejoin="round"><path d="M50 86 C10 60 6 34 22 22 C36 12 48 22 50 32 C52 22 64 12 78 22 C94 34 90 60 50 86Z" fill="#ff5a87"/></svg>`;
+    function corazones(n = 5) {
+      const [x, y] = puntoMichi(120, 60);
+      for (let i = 0; i < n; i++) setTimeout(() => efecto("corazon", x - 17 + (Math.random() - .5) * 90, y, CORAZON, 1400, `--dx:${(Math.random() - .5) * 80}px`), i * 140);
+    }
+
+    async function reaccion(tipo) {
+      if (ocupado) return;
+      ocupado = true;
+      quitarPensamiento();
+      switch (tipo) {
+        case "cabeza":
+          estado("cerrados ronronea sonrojado", 2200); sonido("ronroneo"); Juegos.decir("Rrrr… ¡me gusta!"); corazones(3); await esperar(2200); break;
+        case "panza":
+          estado("felices abierta cosquillas", 1800); sonido("risa"); Juegos.decir("¡Jiji, cosquillas!"); await esperar(1800); break;
+        case "nariz":
+          estado("cerrados", 1100); estado("estornudo", 1000); sonido("estornudo");
+          await esperar(650); estado("abierta", 400); await esperar(500); Juegos.decir("¡Achís! Jiji"); await esperar(800); break;
+        case "cola":
+          estado("salta abierta", 700); Juegos.sonar(ARCHIVOS.maullido).catch(() => {}); await esperar(750);
+          estado("felices abierta", 1300); sonido("risa"); Juegos.decir("¡Uy, mi colita! Jiji"); await esperar(1300); break;
+        case "pata":
+          estado("saluda felices", 1700); Juegos.decir("¡Hola, Maya!"); await esperar(1700); break;
+        case "mejilla":
+          estado("sonrojado cerrados", 1800); Juegos.decir("¡Muak!"); corazones(6); await esperar(1800); break;
+        case "mareo":
+          estado("mareado cerrados", 3000);
+          const est = document.createElement("div");
+          est.className = "estrellas-mareo";
+          est.innerHTML = `<svg viewBox="0 0 200 60" width="100%" height="100%">${[0, 1, 2, 3, 4].map(k => { const a = k / 5 * Math.PI * 2;
+            return `<g transform="translate(${100 + Math.cos(a) * 70} ${30 + Math.sin(a) * 18})">${Dibujos.estrella("#ffd23f").replace("<svg ", '<svg x="-14" y="-14" width="28" height="28" ')}</g>`; }).join("")}</svg>`;
+          michi.appendChild(est);
+          Juegos.decir("¡Uyuyuy, qué mareo!");
+          await esperar(3000); est.remove();
+          estado("felices", 1200); Juegos.decir("¡Ya estoy bien!"); await esperar(1200); break;
+      }
+      ocupado = false;
+      toques.length = 0;
+    }
+
+    // ---------- Toques sobre Michi (sin micrófono) ----------
+    const toques = [];
+    let caricia = null;
+    svgMichi.addEventListener("pointerdown", e => {
+      if (herramienta) return; // en el baño, la esponja/toalla manejan el toque
+      ultimoToque = Date.now();
+      const zona = e.target.closest("[data-zona]")?.dataset.zona;
+      if (!zona) return;
+      if (durmiendo) { sonido("ronroneo"); efecto("zeta", ...puntoMichi(150, 40), "z", 2400); return; }
+      caricia = { x: e.clientX, y: e.clientY, recorrido: 0, zona };
+      svgMichi.setPointerCapture(e.pointerId);
+    });
+    svgMichi.addEventListener("pointermove", e => {
+      if (!caricia) return;
+      caricia.recorrido += Math.hypot(e.clientX - caricia.x, e.clientY - caricia.y);
+      caricia.x = e.clientX; caricia.y = e.clientY;
+      // deslizar el dedo sobre cabeza o lomo = caricia: ronronea más y salen corazones
+      if (caricia.recorrido > 70 && (caricia.zona === "cabeza" || caricia.zona === "cuerpo")) {
+        caricia.recorrido = 0;
+        if (!michi.classList.contains("acariciado")) {
+          estado("cerrados ronronea sonrojado acariciado", 1600); sonido("ronroneo");
+          if (!ocupado) Juegos.decir("Rrrrrr…");
+        }
+        corazones(2);
+        caricia.acaricio = true;
+      }
+    });
+    svgMichi.addEventListener("pointerup", () => {
+      const c = caricia; caricia = null;
+      if (!c || c.acaricio) return;
+      const ahora = Date.now();
+      toques.push(ahora);
+      while (toques.length && ahora - toques[0] > 2500) toques.shift();
+      if (michi.classList.contains("mareado")) return;
+      if (toques.length >= 7) { ocupado = false; return reaccion("mareo"); } // muchos toques seguidos: se marea (nunca se enoja)
+      reaccion(c.zona === "cuerpo" ? "panza" : c.zona);
+    });
+
+    // Los ojos siguen el dedo
+    addEventListener("pointermove", e => mirar(e.clientX, e.clientY));
+    addEventListener("pointerdown", e => { mirar(e.clientX, e.clientY); ultimoToque = Date.now(); });
+    function mirar(x, y) {
+      const [cx, cy] = puntoMichi(120, 100), d = Math.hypot(x - cx, y - cy) || 1;
+      const p = svgMichi.querySelector(".pupilas");
+      p.style.setProperty("--px", ((x - cx) / d * 4).toFixed(1) + "px");
+      p.style.setProperty("--py", ((y - cy) / d * 4).toFixed(1) + "px");
+    }
+
+    // ================= Cuartos =================
+    const CUARTOS = [
+      { id: "cocina", nombre: "La cocina" }, { id: "banera", nombre: "La bañera" },
+      { id: "inodoro", nombre: "El baño" }, { id: "dormitorio", nombre: "El dormitorio" },
+    ];
+    let cuarto = 0, herramienta = null, espuma = 0, mojado = false;
+    CUARTOS.forEach(() => $("puntos").appendChild(document.createElement("span")));
+    $("izq").innerHTML = Michi.ICONOS.flechaIzq; $("der").innerHTML = Michi.ICONOS.flechaDer;
+    $("izq").addEventListener("click", () => cambiar(-1));
+    $("der").addEventListener("click", () => cambiar(1));
+    // deslizar sobre el fondo también cambia de cuarto
+    let deslizar = null;
+    escena.addEventListener("pointerdown", e => { if (e.target === escena || e.target.closest("#decoracion")) deslizar = e.clientX; });
+    escena.addEventListener("pointerup", e => { if (deslizar !== null && Math.abs(e.clientX - deslizar) > 80) cambiar(e.clientX < deslizar ? 1 : -1); deslizar = null; });
+
+    function cambiar(paso) { irA(CUARTOS[(cuarto + paso + CUARTOS.length) % CUARTOS.length].id); }
+    function irA(id) {
+      const i = CUARTOS.findIndex(c => c.id === id);
+      if (i === cuarto && props.dataset.cuarto === id) return;
+      if (durmiendo) despertar(true);
+      cuarto = i;
+      ocupado = false; herramienta = null;
+      michi.className = "";
+      quitarBurbujas();
+      document.body.className = "cuarto-" + id;
+      [...$("puntos").children].forEach((p, k) => p.classList.toggle("activo", k === i));
+      Juegos.decir(CUARTOS[i].nombre);
+      montarCuarto(id);
+    }
+
+    const svgDeco = (cuerpo, vb = "0 0 200 200") => `<svg viewBox="${vb}" stroke="#3b2a4a" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">${cuerpo}</svg>`;
+    function prop(html, estilo, alTocar, etiqueta) {
+      const d = document.createElement(alTocar ? "button" : "div");
+      d.className = "prop" + (alTocar ? " tocable" : "");
+      d.style.cssText = estilo;
+      d.innerHTML = html;
+      if (etiqueta) d.setAttribute("aria-label", etiqueta);
+      if (alTocar) d.addEventListener("click", alTocar);
+      props.appendChild(d);
+      return d;
+    }
+    function deco(html, estilo) { const d = document.createElement("div"); d.className = "decoracion"; d.style.cssText = estilo; d.innerHTML = html; decoracion.appendChild(d); }
+
+    function montarCuarto(id) {
+      props.innerHTML = ""; decoracion.innerHTML = ""; props.dataset.cuarto = id;
+      bandeja.innerHTML = ""; bandeja.hidden = true;
+      if (id === "cocina") montarCocina();
+      if (id === "banera") montarBanera();
+      if (id === "inodoro") montarInodoro();
+      if (id === "dormitorio") montarDormitorio();
+    }
+
+    // ---------- Cocina: arrastrar (o tocar) la comida hasta Michi ----------
+    function montarCocina() {
+      deco(svgDeco(`<rect x="10" y="40" width="180" height="120" rx="10" fill="#bfe6ff"/><path d="M100 40 L100 160 M10 100 L190 100" stroke-width="8" stroke="#fff"/><rect x="10" y="40" width="180" height="120" rx="10" fill="none"/>`),
+        "left:6%;top:12%;width:min(30vw,190px);height:min(22vw,130px)");
+      deco(svgDeco(`<rect x="0" y="20" width="200" height="30" rx="8" fill="#ff9f43"/><rect x="10" y="50" width="180" height="110" fill="#ffd9a8"/><circle cx="60" cy="100" r="8" fill="#3b2a4a"/><circle cx="140" cy="100" r="8" fill="#3b2a4a"/>`),
+        "right:4%;bottom:calc(38% - 10px);width:min(28vw,200px);height:min(22vw,160px)");
+      bandeja.hidden = false;
+      Michi.COMIDAS.forEach(c => {
+        const b = document.createElement("button");
+        b.className = "item";
+        b.innerHTML = c.dibujo;
+        b.setAttribute("aria-label", c.nombre);
+        arrastrable(b, c.dibujo, (x, y, arrastro) => {
+          // si se suelta sobre Michi, o solo se toca: la comida vuela a su boca
+          const r = svgMichi.getBoundingClientRect();
+          const encima = x > r.left && x < r.right && y > r.top && y < r.bottom;
+          if (encima || !arrastro) comer(c, arrastro ? [x, y] : centroDe(b));
+        });
+        bandeja.appendChild(b);
+      });
+    }
+
+    function arrastrable(el, dibujo, alSoltar) {
+      el.addEventListener("pointerdown", e => {
+        e.preventDefault();
+        ultimoToque = Date.now();
+        const fantasma = document.createElement("div");
+        fantasma.className = "arrastrando"; fantasma.innerHTML = dibujo;
+        fantasma.style.left = e.clientX + "px"; fantasma.style.top = e.clientY + "px";
+        document.body.appendChild(fantasma);
+        const x0 = e.clientX, y0 = e.clientY;
+        const mover = ev => { fantasma.style.left = ev.clientX + "px"; fantasma.style.top = ev.clientY + "px"; mirar(ev.clientX, ev.clientY); };
+        const soltar = ev => {
+          removeEventListener("pointermove", mover); removeEventListener("pointerup", soltar); removeEventListener("pointercancel", soltar);
+          fantasma.remove();
+          alSoltar(ev.clientX, ev.clientY, Math.hypot(ev.clientX - x0, ev.clientY - y0) > 25);
+        };
+        addEventListener("pointermove", mover); addEventListener("pointerup", soltar); addEventListener("pointercancel", soltar);
+      });
+    }
+
+    async function comer(comida, [x, y]) {
+      if (ocupado || durmiendo) return;
+      if (nivel.hambre >= 98) { // ya está lleno: lo dice con gracia
+        ocupado = true; estado("felices", 1500); Juegos.decir("¡Ya estoy llenito, gracias!"); await esperar(1500); ocupado = false; return;
+      }
+      ocupado = true; quitarPensamiento();
+      const [bx, by] = puntoMichi(120, 146);
+      const f = document.createElement("div");
+      f.className = "volando"; f.innerHTML = comida.dibujo;
+      f.style.left = x - 32 + "px"; f.style.top = y - 32 + "px";
+      document.body.appendChild(f);
+      await f.animate([{ transform: "translate(0,0)" }, { transform: `translate(${bx - x}px, ${by - y + 26}px) scale(.8)` }], { duration: 550, easing: "ease-in-out", fill: "forwards" }).finished;
+      for (const escala of [.55, .3, 0]) { // tres mordiscos
+        estado("abierta", 260); await esperar(260);
+        sonido("mordisco");
+        f.animate([{ transform: `translate(${bx - x}px, ${by - y + 26}px) scale(${escala})` }], { duration: 120, fill: "forwards" });
+        await esperar(380);
+      }
+      f.remove();
+      if (comida.leGusta) {
+        estado("felices sonrojado", 1600); Juegos.decir(`¡Mmm, qué rico ${comida.nombre}!`); corazones(3); subir("hambre", 25);
+      } else {
+        estado("lengua cerrados", 1800); Juegos.decir("¡Puaj! Jiji, la zanahoria no me gusta mucho"); subir("hambre", 10);
+      }
+      await esperar(1800);
+      ocupado = false;
+    }
+
+    // ---------- Bañera: esponja → espuma, ducha → enjuagar, toalla → secar ----------
+    function montarBanera() {
+      deco(svgDeco(`<path d="M10 70 L190 70 L176 150 Q170 176 140 176 L60 176 Q30 176 24 150Z" fill="#fff"/><rect x="2" y="56" width="196" height="20" rx="10" fill="#f0f4fa"/><path d="M50 176 L40 196 M150 176 L160 196" stroke-width="6"/>`),
+        "left:50%;transform:translateX(-50%);bottom:96px;width:min(80vw,440px);height:min(40vw,220px);z-index:8");
+      deco(svgDeco(`<path d="M30 10 L30 80 Q30 60 60 60 L120 60" fill="none" stroke-width="6"/><path d="M100 60 L160 60 L150 84 L110 84Z" fill="#bfc6d6"/>`),
+        "right:10%;top:14%;width:min(26vw,170px);height:min(22vw,130px)");
+      bandeja.hidden = false;
+      [["esponja", "esponja"], ["ducha", "ducha"], ["toalla", "toalla"]].forEach(([h, nombre]) => {
+        const b = document.createElement("button");
+        b.className = "item"; b.dataset.h = h;
+        b.innerHTML = Michi.ICONOS[h];
+        b.setAttribute("aria-label", nombre);
+        b.addEventListener("click", () => usar(h));
+        bandeja.appendChild(b);
+      });
+      herramienta = null;
+    }
+    function burbujaEn(x, y) {
+      const r = michi.getBoundingClientRect();
+      const b = document.createElement("div");
+      b.className = "burbuja";
+      const t = 18 + Math.random() * 22;
+      b.style.cssText = `left:${x - r.left - t / 2}px;top:${y - r.top - t / 2}px;width:${t}px;height:${t}px`;
+      michi.appendChild(b);
+      espuma++;
+    }
+    function quitarBurbujas() { michi.querySelectorAll(".burbuja").forEach(b => { b.classList.add("revienta"); setTimeout(() => b.remove(), 400); }); espuma = 0; }
+    // Con la esponja también se puede frotar a Michi con el dedo
+    svgMichi.addEventListener("pointermove", e => {
+      if (herramienta === "esponja" && e.buttons && Math.random() < .35) { burbujaEn(e.clientX, e.clientY); if (espuma % 6 === 0) sonido("risa"); }
+    });
+    svgMichi.addEventListener("pointerdown", e => { if (herramienta === "esponja") burbujaEn(e.clientX, e.clientY); });
+
+    async function usar(h) {
+      if (ocupado) return;
+      ultimoToque = Date.now();
+      bandeja.querySelectorAll(".item").forEach(b => b.classList.toggle("activo", b.dataset.h === h));
+      herramienta = h;
+      ocupado = true; quitarPensamiento();
+      if (h === "esponja") { // un toque ya enjabona solo; después puede seguir frotando con el dedo
+        Juegos.decir("¡A enjabonar!");
+        estado("felices cosquillas", 1500); sonido("risa");
+        for (let k = 0; k < 10; k++) { await esperar(110); burbujaEn(...puntoMichi(60 + Math.random() * 120, 60 + Math.random() * 220)); }
+        subir("limpieza", 15);
+      } else if (h === "ducha") {
+        Juegos.decir("¡Ducha!"); sonido("agua");
+        const [x0] = puntoMichi(0, 0), [x1, y1] = puntoMichi(240, 0);
+        for (let k = 0; k < 40; k++) setTimeout(() => efecto("gota", x0 + Math.random() * (x1 - x0), y1 - 40, "", 900), k * 45);
+        estado("cerrados", 2000); await esperar(900); quitarBurbujas();
+        mojado = true; michi.classList.add("mojado"); subir("limpieza", 20);
+        await esperar(1100); Juegos.decir("¡Ahora la toalla!");
+        bandeja.querySelector('[data-h="toalla"]').classList.add("activo");
+      } else if (h === "toalla") {
+        Juegos.decir(mojado ? "¡A secarse!" : "¡Toalla suavecita!");
+        estado("sacudir cerrados", 1000); await esperar(1000);
+        michi.classList.remove("mojado");
+        subir("limpieza", mojado ? 100 : 10); mojado = false;
+        estado("felices sonrojado", 1500); Juegos.decir("¡Qué limpito estoy!"); corazones(4);
+        await esperar(1500);
+        herramienta = null; bandeja.querySelectorAll(".item").forEach(b => b.classList.remove("activo"));
+      }
+      ocupado = false;
+    }
+
+    // ---------- Baño: inodoro y lavamanos ----------
+    let pasoBano = "inodoro";
+    function montarInodoro() {
+      const inodoro = prop(svgDeco(`<rect x="40" y="10" width="120" height="70" rx="14" fill="#fff"/><path d="M20 96 L180 96 Q176 150 120 158 L120 190 L80 190 L80 158 Q24 150 20 96Z" fill="#fff"/><ellipse cx="100" cy="96" rx="80" ry="16" fill="#e8eef7"/><rect x="134" y="22" width="20" height="10" rx="5" fill="#bfc6d6"/>`),
+        "left:8%;bottom:110px;width:min(36vw,220px);height:min(36vw,220px)", irAlInodoro, "inodoro");
+      const lava = prop(svgDeco(`<path d="M30 70 L170 70 Q166 120 100 124 Q34 120 30 70Z" fill="#fff"/><rect x="88" y="124" width="24" height="70" fill="#fff"/><path d="M100 70 L100 34 Q100 22 120 22 L130 22" fill="none" stroke-width="8" stroke="#bfc6d6"/>`),
+        "right:6%;bottom:140px;width:min(30vw,180px);height:min(30vw,180px)", lavarManos, "lavamanos");
+      inodoro.id = "inodoro"; lava.id = "lavamanos";
+      marcarPaso();
+    }
+    function marcarPaso() {
+      $("inodoro")?.classList.toggle("brilla", pasoBano === "inodoro" && nivel.bano < 95);
+      $("lavamanos")?.classList.toggle("brilla", pasoBano === "lavar");
+    }
+    async function irAlInodoro() {
+      if (ocupado) return;
+      ocupado = true; quitarPensamiento(); ultimoToque = Date.now();
+      Juegos.decir("¡Vamos al baño!");
+      michi.classList.add("en-inodoro");
+      await esperar(900);
+      estado("cerrados", 1600); await esperar(1700);
+      sonido("descarga"); await esperar(900);
+      sonido("aplausos"); estado("felices", 1500); Juegos.decir("¡Muy bien, Michi!"); Juegos.confeti(20);
+      subir("bano", 100);
+      await esperar(1300);
+      michi.classList.remove("en-inodoro");
+      pasoBano = "lavar"; marcarPaso();
+      await esperar(700); Juegos.decir("¡Ahora a lavarse las manitos!");
+      ocupado = false;
+    }
+    async function lavarManos() {
+      if (ocupado) return;
+      ocupado = true; quitarPensamiento(); ultimoToque = Date.now();
+      michi.classList.add("en-lavamanos");
+      await esperar(700);
+      sonido("agua"); estado("saluda", 1600);
+      for (let k = 0; k < 8; k++) { await esperar(150); burbujaEn(...puntoMichi(150 + Math.random() * 50, 200 + Math.random() * 40)); }
+      await esperar(500); quitarBurbujas();
+      estado("felices sonrojado", 1400); Juegos.decir("¡Manitos limpias!"); corazones(3);
+      await esperar(1400);
+      michi.classList.remove("en-lavamanos");
+      pasoBano = "inodoro"; marcarPaso();
+      ocupado = false;
+    }
+
+    // ---------- Dormitorio: la lámpara lo duerme y lo despierta ----------
+    let cuna = [], zetas;
+    function montarDormitorio() {
+      deco(svgDeco(`<rect x="10" y="20" width="180" height="140" rx="12" fill="#2b2e6b"/><circle cx="140" cy="70" r="26" fill="#ffd23f"/><circle cx="152" cy="62" r="22" fill="#2b2e6b" stroke="none"/>
+        <circle cx="50" cy="50" r="4" fill="#fff" stroke="none"/><circle cx="80" cy="110" r="3" fill="#fff" stroke="none"/><circle cx="40" cy="130" r="3" fill="#fff" stroke="none"/>`),
+        "left:6%;top:12%;width:min(30vw,190px);height:min(24vw,150px)");
+      deco(svgDeco(`<rect x="0" y="80" width="200" height="60" rx="16" fill="#a66bff"/><rect x="0" y="110" width="200" height="40" rx="10" fill="#7d4fd6"/><rect x="14" y="60" width="60" height="34" rx="16" fill="#fff"/><path d="M10 150 L10 190 M190 150 L190 190" stroke-width="8"/>`),
+        "left:50%;transform:translateX(-50%);bottom:84px;width:min(86vw,460px);height:min(46vw,250px);z-index:3");
+      prop(svgDeco(`<path d="M60 20 L140 20 L160 80 L40 80Z" fill="#ffd23f"/><rect x="94" y="80" width="12" height="80" fill="#bfc6d6"/><ellipse cx="100" cy="166" rx="40" ry="12" fill="#bfc6d6"/>`),
+        "right:5%;top:22%;width:min(24vw,140px);height:min(24vw,140px)", () => (durmiendo ? despertar() : dormir()), "lámpara").id = "lampara";
+    }
+    // "Duérmete niño" con notas suaves; se repite mientras duerme
+    const CANCION = [[392, 1], [330, 1], [392, 2], [330, 1], [392, 1], [440, 1], [392, 1], [349, 1], [330, 2], [294, 1], [330, 1], [349, 2], [294, 1], [262, 3]];
+    function tocarCuna() {
+      let t = 0;
+      cuna = CANCION.map(([f, d]) => { const id = setTimeout(() => Juegos.nota(f, 1.2), t); t += d * 520; return id; });
+      cuna.push(setTimeout(() => durmiendo && tocarCuna(), t + 800));
+    }
+    async function dormir() {
+      if (ocupado) return;
+      ultimoToque = Date.now(); quitarPensamiento();
+      durmiendo = true;
+      document.body.classList.add("oscuro");
+      Juegos.decir("¡Buenas noches, Michi!");
+      michi.className = "duerme cerrados";
+      tocarCuna();
+      zetas = setInterval(() => { efecto("zeta", ...puntoMichi(60, 20), "z", 2400); subir("sueno", 6); }, 1300);
+    }
+    async function despertar(silencio) {
+      durmiendo = false;
+      clearInterval(zetas); cuna.forEach(clearTimeout); cuna = [];
+      document.body.classList.remove("oscuro");
+      michi.className = "";
+      if (silencio) return;
+      ocupado = true;
+      estado("estirarse bosteza abierta cerrados", 1500); sonido("bostezo");
+      await esperar(1500);
+      estado("felices", 1500); Juegos.decir("¡Buenos días, Maya!");
+      await esperar(1500);
+      ocupado = false;
+    }
+
+    // ================= Pide lo que necesita (con gestos, sin drama) =================
+    let pensamiento;
+    function quitarPensamiento() { pensamiento?.remove(); pensamiento = null; }
+    const GESTOS = {
+      hambre: ["pancita", "¡Tengo hambre!"], limpieza: ["rascarse", "¡Quiero un baño de espuma!"],
+      bano: ["apurado", "¡Quiero ir al baño!"], sueno: ["bosteza abierta cerrados", "Tengo sueñito…"],
+    };
+    setInterval(() => {
+      if (ocupado || durmiendo || pensamiento) return;
+      const n = NECESIDADES.filter(x => nivel[x.id] < BAJA).sort((a, b) => nivel[a.id] - nivel[b.id])[0];
+      if (!n) return;
+      const [clases, frase] = GESTOS[n.id];
+      estado(clases, 2000);
+      if (n.id === "sueno") sonido("bostezo");
+      Juegos.decir(frase);
+      const r = michi.getBoundingClientRect();
+      pensamiento = document.createElement("button");
+      pensamiento.className = "pensamiento";
+      pensamiento.innerHTML = Michi.ICONOS[n.id];
+      pensamiento.setAttribute("aria-label", frase);
+      pensamiento.style.cssText = `left:${Math.min(r.right - 20, innerWidth - 100)}px;top:${Math.max(r.top - 10, 84)}px;position:fixed`;
+      pensamiento.addEventListener("click", () => { quitarPensamiento(); irA(n.cuarto); });
+      document.body.appendChild(pensamiento);
+      setTimeout(quitarPensamiento, 6000);
+    }, 15000);
+
+    // Bosteza si nadie juega con él un rato
+    setInterval(() => {
+      if (!ocupado && !durmiendo && Date.now() - ultimoToque > 25000) {
+        ultimoToque = Date.now(); estado("bosteza abierta cerrados", 1600); sonido("bostezo");
+      }
+    }, 5000);
+
+    async function festejar() {
+      if (ocupado || durmiendo) return;
+      ocupado = true; todoLleno = true;
+      estado("baila felices abierta", 3000); Juegos.fiesta(); Juegos.decir("¡Gracias por cuidarme, Maya!");
+      await esperar(3000);
+      ocupado = false;
+    }
+
+    // ================= Inicio =================
+    todoLleno = NECESIDADES.every(n => nivel[n.id] >= 95); // no festejar solo por abrir el juego
+    pintarNecesidades();
+    props.dataset.cuarto = "";
+    cuarto = -1;
+    irA("cocina");
+    setTimeout(() => { if (!ocupado) { estado("saluda felices", 1700); Juegos.decir("¡Hola, Maya! Soy Michi"); } }, 900);
+  </script>
+</body>
+</html>

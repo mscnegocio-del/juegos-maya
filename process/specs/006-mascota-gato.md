@@ -1,5 +1,6 @@
 # SPEC-006 — Mascota virtual: el gato de Maya (núcleo)
-Estado: borrador
+Estado: aprobada
+> Aprobada por el usuario en el chat el 2026-10-21.
 
 ## Qué
 Un gato propio (original, no Talking Tom) que vive en el juego, con todas las interacciones del género
