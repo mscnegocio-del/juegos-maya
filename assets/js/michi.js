@@ -7,36 +7,56 @@ const Michi = (() => {
   const T = "#3b2a4a", GRIS = "#a3acbf", GRIS_OSCURO = "#7d879c", BLANCO = "#fffaf3", ROSA = "#ffb3c7";
 
   const svg = `<svg class="michi" viewBox="0 0 240 320" stroke="${T}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+    <defs>
+      <radialGradient id="michi-pelo" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#c6cddb"/><stop offset=".55" stop-color="${GRIS}"/><stop offset="1" stop-color="#8b95aa"/></radialGradient>
+      <radialGradient id="michi-iris" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#b8f27a"/><stop offset=".6" stop-color="#5cc93f"/><stop offset="1" stop-color="#2f8f2a"/></radialGradient>
+      <radialGradient id="michi-cascabel" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff3a8"/><stop offset=".5" stop-color="#ffd23f"/><stop offset="1" stop-color="#e0a800"/></radialGradient>
+    </defs>
+    <ellipse cx="120" cy="306" rx="90" ry="10" fill="#3b2a4a" opacity=".12" stroke="none"/>
     <g class="cola" data-zona="cola">
       <path d="M170 262 Q226 250 214 196 Q206 160 226 140" fill="none" stroke="transparent" stroke-width="46"/>
       <path d="M170 262 Q226 250 214 196 Q206 160 226 140" fill="none" stroke="${T}" stroke-width="22"/>
       <path d="M170 262 Q226 250 214 196 Q206 160 226 140" fill="none" stroke="${GRIS}" stroke-width="13"/>
       <path d="M216 168 Q208 154 226 140" fill="none" stroke="${BLANCO}" stroke-width="13"/>
+      <path d="M198 238 L210 250 M210 214 L222 218 M206 190 L219 188" fill="none" stroke="${GRIS_OSCURO}" stroke-width="6"/>
     </g>
     <g class="cuerpo" data-zona="cuerpo">
-      <ellipse cx="120" cy="222" rx="72" ry="74" fill="${GRIS}"/>
+      <ellipse cx="120" cy="222" rx="72" ry="74" fill="url(#michi-pelo)"/>
+      <path d="M56 206 Q64 212 72 204 M52 232 Q62 238 70 230 M184 206 Q176 212 168 204 M188 232 Q178 238 170 230" fill="none" stroke="${GRIS_OSCURO}" stroke-width="6"/>
       <ellipse class="panza" data-zona="panza" cx="120" cy="232" rx="44" ry="50" fill="${BLANCO}"/>
+      <path d="M92 194 L100 204 L106 192 L113 205 L120 191 L127 205 L134 192 L140 204 L148 194" fill="${BLANCO}" stroke-width="3.5"/>
     </g>
     <g class="patas" data-zona="pata">
       <ellipse cx="84" cy="292" rx="26" ry="15" fill="${BLANCO}"/><ellipse cx="156" cy="292" rx="26" ry="15" fill="${BLANCO}"/>
       <path d="M76 290 L76 300 M84 290 L84 302 M92 290 L92 300 M148 290 L148 300 M156 290 L156 302 M164 290 L164 300" stroke-width="3"/>
     </g>
     <g class="pata-i" data-zona="pata"><ellipse cx="66" cy="214" rx="17" ry="30" fill="${GRIS}" transform="rotate(18 66 214)"/>
-      <ellipse cx="60" cy="238" rx="15" ry="11" fill="${BLANCO}"/></g>
+      <ellipse cx="60" cy="238" rx="15" ry="11" fill="${BLANCO}"/><path d="M54 242 L54 248 M61 243 L61 249" stroke-width="2.5"/></g>
     <g class="pata-d" data-zona="pata"><ellipse cx="174" cy="214" rx="17" ry="30" fill="${GRIS}" transform="rotate(-18 174 214)"/>
-      <ellipse cx="180" cy="238" rx="15" ry="11" fill="${BLANCO}"/></g>
+      <ellipse cx="180" cy="238" rx="15" ry="11" fill="${BLANCO}"/><path d="M179 243 L179 249 M186 242 L186 248" stroke-width="2.5"/></g>
+    <g class="collar">
+      <path d="M66 158 Q120 190 174 158 L176 172 Q120 204 64 172Z" fill="#ff5a5f"/>
+      <g class="cascabel"><circle cx="120" cy="196" r="11" fill="url(#michi-cascabel)"/><path d="M112 199 L128 199 M120 199 L120 206" stroke-width="3"/>
+        <circle cx="116" cy="191" r="2.5" fill="#fff" stroke="none"/></g>
+    </g>
     <g class="cabeza" data-zona="cabeza">
       <g class="orejas">
         <g class="oreja-i"><path d="M52 92 L46 22 L104 54Z" fill="${GRIS}"/><path d="M62 78 L60 40 L92 58Z" fill="${ROSA}" stroke="none"/></g>
         <g class="oreja-d"><path d="M188 92 L194 22 L136 54Z" fill="${GRIS}"/><path d="M178 78 L180 40 L148 58Z" fill="${ROSA}" stroke="none"/></g>
       </g>
-      <ellipse cx="120" cy="104" rx="80" ry="66" fill="${GRIS}"/>
+      <path d="M46 104 L28 112 L44 120 L26 132 L46 136 L36 148 L60 146 M194 104 L212 112 L196 120 L214 132 L194 136 L204 148 L180 146" fill="${GRIS}"/>
+      <ellipse cx="120" cy="104" rx="80" ry="66" fill="url(#michi-pelo)"/>
+      <path d="M63 58 L65 44 M71 56 L75 45 M177 58 L175 44 M169 56 L165 45" stroke="${BLANCO}" stroke-width="3.5"/>
       <path d="M120 40 L112 62 M120 40 L128 62 M102 44 L100 58 M138 44 L140 58" stroke="${GRIS_OSCURO}" stroke-width="6"/>
       <path d="M78 124 Q82 96 120 98 Q158 96 162 124 Q158 160 120 162 Q82 160 78 124Z" fill="${BLANCO}" stroke="none"/>
       <g class="ojos-abiertos" stroke="none">
-        <ellipse cx="88" cy="100" rx="17" ry="20" fill="${T}"/><ellipse cx="152" cy="100" rx="17" ry="20" fill="${T}"/>
-        <g class="pupilas"><circle cx="93" cy="93" r="6" fill="#fff"/><circle cx="157" cy="93" r="6" fill="#fff"/>
-          <circle cx="84" cy="108" r="3" fill="#fff"/><circle cx="148" cy="108" r="3" fill="#fff"/></g>
+        <ellipse cx="88" cy="100" rx="18" ry="21" fill="${T}"/><ellipse cx="152" cy="100" rx="18" ry="21" fill="${T}"/>
+        <g class="pupilas">
+          <ellipse cx="88" cy="101" rx="13.5" ry="16.5" fill="url(#michi-iris)"/><ellipse cx="152" cy="101" rx="13.5" ry="16.5" fill="url(#michi-iris)"/>
+          <ellipse cx="88" cy="102" rx="6.5" ry="11" fill="${T}"/><ellipse cx="152" cy="102" rx="6.5" ry="11" fill="${T}"/>
+          <circle cx="94" cy="93" r="5.5" fill="#fff"/><circle cx="158" cy="93" r="5.5" fill="#fff"/>
+          <circle cx="83" cy="109" r="2.6" fill="#fff"/><circle cx="147" cy="109" r="2.6" fill="#fff"/>
+        </g>
       </g>
       <g class="ojos-cerrados" fill="none"><path d="M72 102 Q88 114 104 102"/><path d="M136 102 Q152 114 168 102"/></g>
       <g class="ojos-felices" fill="none"><path d="M72 106 Q88 88 104 106"/><path d="M136 106 Q152 88 168 106"/></g>
@@ -45,9 +65,13 @@ const Michi = (() => {
         <ellipse class="mejilla" cx="174" cy="132" rx="15" ry="9" fill="#ff8fab" opacity=".55"/>
       </g>
       <path class="nariz" data-zona="nariz" d="M110 120 L130 120 L120 131Z" fill="#ff7a93" stroke-width="3.5"/>
+      <ellipse cx="116" cy="122.5" rx="3" ry="1.6" fill="#fff" opacity=".8" stroke="none" pointer-events="none"/>
+      <g fill="${GRIS_OSCURO}" stroke="none"><circle cx="96" cy="130" r="1.8"/><circle cx="92" cy="136" r="1.8"/><circle cx="99" cy="137" r="1.8"/>
+        <circle cx="144" cy="130" r="1.8"/><circle cx="148" cy="136" r="1.8"/><circle cx="141" cy="137" r="1.8"/></g>
       <path class="boca" d="M104 136 Q112 146 120 136 Q128 146 136 136" fill="none" stroke-width="4"/>
       <g class="boca-abierta"><path d="M102 136 Q120 172 138 136 Q120 142 102 136Z" fill="${T}" stroke="none"/>
-        <ellipse cx="120" cy="152" rx="10" ry="6" fill="#ff7a93" stroke="none"/></g>
+        <ellipse cx="120" cy="152" rx="10" ry="6" fill="#ff7a93" stroke="none"/>
+        <path d="M108 138 L111 145 L114 139Z" fill="#fff" stroke="none"/></g>
       <g class="lengua"><path d="M104 136 Q112 146 120 136 Q128 146 136 136" fill="none" stroke-width="4"/>
         <path d="M112 140 Q112 160 120 160 Q128 160 128 140Z" fill="#ff7a93" stroke-width="3.5"/></g>
       <path class="bigotes" d="M40 118 L74 124 M38 134 L74 134 M200 118 L166 124 M202 134 L166 134" stroke-width="3"/>

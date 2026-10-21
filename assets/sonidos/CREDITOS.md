@@ -1,7 +1,7 @@
 # Créditos de sonidos
 
-Todos los sonidos son **CC0 (dominio público)**, descargados de [Freesound](https://freesound.org).
-CC0 no exige atribución; se listan por transparencia y para poder rastrear el original.
+Todos los sonidos son **CC0 o dominio público**, descargados de [Freesound](https://freesound.org) o
+[Wikimedia Commons](https://commons.wikimedia.org). No exigen atribución; se listan por transparencia y para rastrear el original.
 Procesados con `tools/sonidos/procesar.py` (recorte de silencios, volumen igualado, máx. 2.6 s, MP3 mono 80 kbps).
 
 ## animales/
@@ -20,3 +20,13 @@ Procesados con `tools/sonidos/procesar.py` (recorte de silencios, volumen iguala
 | leon.mp3 | lion.wav | SGAK | [467762](https://freesound.org/s/467762/) |
 | rana.mp3 | Frog.ogg | egomassive | [536759](https://freesound.org/s/536759/) |
 | elefante.mp3 | Elephant Trumpets Growls.flac | D.jones | [527845](https://freesound.org/s/527845/) |
+
+## michi/
+
+| Archivo | Original | Autor | Licencia | Fuente |
+|---|---|---|---|---|
+| ronroneo.mp3 | Purring cat.oga (primeros 3.5 s) | Mysid | Dominio público | [Commons](https://commons.wikimedia.org/wiki/File:Purring_cat.oga) |
+| estornudo.mp3 | Sneezing.ogg (primer estornudo) | jc | Dominio público | [Commons](https://commons.wikimedia.org/wiki/File:Sneezing.ogg) |
+
+El maullido de Michi reutiliza `animales/gato.mp3`. Risa, bostezo, mordisco, agua, descarga y aplausos están
+sintetizados con Web Audio mientras no se consiga una grabación libre (Freesound y Commons limitaron las descargas).

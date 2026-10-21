@@ -35,7 +35,7 @@
     }
     #michi svg { width: 100%; height: 100%; overflow: visible; display: block; }
     /* fill-box solo en los grupos animados: las piezas con atributo transform (brazos, orejas de la vaca…) se desplazarían */
-    .cola, .cabeza, .pata-i, .pata-d, .ojos-abiertos, .oreja-i, .oreja-d { transform-box: fill-box; }
+    .cola, .cabeza, .pata-i, .pata-d, .ojos-abiertos, .oreja-i, .oreja-d, .cascabel { transform-box: fill-box; }
     .ojos-cerrados, .ojos-felices, .boca-abierta, .lengua { display: none; }
     #michi.cerrados .ojos-abiertos, #michi.felices .ojos-abiertos { display: none; }
     #michi.cerrados .ojos-cerrados, #michi.felices .ojos-felices { display: inline; }
@@ -51,6 +51,11 @@
     .pupilas { transition: transform .15s; transform: translate(var(--px, 0px), var(--py, 0px)); }
     .cabeza { transform-origin: 50% 90%; }
     .pata-d { transform-origin: 50% 10%; }
+    .cascabel { transform-origin: 50% 0%; }
+    #michi.salta .cascabel, #michi.baila .cascabel, #michi.cosquillas .cascabel, #michi.sacudir .cascabel, #michi.apurado .cascabel { animation: cascabel .25s ease-in-out infinite alternate; }
+    @keyframes cascabel { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
+    .oreja-d { transform-origin: 30% 100%; animation: oreja-mueve 7s ease-in-out infinite; }
+    @keyframes oreja-mueve { 0%, 90%, 100% { transform: none; } 93% { transform: rotate(-12deg); } 96% { transform: rotate(4deg); } }
     .pata-i { transform-origin: 50% 10%; }
     .mejilla { transition: opacity .3s; }
     #michi.sonrojado .mejilla { opacity: 1; }
@@ -181,17 +186,12 @@
     const svgMichi = michi.querySelector("svg");
 
     // ================= Sonidos =================
-    // Grabaciones reales CC0 cuando existen; si no, un efecto sintetizado para que siempre suene algo
+    // Grabaciones reales (CC0 / dominio público) cuando existen; el resto se sintetiza para que siempre suene algo.
+    // Pendientes de conseguir grabación real: risa, bostezo, mordisco, agua, descarga, aplausos (ver CREDITOS.md)
     const ARCHIVOS = {
       maullido: "../../assets/sonidos/animales/gato.mp3",
       ronroneo: "../../assets/sonidos/michi/ronroneo.mp3",
-      risa: "../../assets/sonidos/michi/risa.mp3",
       estornudo: "../../assets/sonidos/michi/estornudo.mp3",
-      bostezo: "../../assets/sonidos/michi/bostezo.mp3",
-      mordisco: "../../assets/sonidos/michi/mordisco.mp3",
-      agua: "../../assets/sonidos/michi/agua.mp3",
-      descarga: "../../assets/sonidos/michi/descarga.mp3",
-      aplausos: "../../assets/sonidos/michi/aplausos.mp3",
     };
     let ctxAudio;
     const audio = () => (ctxAudio ??= new (window.AudioContext || window.webkitAudioContext)());
@@ -213,6 +213,7 @@
       mordisco: () => [0, 90].forEach(t => setTimeout(() => ruido(.07, { filtro: "highpass", f1: 1500, vol: .5 }), t)),
       agua: () => ruido(1.8, { filtro: "bandpass", f1: 2500, f2: 1800, vol: .35 }),
       descarga: () => ruido(1.6, { filtro: "lowpass", f1: 2500, f2: 300, vol: .5 }),
+      cascabel: () => [0, 70, 150, 230].forEach(t => setTimeout(() => { Juegos.tono(2600 + Math.random() * 500, .12, "sine", .08); Juegos.tono(3900, .08, "sine", .04); }, t)),
       aplausos: () => { for (let k = 0; k < 14; k++) setTimeout(() => ruido(.05, { filtro: "bandpass", f1: 1800 + Math.random() * 800, vol: .5 }), k * 90 + Math.random() * 40); },
     };
     const existe = {};
@@ -309,12 +310,12 @@
         case "cabeza":
           estado("cerrados ronronea sonrojado", 2200); sonido("ronroneo"); Juegos.decir("Rrrr… ¡me gusta!"); corazones(3); await esperar(2200); break;
         case "panza":
-          estado("felices abierta cosquillas", 1800); sonido("risa"); Juegos.decir("¡Jiji, cosquillas!"); await esperar(1800); break;
+          estado("felices abierta cosquillas", 1800); sonido("risa"); sonido("cascabel"); Juegos.decir("¡Jiji, cosquillas!"); await esperar(1800); break;
         case "nariz":
           estado("cerrados", 1100); estado("estornudo", 1000); sonido("estornudo");
           await esperar(650); estado("abierta", 400); await esperar(500); Juegos.decir("¡Achís! Jiji"); await esperar(800); break;
         case "cola":
-          estado("salta abierta", 700); Juegos.sonar(ARCHIVOS.maullido).catch(() => {}); await esperar(750);
+          estado("salta abierta", 700); Juegos.sonar(ARCHIVOS.maullido).catch(() => {}); sonido("cascabel"); await esperar(750);
           estado("felices abierta", 1300); sonido("risa"); Juegos.decir("¡Uy, mi colita! Jiji"); await esperar(1300); break;
         case "pata":
           estado("saluda felices", 1700); Juegos.decir("¡Hola, Maya!"); await esperar(1700); break;
@@ -692,6 +693,7 @@
       if (ocupado || durmiendo) return;
       ocupado = true; todoLleno = true;
       estado("baila felices abierta", 3000); Juegos.fiesta(); Juegos.decir("¡Gracias por cuidarme, Maya!");
+      [0, 900, 1800].forEach(t => setTimeout(() => sonido("cascabel"), t));
       await esperar(3000);
       ocupado = false;
     }
