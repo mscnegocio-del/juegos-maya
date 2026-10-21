@@ -11,6 +11,7 @@ assets/
   css/base.css              ← variables de color (:root), .btn-casa, animaciones pop/wiggle/confeti
   js/common.js              ← objeto global `Juegos` (ver API abajo)
   js/colorear.js            ← dibujos para colorear (zonas + detalles) e íconos de herramientas; solo Pintar
+  js/michi.js               ← Michi (SVG con partes animables), comidas e íconos de cuartos; solo juegos/gato
   js/dibujos.js             ← objeto global `Dibujos`: todos los SVG (animales, objetos, íconos, casita)
   sonidos/
     CREDITOS.md             ← origen y licencia de cada sonido (obligatorio mantenerlo)
@@ -66,6 +67,9 @@ tools/
 3. Revisar la forma de onda o el espectrograma (ffmpeg `showwavespic`/`showspectrumpic`): sin silencio, sin ruido
 4. Editar `ELEGIDOS`/`CRED` en `procesar.py` y luego correr `python3 tools/sonidos/procesar.py <raw> assets/sonidos/<juego>`
 5. Agregar las filas en `assets/sonidos/CREDITOS.md`
+
+Para otros juegos: `procesar.py <raw> <salida> config.json` con `{"elegidos": {...}, "max": {...}}`.
+Fuente alternativa: Wikimedia Commons (solo archivos *Public domain* o *CC0*; la API limita mucho, esperar entre pedidos)
 
 Los archivos crudos van a una carpeta temporal y nunca al repo (`*.wav` está en .gitignore).
 

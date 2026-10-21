@@ -25,6 +25,13 @@ const PAGINAS = {
     for (let i = 0; i < 7; i++) await teclas.nth(i).dispatchEvent("pointerdown");
     await p.click("#cancion"); await p.waitForTimeout(1200); // la canción ilumina teclas
   },
+  "juegos/gato/": async p => {
+    await p.waitForTimeout(2600);                                     // saludo inicial
+    await p.locator(".bandeja .item").first().click(); await p.waitForTimeout(2600);   // cocina: come pescado
+    await p.click("#der"); await p.locator('.bandeja [data-h="esponja"]').click(); await p.waitForTimeout(1800);
+    await p.click("#der"); await p.click("#inodoro"); await p.waitForTimeout(500);
+    await p.click("#der"); await p.click("#lampara"); await p.waitForTimeout(1500); await p.click("#lampara");
+  },
   "juegos/pintar/": async p => {
     await p.locator(".tarjeta").nth(1).click();                       // abre la vaca
     const z = await p.locator("#zonas").boundingBox();

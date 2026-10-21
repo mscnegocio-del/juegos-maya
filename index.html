@@ -56,6 +56,11 @@
       box-shadow: 0 10px 0 rgba(0, 0, 0, .15);
       transition: transform .15s, box-shadow .15s;
     }
+    /* Con número impar de juegos, en celular (2 columnas) el último ocupa la fila entera */
+    @media (max-width: 600px) {
+      .juego:last-child:nth-child(odd) { grid-column: 1 / -1; aspect-ratio: 2 / 1; flex-direction: row; gap: 18px; }
+      .juego:last-child:nth-child(odd) .icono { width: auto; height: 70%; padding: 14px; }
+    }
     .juego:active { transform: translateY(8px); box-shadow: 0 2px 0 rgba(0, 0, 0, .15); }
     .juego .icono {
       width: 62%; aspect-ratio: 1 / 1;
@@ -92,14 +97,18 @@
     <a class="juego" href="juegos/piano/" data-voz="Piano" style="background: var(--rosa)">
       <span class="icono" data-dibujo="piano"></span>Piano
     </a>
+    <a class="juego" href="juegos/gato/" data-voz="Michi" style="background: var(--turquesa)">
+      <span class="icono" data-dibujo="michi"></span>Michi
+    </a>
   </main>
 
   <script src="assets/js/common.js"></script>
   <script src="assets/js/dibujos.js"></script>
+  <script src="assets/js/michi.js"></script>
   <script>
     const ICONOS = {
       globo: Dibujos.globo("#ff5a5f"), vaca: Dibujos.ANIMALES.vaca, paleta: Dibujos.paleta,
-      crayon: Dibujos.crayon, manzana: Dibujos.OBJETOS_CONTAR[0].dibujo, piano: Dibujos.piano,
+      crayon: Dibujos.crayon, manzana: Dibujos.OBJETOS_CONTAR[0].dibujo, piano: Dibujos.piano, michi: Michi.svg.replace('viewBox="0 0 240 320"', 'viewBox="36 18 168 168" style="overflow:hidden;border-radius:50%"'), // cabeza y pecho
     };
     document.querySelectorAll(".icono").forEach(i => (i.innerHTML = ICONOS[i.dataset.dibujo]));
 

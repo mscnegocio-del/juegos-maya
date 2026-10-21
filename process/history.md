@@ -13,3 +13,4 @@
 - SPEC-005: dibujos compartidos en `dibujos.js`; menú, Globos, Colores y casita en SVG
 - SPEC-005 publicada (PR #2). SPEC-004: juego Piano de colores
 - SPEC-004 publicada (PR #3). SPEC-008: Colorear con galería de dibujos
+- SPEC-008 publicada (PR #4). SPEC-006: Michi, la mascota virtual (falta risa real)

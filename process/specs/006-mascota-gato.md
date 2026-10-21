@@ -1,5 +1,6 @@
 # SPEC-006 — Mascota virtual: el gato de Maya (núcleo)
-Estado: borrador
+Estado: aprobada
+> Aprobada por el usuario en el chat el 2026-10-21.
 
 ## Qué
 Un gato propio (original, no Talking Tom) que vive en el juego, con todas las interacciones del género
@@ -14,35 +15,37 @@ feliz. Sin micrófono y sin repetir la voz. Sin monedas, compras, anuncios ni ca
 - Respira en reposo, mira hacia donde toca Maya, bosteza si pasa mucho tiempo sin tocarlo
 
 ## Criterios de aceptación — reacciones al tocar (sin micrófono)
-- [ ] Cabeza: cierra los ojos y ronronea (sonido CC0 de ronroneo)
-- [ ] Panza: se ríe con cosquillas y se retuerce
-- [ ] Nariz: estornuda (cómico)
-- [ ] Cola: salta sorprendido y luego se ríe
-- [ ] Patas: levanta la pata y la saluda
-- [ ] Mejillas: se sonroja y da un besito (corazones)
-- [ ] Deslizar el dedo sobre el lomo: lo acaricia, ronronea más fuerte y salen corazones
-- [ ] Tocar muchas veces seguidas: se marea un ratito (estrellitas) y vuelve a estar feliz (nunca se enoja ni llora)
+- [x] Cabeza: cierra los ojos y ronronea (sonido CC0 de ronroneo)
+- [x] Panza: se ríe con cosquillas y se retuerce
+- [x] Nariz: estornuda (cómico)
+- [x] Cola: salta sorprendido y luego se ríe
+- [x] Patas: levanta la pata y la saluda
+- [x] Mejillas: se sonroja y da un besito (corazones)
+- [x] Deslizar el dedo sobre el lomo: lo acaricia, ronronea más fuerte y salen corazones
+- [x] Tocar muchas veces seguidas: se marea un ratito (estrellitas) y vuelve a estar feliz (nunca se enoja ni llora)
 - [ ] Cada reacción tiene animación + sonido real CC0 (maullido, risa, estornudo, ronroneo) y frase corta de voz
-  ("¡Jiji, cosquillas!"), sin repetir lo que dice nadie
+  ("¡Jiji, cosquillas!"), sin repetir lo que dice nadie.
+  **Parcial:** maullido, ronroneo y estornudo son grabaciones reales; la **risa** está sintetizada (más la voz)
+  porque Freesound y Commons bloquearon las descargas. Pendiente: conseguir una risa CC0 y procesarla
 
 ## Criterios de aceptación — cuidados (4 cuartos, se pasa con flechas grandes o deslizando)
-- [ ] **Cocina:** plato con 6 comidas SVG (pescado, leche, manzana, galleta, queso, zanahoria); se arrastra
+- [x] **Cocina:** plato con 6 comidas SVG (pescado, leche, manzana, galleta, queso, zanahoria); se arrastra
   al gato y la come mordisco a mordisco; dice si le gusta ("¡Mmm!") o pone cara graciosa con la zanahoria
-- [ ] **Baño:** frotar con esponja hace espuma y burbujas; botón de ducha enjuaga; toalla lo seca (se sacude)
-- [ ] **Baño (inodoro/bacinica):** llevarlo cuando lo pide (icono); al terminar, aplauso y lavado de manos
-- [ ] **Dormitorio:** tocar la lámpara apaga la luz, el gato se acuesta, cierra los ojos, salen "zzz" y
+- [x] **Baño:** frotar con esponja hace espuma y burbujas; botón de ducha enjuaga; toalla lo seca (se sacude)
+- [x] **Baño (inodoro/bacinica):** llevarlo cuando lo pide (icono); al terminar, aplauso y lavado de manos
+- [x] **Dormitorio:** tocar la lámpara apaga la luz, el gato se acuesta, cierra los ojos, salen "zzz" y
   suena una canción de cuna suave; tocar la lámpara otra vez lo despierta estirándose
-- [ ] 4 necesidades con iconos grandes (hambre, limpieza, baño, sueño) que bajan muy despacio y se llenan al
+- [x] 4 necesidades con iconos grandes (hambre, limpieza, baño, sueño) que bajan muy despacio y se llenan al
   cuidarlo. Si una baja, el gato lo pide con un gesto (se toca la panza, bosteza…) — **nunca** enferma, llora
   ni se pone triste de forma que angustie
-- [ ] Al cuidar bien (todas llenas), el gato baila y hay confeti
+- [x] Al cuidar bien (todas llenas), el gato baila y hay confeti
 
 ## Criterios de aceptación — técnicos
-- [ ] `juegos/gato/` y tarjeta en el menú. Estado guardado en `localStorage` (necesidades, ropa, nombre); si
+- [x] `juegos/gato/` y tarjeta en el menú. Estado guardado en `localStorage` (necesidades, ropa, nombre); si
   no hay almacenamiento, empieza siempre contento
-- [ ] Sonidos CC0 de Freesound procesados con `tools/sonidos/` y registrados en CREDITOS.md
-- [ ] Funciona sin internet, a 60 fps en tablet media, respeta `prefers-reduced-motion`
-- [ ] Smoke test con un caso por cuarto; capturas revisadas en celular y tablet
+- [x] Sonidos CC0 de Freesound procesados con `tools/sonidos/` y registrados en CREDITOS.md
+- [x] Funciona sin internet, a 60 fps en tablet media, respeta `prefers-reduced-motion`
+- [x] Smoke test con un caso por cuarto; capturas revisadas en celular y tablet
 
 ## Fuera de alcance (prohibido por diseño)
 - Micrófono, grabar o repetir la voz de Maya
@@ -51,6 +54,9 @@ feliz. Sin micrófono y sin repetir la voz. Sin monedas, compras, anuncios ni ca
 - Copiar el personaje, nombre, voz o diseño de Talking Tom u otra marca
 
 ## Notas técnicas
+- Implementado en `juegos/gato/` + `assets/js/michi.js`. Detalles visuales: ojos con iris verde que siguen el dedo,
+  collar con cascabel que se mueve y suena, rayas atigradas, mechón en el pecho, pelo en mejillas, sombra, oreja que se mueve
+- Verificado: 6 zonas + caricia + mareo, 4 cuartos, necesidades y pedidos, festejo, guardado; 60 fps bailando; reduced-motion
 - Personaje grande: SVG propio en `assets/js/dibujos.js` (o `gato.js` si supera ~15 KB)
 - Interacciones de arrastrar con Pointer Events; detección de zonas por `<g>` con `data-zona`
 - Continúa en SPEC-007 (ropa, minijuegos y crecimiento)
