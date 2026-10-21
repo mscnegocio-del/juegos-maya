@@ -89,6 +89,9 @@
     <a class="juego" href="juegos/contar/" data-voz="A contar" style="background: var(--naranja)">
       <span class="icono" data-dibujo="manzana"></span>Contar
     </a>
+    <a class="juego" href="juegos/piano/" data-voz="Piano" style="background: var(--rosa)">
+      <span class="icono" data-dibujo="piano"></span>Piano
+    </a>
   </main>
 
   <script src="assets/js/common.js"></script>
@@ -96,7 +99,7 @@
   <script>
     const ICONOS = {
       globo: Dibujos.globo("#ff5a5f"), vaca: Dibujos.ANIMALES.vaca, paleta: Dibujos.paleta,
-      crayon: Dibujos.crayon, manzana: Dibujos.OBJETOS_CONTAR[0].dibujo,
+      crayon: Dibujos.crayon, manzana: Dibujos.OBJETOS_CONTAR[0].dibujo, piano: Dibujos.piano,
     };
     document.querySelectorAll(".icono").forEach(i => (i.innerHTML = ICONOS[i.dataset.dibujo]));
 

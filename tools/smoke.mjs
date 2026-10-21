@@ -20,6 +20,11 @@ const PAGINAS = {
     for (let i = 0; i < await objetos.count(); i++) await objetos.nth(i).click();
     await objetos.first().click(); // tocar uno ya contado no debe romper nada
   },
+  "juegos/piano/": async p => {
+    const teclas = p.locator(".tecla");
+    for (let i = 0; i < 7; i++) await teclas.nth(i).dispatchEvent("pointerdown");
+    await p.click("#cancion"); await p.waitForTimeout(1200); // la canción ilumina teclas
+  },
   "juegos/pintar/": async p => {
     await p.mouse.move(100, 200); await p.mouse.down(); await p.mouse.move(250, 350); await p.mouse.up();
   },

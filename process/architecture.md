@@ -30,6 +30,7 @@ tools/
 |---|---|
 | `Juegos.decir(texto, {rate, pitch})` | Voz en español (prefiere es-PE). Cancela la frase anterior |
 | `Juegos.tono(freq, dur, tipo, vol)` | Tono sintético (Web Audio) |
+| `Juegos.nota(freq, dur)` | Nota tipo xilófono (polifónica); la usa el Piano |
 | `Juegos.pop()` | Sonido de "pop" (globos) |
 | `Juegos.fiesta()` | Arpegio + confeti (premio) |
 | `Juegos.confeti(n)` | Solo confeti; respeta prefers-reduced-motion |
@@ -41,7 +42,7 @@ tools/
 | `Juegos.COLORES` | Paleta de 7 colores de los juegos |
 
 ## Dibujos SVG (`assets/js/dibujos.js`)
-- `Dibujos.ANIMALES.<id>`, `Dibujos.OBJETOS_CONTAR`, `Dibujos.globo|pelota|flor|estrella(color)`, `Dibujos.paleta|crayon|casita`
+- `Dibujos.ANIMALES.<id>`, `Dibujos.OBJETOS_CONTAR`, `Dibujos.globo|pelota|flor|estrella(color)`, `Dibujos.paleta|crayon|piano|notaMusical|casita`
 - Piezas para dibujos nuevos: `svg(cuerpo, {cabeza})`, `plano()`, `ojos()`, `mejillas()`, `boca()`, `carita()`
 - Al cargar rellena `.btn-casa` con la casita. Toda página que use dibujos lo incluye después de common.js
 - Las animaciones compartidas (parpadeo, `.sonando`) viven en base.css

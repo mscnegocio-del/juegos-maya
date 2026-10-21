@@ -222,6 +222,22 @@ const Dibujos = (() => {
       <g transform="rotate(35 100 100)">${ojos(98, 14)}${boca(116, 9)}</g>
     </g>`);
 
+  const piano = svg(`
+    <rect x="18" y="56" width="164" height="110" rx="18" fill="#3b2a4a"/>
+    ${["#ff5a5f", "#ff9f43", "#ffd23f", "#4cd17a", "#3fa7ff", "#a66bff"].map((c, i) =>
+      `<rect x="${30 + i * 24.5}" y="100" width="20" height="56" rx="6" fill="${c}" stroke-width="3"/>`).join("")}
+    <g stroke="none"><circle cx="78" cy="78" r="7" fill="#fff"/><circle cx="122" cy="78" r="7" fill="#fff"/>
+    <circle cx="80" cy="76" r="2.5" fill="${T}"/><circle cx="124" cy="76" r="2.5" fill="${T}"/></g>
+    <path d="M90 86 Q100 94 110 86" fill="none" stroke="#fff" stroke-width="4"/>`);
+
+  // Nota musical (botón "canción" del piano), sin carita para que se lea como símbolo
+  const notaMusical = `<svg viewBox="0 0 100 100" stroke="${T}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+    <path d="M40 74 L40 22 L80 14 L80 64" fill="none"/>
+    <path d="M40 22 L80 14 L80 28 L40 36Z" fill="${T}"/>
+    <ellipse cx="30" cy="76" rx="13" ry="10" fill="#ff7eb6" transform="rotate(-20 30 76)"/>
+    <ellipse cx="70" cy="66" rx="13" ry="10" fill="#3fa7ff" transform="rotate(-20 70 66)"/>
+  </svg>`;
+
   // Casita del botón "volver al menú" (viewBox propio, sin carita)
   const casita = `<svg viewBox="0 0 100 100" stroke="${T}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
     <path d="M18 50 L50 20 L82 50 L82 84 L18 84Z" fill="#ffd23f"/>
@@ -230,7 +246,7 @@ const Dibujos = (() => {
   </svg>`;
 
   return { T, svg, plano, ojos, mejillas, boca, carita, ANIMALES, OBJETOS_CONTAR,
-           globo, pelota, flor, estrella, paleta, crayon, casita };
+           globo, pelota, flor, estrella, paleta, crayon, piano, notaMusical, casita };
 })();
 
 // El botón "volver al menú" muestra la casita SVG (el emoji queda solo como respaldo sin JS)
