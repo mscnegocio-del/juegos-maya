@@ -54,6 +54,7 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
   transition: transform .15s;
 }
 .btn-casa:active { transform: scale(.9); }
+.btn-casa svg { width: 46px; height: 46px; }
 
 .pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes pop {
@@ -84,4 +85,25 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
   .pop, .wiggle, .confeti { animation: none; }
+}
+
+/* Partes animables de los dibujos (assets/js/dibujos.js). El estado .sonando las activa */
+.ojos, .cabeza, .oreja-i, .oreja-d { transform-box: fill-box; }
+.ojos { transform-origin: center; animation: parpadeo 4.5s infinite; }
+@keyframes parpadeo { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+
+.boca-abierta { display: none; }
+.sonando .boca-abierta { display: inline; }
+.sonando .boca { display: none; }
+.sonando .cabeza { animation: hablar .35s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+@keyframes hablar { from { transform: rotate(-4deg) scale(1); } to { transform: rotate(4deg) scale(1.04); } }
+.oreja-i { transform-origin: 80% 80%; }
+.oreja-d { transform-origin: 20% 80%; }
+.sonando .oreja-i { animation: oreja-i .3s ease-in-out infinite alternate; }
+.sonando .oreja-d { animation: oreja-d .3s ease-in-out infinite alternate; }
+@keyframes oreja-i { to { transform: rotate(-14deg); } }
+@keyframes oreja-d { to { transform: rotate(14deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ojos, .sonando .cabeza, .sonando .oreja-i, .sonando .oreja-d { animation: none; }
 }

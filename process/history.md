@@ -10,3 +10,4 @@
 - SPEC-001 cerrada: el usuario confirmó que funciona en un dispositivo real
 - SPEC-003: app instalable y offline
 - Publicado en GitHub Pages (PR #1). El primer despliegue falló hasta poner `main` como rama por defecto
+- SPEC-005: dibujos compartidos en `dibujos.js`; menú, Globos, Colores y casita en SVG

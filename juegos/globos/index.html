@@ -16,56 +16,65 @@
     body { overflow: hidden; background: linear-gradient(#bfe6ff, #fff7ec); }
     .globo {
       position: absolute;
-      bottom: -180px;
-      width: 110px;
-      height: 135px;
-      border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+      bottom: -220px;
+      width: 120px;
+      height: 145px;
       animation: subir linear forwards;
-      box-shadow: inset -14px -10px 0 rgba(0, 0, 0, .1);
+      filter: drop-shadow(-6px 6px 0 rgba(0, 0, 0, .08));
     }
-    .globo::before {
-      content: "";
-      position: absolute;
-      top: 22px; left: 24px;
-      width: 18px; height: 30px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, .55);
-      transform: rotate(25deg);
-    }
-    .globo::after {
-      content: "";
-      position: absolute;
-      left: 50%; bottom: -60px;
-      width: 2px; height: 60px;
-      background: rgba(0, 0, 0, .25);
-    }
+    .globo svg { width: 100%; height: 100%; overflow: visible; }
     @keyframes subir { to { transform: translateY(calc(-100vh - 260px)); } }
-    .reventado { animation: reventar .2s forwards !important; }
-    @keyframes reventar { to { transform: scale(1.6); opacity: 0; } }
+    /* Al reventar: partículas del color del globo que salen en todas direcciones */
+    .particula {
+      position: fixed; width: 18px; height: 18px; border-radius: 50%;
+      border: 3px solid var(--ink); pointer-events: none;
+      animation: estallar .55s ease-out forwards;
+    }
+    @keyframes estallar { to { transform: translate(var(--dx), var(--dy)) scale(.3); opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .particula { display: none; } }
     .contador {
       position: fixed; top: 20px; right: 20px;
       font-size: 44px; font-weight: 800;
       background: #fff; border-radius: 40px; padding: 4px 22px;
       box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
+      display: flex; align-items: center; gap: 6px;
     }
+    .contador .mini svg { width: 44px; height: 52px; display: block; }
   </style>
 </head>
 <body>
   <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
-  <div class="contador" id="contador">🎈 0</div>
+  <div class="contador" id="contador"><span class="mini" id="mini"></span><span id="numero">0</span></div>
 
   <script src="../../assets/js/common.js"></script>
+  <script src="../../assets/js/dibujos.js"></script>
   <script>
     const NOMBRES = { "#ff5a5f": "rojo", "#3fa7ff": "azul", "#ffd23f": "amarillo", "#4cd17a": "verde",
                       "#a66bff": "morado", "#ff9f43": "naranja", "#ff7eb6": "rosado" };
     let total = 0;
     const contador = document.getElementById("contador");
+    const numero = document.getElementById("numero");
+    document.getElementById("mini").innerHTML = Dibujos.globo("#ff5a5f");
+
+    function estallar(g, color) {
+      const r = g.getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height * .4;
+      g.remove();
+      for (let i = 0; i < 10; i++) {
+        const a = i / 10 * Math.PI * 2, d = 70 + Math.random() * 40;
+        const p = document.createElement("div");
+        p.className = "particula";
+        p.style.cssText = `left:${cx - 9}px;top:${cy - 9}px;background:${color};--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px`;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 600);
+      }
+    }
 
     function crearGlobo() {
       const color = Juegos.azar(Juegos.COLORES);
       const g = document.createElement("div");
       g.className = "globo";
-      g.style.background = color;
+      g.innerHTML = Dibujos.globo(color);
       g.style.left = Math.random() * (innerWidth - 120) + "px";
       g.style.animationDuration = 6 + Math.random() * 4 + "s";
       g.addEventListener("pointerdown", () => {
@@ -73,11 +82,11 @@
         Juegos.pop();
         Juegos.decir(NOMBRES[color]);
         g.classList.add("reventado");
+        estallar(g, color);
         total++;
-        contador.textContent = "🎈 " + total;
+        numero.textContent = total;
         Juegos.animar(contador, "pop");
         if (total % 10 === 0) setTimeout(() => { Juegos.fiesta(); Juegos.decir("¡Muy bien, Maya!"); }, 400);
-        setTimeout(() => g.remove(), 200);
       });
       g.addEventListener("animationend", e => e.animationName === "subir" && g.remove());
       document.body.appendChild(g);

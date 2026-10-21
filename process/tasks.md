@@ -23,12 +23,12 @@
 | 4 | Integrar audio real en Animales (precarga, sin solapes, voz al terminar) | SPEC-001 | hecho |
 | 5 | Verificar SPEC-001 (smoke, capturas y dispositivo real) | SPEC-001 | hecho |
 | 7 | PWA instalable y offline (manifest, íconos, fuente local, service worker generado) | SPEC-003 | hecho |
+| 8 | Globos, Colores, menú y casita con SVG propios; `dibujos.js` compartido | SPEC-005 | hecho |
 | 6 | Juego Contar hasta 5 (manzanas, estrellas, flores, pelotas; voz cuenta; dificultad progresiva) | SPEC-002 | hecho |
 
 ## Backlog (priorizado)
 | # | Idea | Spec | Estado |
 |---|------|------|--------|
-| 1 | Globos, Colores y el menú con SVG propios (+ `dibujos.js` compartido) | SPEC-005 | borrador |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 2 | Piano de colores (teclas gigantes con nota + animal) | SPEC-004 | borrador |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |

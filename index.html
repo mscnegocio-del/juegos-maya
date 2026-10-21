@@ -57,8 +57,14 @@
       transition: transform .15s, box-shadow .15s;
     }
     .juego:active { transform: translateY(8px); box-shadow: 0 2px 0 rgba(0, 0, 0, .15); }
-    .juego .emoji { font-size: clamp(64px, 16vw, 120px); line-height: 1; filter: drop-shadow(0 6px 0 rgba(0,0,0,.12)); }
-    .juego:hover .emoji { animation: wiggle .5s; }
+    .juego .icono {
+      width: 62%; aspect-ratio: 1 / 1;
+      background: #fff; border-radius: 50%;
+      padding: 9%;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
+    }
+    .juego .icono svg { width: 100%; height: 100%; overflow: visible; display: block; }
+    .juego:hover .icono svg { animation: wiggle .5s; }
   </style>
 </head>
 <body>
@@ -69,30 +75,38 @@
 
   <main class="menu">
     <a class="juego" href="juegos/globos/" data-voz="Globos" style="background: var(--rojo)">
-      <span class="emoji">🎈</span>Globos
+      <span class="icono" data-dibujo="globo"></span>Globos
     </a>
     <a class="juego" href="juegos/animales/" data-voz="Animales" style="background: var(--verde)">
-      <span class="emoji">🐮</span>Animales
+      <span class="icono" data-dibujo="vaca"></span>Animales
     </a>
     <a class="juego" href="juegos/colores/" data-voz="Colores" style="background: var(--azul)">
-      <span class="emoji">🎨</span>Colores
+      <span class="icono" data-dibujo="paleta"></span>Colores
     </a>
     <a class="juego" href="juegos/pintar/" data-voz="A pintar" style="background: var(--morado)">
-      <span class="emoji">🖍️</span>Pintar
+      <span class="icono" data-dibujo="crayon"></span>Pintar
     </a>
     <a class="juego" href="juegos/contar/" data-voz="A contar" style="background: var(--naranja)">
-      <span class="emoji">🍎</span>Contar
+      <span class="icono" data-dibujo="manzana"></span>Contar
     </a>
   </main>
 
   <script src="assets/js/common.js"></script>
+  <script src="assets/js/dibujos.js"></script>
   <script>
+    const ICONOS = {
+      globo: Dibujos.globo("#ff5a5f"), vaca: Dibujos.ANIMALES.vaca, paleta: Dibujos.paleta,
+      crayon: Dibujos.crayon, manzana: Dibujos.OBJETOS_CONTAR[0].dibujo,
+    };
+    document.querySelectorAll(".icono").forEach(i => (i.innerHTML = ICONOS[i.dataset.dibujo]));
+
     // Dice el nombre del juego y luego entra, para que la niña asocie dibujo y palabra
     document.querySelectorAll(".juego").forEach(a => {
       a.addEventListener("click", e => {
         e.preventDefault();
         Juegos.decir(a.dataset.voz);
-        Juegos.animar(a.querySelector(".emoji"), "wiggle");
+        a.classList.add("sonando"); // el dibujo abre la boca y se mueve
+        Juegos.animar(a.querySelector(".icono svg"), "wiggle");
         setTimeout(() => (location.href = a.href), 700);
       });
     });
