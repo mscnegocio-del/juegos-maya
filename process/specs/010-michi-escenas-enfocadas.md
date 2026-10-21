@@ -1,5 +1,6 @@
 # SPEC-010 — Michi: escenas enfocadas y cuidados detallados (mecánica tipo "My Talking Tom")
-Estado: borrador
+Estado: aprobada
+> Aprobada por el usuario en el chat el 2026-10-21. Michi se queda gris con ojos verdes.
 > Depende de SPEC-006 y va junto con SPEC-009 (estilo visual). Referencia: capturas de My Talking Tom enviadas por
 > el usuario, solo como inspiración de **mecánicas**. Michi sigue siendo un personaje propio (no se copia a Tom).
 

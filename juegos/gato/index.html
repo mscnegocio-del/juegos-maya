@@ -14,34 +14,50 @@
   <link rel="stylesheet" href="../../assets/css/base.css">
   <style>
     html, body { height: 100%; overflow: hidden; }
-    body { touch-action: none; transition: background .5s; }
-    body.cuarto-cocina { background: linear-gradient(#fff1d6 0 62%, #e9c79a 62%); }
-    body.cuarto-banera { background: linear-gradient(#d9f2ff 0 62%, #a9d8f0 62%); }
-    body.cuarto-inodoro { background: linear-gradient(#e6fbe9 0 62%, #b9e6c2 62%); }
-    body.cuarto-dormitorio { background: linear-gradient(#efe4ff 0 62%, #c9b3ef 62%); }
+    body { touch-action: none; background: #fde8e0; --suelo: max(190px, 22dvh); }
     [hidden] { display: none !important; }
 
-    .escena { position: fixed; inset: 0; }
-    .decoracion { position: absolute; pointer-events: none; }
-    .decoracion svg, .prop svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    /* ---------- Escenario y cámara: la cámara es un transform sobre todo el escenario ---------- */
+    #escenario { position: fixed; left: 0; top: 0; width: 100vw; height: 100dvh; transform-origin: 0 0;
+                 transition: transform .9s cubic-bezier(.45, .05, .25, 1); will-change: transform; }
+    .cuarto-sala #escenario { background: linear-gradient(#fbe3dc 0 58%, #e2b896 58%); }
+    .cuarto-cocina #escenario { background: linear-gradient(#fff1d6 0 58%, #e9c79a 58%); }
+    .cuarto-bano #escenario { background:
+        repeating-linear-gradient(90deg, transparent 0 46px, #c9dcef 46px 48px) 0 0 / 100% 58% no-repeat,
+        repeating-linear-gradient(0deg, transparent 0 46px, #c9dcef 46px 48px) 0 0 / 100% 58% no-repeat,
+        linear-gradient(#e6f1fb 0 58%, #9fd0ee 58%); }
+    .cuarto-dormitorio #escenario { background: linear-gradient(#ece0fb 0 58%, #c4adec 58%); }
+    #fondo { position: absolute; inset: 0; filter: blur(2.2px); pointer-events: none; }
+    .deco, .obj { position: absolute; }
+    .deco svg, .obj svg { width: 100%; height: auto; display: block; overflow: visible; }
+    .obj { z-index: 3; background: none; padding: 0; }
+    .obj.tocable { cursor: pointer; }
+    .obj.brilla { animation: brillo .7s ease-in-out infinite alternate; }
+    @keyframes brillo { to { filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 4px #ffd23f) brightness(1.12); } }
+    .frente { z-index: 7; pointer-events: none; }
+    #vineta { position: fixed; inset: 0; pointer-events: none; opacity: 0; transition: opacity .9s; z-index: 8;
+              background: radial-gradient(ellipse at center, transparent 45%, rgba(40, 20, 30, .45) 100%); }
+    body.enfocado #vineta { opacity: 1; }
 
     /* ---------- Michi ---------- */
-    #michi {
-      position: absolute; left: 50%; bottom: 128px;
-      height: min(54dvh, 92vw); aspect-ratio: 240 / 320;
-      transform: translateX(-50%);
-      transition: left .7s ease-in-out, bottom .7s ease-in-out, transform .7s ease-in-out;
-      z-index: 5;
-    }
+    #michi { position: absolute; z-index: 5; transform: translateX(-50%); aspect-ratio: 240 / 320;
+             transition: left .8s ease-in-out, bottom .8s ease-in-out, height .8s ease-in-out, transform .8s ease-in-out; }
     #michi svg { width: 100%; height: 100%; overflow: visible; display: block; }
-    /* fill-box solo en los grupos animados: las piezas con atributo transform (brazos, orejas de la vaca…) se desplazarían */
-    .cola, .cabeza, .pata-i, .pata-d, .ojos-abiertos, .oreja-i, .oreja-d, .cascabel { transform-box: fill-box; }
-    .ojos-cerrados, .ojos-felices, .boca-abierta, .lengua { display: none; }
-    #michi.cerrados .ojos-abiertos, #michi.felices .ojos-abiertos { display: none; }
-    #michi.cerrados .ojos-cerrados, #michi.felices .ojos-felices { display: inline; }
-    #michi.abierta .boca, #michi.lengua .boca { display: none; }
-    #michi.abierta .boca-abierta, #michi.lengua .lengua { display: inline; }
-    #michi.abierta.lengua .lengua { display: none; }
+    .cola, .cabeza, .pata-i, .pata-d, .ojos-abiertos, .oreja-i, .oreja-d, .cascabel, .mejilla, .ceja-i, .ceja-d, .cuerpo { transform-box: fill-box; }
+    .ojos-satisfecho, .ojos-cerrados, .ojos-felices, .ojos-esfuerzo, .ojos-espiral, .ojos-corazon,
+    .boca-abierta, .lengua, .boca-o, .boca-masticar, .boca-dientes { display: none; }
+    .mancha { display: none; transition: opacity .4s; }
+    .mancha.visible { display: inline; }
+    .mancha.limpia { opacity: 0; }
+    #michi.satisfecho .ojos-satisfecho { display: inline; }
+    #michi:is(.cerrados, .felices, .esfuerzo, .espiral, .corazon) .ojos-abiertos,
+    #michi:is(.cerrados, .felices, .esfuerzo, .espiral, .corazon) .ojos-satisfecho { display: none; }
+    #michi.cerrados .ojos-cerrados, #michi.felices .ojos-felices, #michi.esfuerzo .ojos-esfuerzo,
+    #michi.espiral .ojos-espiral, #michi.corazon .ojos-corazon { display: inline; }
+    #michi:is(.abierta, .lengua, .boca-o, .masticar, .dientes) .boca { display: none; }
+    #michi.abierta .boca-abierta, #michi.lengua .lengua, #michi.boca-o .boca-o, #michi.masticar .boca-masticar,
+    #michi.dientes .boca-dientes { display: inline; }
+    #michi.abierta:is(.lengua, .boca-o) .boca-abierta { display: none; }
 
     .michi { animation: respirar 3s ease-in-out infinite; transform-origin: 50% 100%; }
     @keyframes respirar { 50% { transform: scale(1.015, .985); } }
@@ -50,144 +66,172 @@
     .ojos-abiertos { transform-origin: center; animation: parpadeo 4.5s infinite; }
     .pupilas { transition: transform .15s; transform: translate(var(--px, 0px), var(--py, 0px)); }
     .cabeza { transform-origin: 50% 90%; }
-    .pata-d { transform-origin: 50% 10%; }
+    .pata-i, .pata-d { transform-origin: 50% 4%; transition: transform .4s ease-out; }
     .cascabel { transform-origin: 50% 0%; }
-    #michi.salta .cascabel, #michi.baila .cascabel, #michi.cosquillas .cascabel, #michi.sacudir .cascabel, #michi.apurado .cascabel { animation: cascabel .25s ease-in-out infinite alternate; }
-    @keyframes cascabel { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
     .oreja-d { transform-origin: 30% 100%; animation: oreja-mueve 7s ease-in-out infinite; }
+    .oreja-i { transform-origin: 70% 100%; }
     @keyframes oreja-mueve { 0%, 90%, 100% { transform: none; } 93% { transform: rotate(-12deg); } 96% { transform: rotate(4deg); } }
-    .pata-i { transform-origin: 50% 10%; }
-    .mejilla { transition: opacity .3s; }
-    #michi.sonrojado .mejilla { opacity: 1; }
+    .mejilla { transform-origin: center; transition: opacity .3s, transform .3s; }
+    .ceja-i, .ceja-d { transform-origin: center; transition: transform .25s; }
+    #michi.sonrojado .mejilla { opacity: .95; }
+    #michi.esfuerzo .mejilla { opacity: 1; transform: scale(1.45); }
+    #michi.esfuerzo .ceja-i { transform: translateY(5px) rotate(16deg); }
+    #michi.esfuerzo .ceja-d { transform: translateY(5px) rotate(-16deg); }
+    #michi.sorpresa .ceja-i, #michi.sorpresa .ceja-d { transform: translateY(-9px); }
+    #michi.satisfecho .ceja-i { transform: rotate(-8deg); } #michi.satisfecho .ceja-d { transform: rotate(8deg); }
 
     #michi.ronronea .cabeza { animation: ladear 1.2s ease-in-out infinite alternate; }
     @keyframes ladear { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
     #michi.cosquillas svg { animation: cosquillas .18s linear infinite; }
     @keyframes cosquillas { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
     #michi.estornudo .cabeza { animation: estornudo 1s ease-in-out; }
-    @keyframes estornudo { 0% { transform: none; } 50% { transform: rotate(-6deg) translateY(-6px); } 65% { transform: rotate(4deg) translateY(10px) scale(1.04); } 100% { transform: none; } }
+    @keyframes estornudo { 50% { transform: rotate(-6deg) translateY(-6px); } 65% { transform: rotate(4deg) translateY(10px) scale(1.04); } }
     #michi.salta svg { animation: saltar .7s cubic-bezier(.3, 1.4, .5, 1); }
     @keyframes saltar { 40% { transform: translateY(-22%) scale(1.03, .97); } }
+    #michi.caminando svg { animation: caminar .32s ease-in-out infinite alternate; }
+    @keyframes caminar { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-5%) rotate(3deg); } }
     #michi.saluda .pata-d { animation: saludar .4s ease-in-out 4 alternate; }
     @keyframes saludar { from { transform: rotate(-150deg); } to { transform: rotate(-115deg); } }
+    #michi.zarpazo .pata-d { animation: zarpazo .5s ease-in-out; }
+    @keyframes zarpazo { 50% { transform: rotate(-60deg); } }
     #michi.mareado .cabeza { animation: marear .8s linear infinite; }
-    @keyframes marear { 0% { transform: rotate(-8deg) translateX(-4px); } 50% { transform: rotate(8deg) translateX(4px); } 100% { transform: rotate(-8deg) translateX(-4px); } }
+    @keyframes marear { 0%, 100% { transform: rotate(-8deg) translateX(-4px); } 50% { transform: rotate(8deg) translateX(4px); } }
     #michi.baila svg { animation: bailar .5s ease-in-out infinite alternate; }
     @keyframes bailar { from { transform: rotate(-8deg) translateY(0); } to { transform: rotate(8deg) translateY(-6%); } }
-    #michi.baila .pata-i, #michi.estirarse .pata-i { animation: brazo-i .5s ease-in-out infinite alternate; }
-    #michi.baila .pata-d, #michi.estirarse .pata-d { animation: brazo-d .5s ease-in-out infinite alternate; }
+    #michi:is(.baila, .estirarse) .pata-i { animation: brazo-i .5s ease-in-out infinite alternate; }
+    #michi:is(.baila, .estirarse) .pata-d { animation: brazo-d .5s ease-in-out infinite alternate; }
     @keyframes brazo-i { to { transform: rotate(140deg); } }
     @keyframes brazo-d { to { transform: rotate(-140deg); } }
     #michi.estirarse svg { animation: estirar 1.4s ease-in-out; }
     @keyframes estirar { 40% { transform: scale(.95, 1.12); } }
     #michi.bosteza .cabeza { animation: bostezo 1.6s ease-in-out; }
     @keyframes bostezo { 50% { transform: rotate(-8deg) scale(1.04); } }
+    #michi.temblor svg { animation: temblor .12s linear infinite; }
+    @keyframes temblor { 50% { transform: translateX(1.2%); } }
     #michi.pancita .pata-d { animation: pancita .5s ease-in-out 3 alternate; }
-    @keyframes pancita { from { transform: rotate(0deg); } to { transform: rotate(40deg) translate(-30%, 10%); } }
+    @keyframes pancita { to { transform: rotate(40deg) translate(-30%, 10%); } }
     #michi.rascarse .pata-i { animation: rascar .2s linear 8 alternate; }
     @keyframes rascar { to { transform: rotate(-60deg); } }
     #michi.apurado svg { animation: apurado .3s ease-in-out 6 alternate; }
     @keyframes apurado { to { transform: translateY(-4%) rotate(3deg); } }
     #michi.sacudir svg { animation: cosquillas .1s linear 10; }
-    #michi.mojado .michi { filter: saturate(.7) brightness(.85); }
-    #michi.duerme { bottom: max(40px, 6dvh); transform: translateX(-50%) rotate(-80deg) scale(.6); }
+    /* manos al frente (lavamanos) y frotándose */
+    #michi.manos .pata-i { transform: rotate(-38deg); } #michi.manos .pata-d { transform: rotate(38deg); }
+    #michi.manos.frotando .pata-i { animation: frotar-i .25s ease-in-out infinite alternate; }
+    #michi.manos.frotando .pata-d { animation: frotar-d .25s ease-in-out infinite alternate; }
+    @keyframes frotar-i { from { transform: rotate(-34deg); } to { transform: rotate(-44deg); } }
+    @keyframes frotar-d { from { transform: rotate(44deg); } to { transform: rotate(34deg); } }
+    #michi.mojado .michi { filter: saturate(.75) brightness(.86); }
+    #michi.brillante .michi { filter: brightness(1.06) drop-shadow(0 0 8px #fff); }
+    #michi:is(.salta, .baila, .cosquillas, .sacudir, .apurado, .caminando) .cascabel { animation: cascabel .25s ease-in-out infinite alternate; }
+    @keyframes cascabel { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
+    #michi.duerme { transform: translateX(-50%) rotate(-80deg) scale(.6); }
     #michi.duerme .michi, #michi.duerme .cola { animation-duration: 5s; }
-    #michi.en-inodoro { left: calc(8% + min(18vw, 110px)); bottom: 150px; transform: translateX(-50%) scale(.62); z-index: 7; }
-    #michi.en-lavamanos { left: 62%; }
 
     /* ---------- Efectos ---------- */
     .efecto { position: fixed; pointer-events: none; z-index: 20; }
     .corazon { width: 34px; height: 34px; animation: flotar 1.4s ease-out forwards; }
+    .destello { width: 30px; height: 30px; animation: destellar .9s ease-out forwards; }
+    @keyframes destellar { 0% { transform: scale(0) rotate(0); } 50% { transform: scale(1.2) rotate(45deg); } 100% { transform: scale(0) rotate(90deg); opacity: 0; } }
     @keyframes flotar { to { transform: translate(var(--dx, 0), -140px) scale(1.4); opacity: 0; } }
     .zeta { font: 800 40px var(--font); color: #fff; text-shadow: 0 3px 0 var(--ink); animation: flotar 2.4s ease-out forwards; }
-    .burbuja { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, #d8f3ff 60%, #a8dcf5);
-               border: 2px solid #7cc4e6; position: absolute; pointer-events: none; z-index: 7; animation: aparecer .3s ease-out; }
-    @keyframes aparecer { from { transform: scale(0); } }
+    .burbuja { position: absolute; border-radius: 50%; pointer-events: none; z-index: 6; animation: aparecer .25s ease-out;
+               border: 1.5px solid rgba(110, 170, 210, .8); transform: translate(-50%, -50%); }
+    @keyframes aparecer { from { transform: translate(-50%, -50%) scale(0); } }
     .burbuja.revienta { animation: reventar .4s ease-out forwards; }
-    @keyframes reventar { to { transform: scale(1.8); opacity: 0; } }
+    @keyframes reventar { to { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } }
     .gota { width: 10px; height: 18px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #5bb8f0; animation: caer-gota .9s linear forwards; }
-    @keyframes caer-gota { to { transform: translateY(260px); opacity: .2; } }
-    .estrellas-mareo { position: absolute; left: 20%; right: 20%; top: -4%; height: 18%; z-index: 6; pointer-events: none;
-                       animation: girar 1.2s linear infinite; }
+    @keyframes caer-gota { to { transform: translateY(var(--caida, 260px)); opacity: .2; } }
+    .salpicon { width: 12px; height: 12px; border-radius: 50%; background: #7fd3ff; animation: salpicar .7s ease-out forwards; }
+    @keyframes salpicar { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+    .nube-pum { width: 120px; height: 100px; animation: pum 1.8s ease-out forwards; }
+    @keyframes pum { 0% { transform: scale(.2); opacity: 0; } 20% { opacity: .95; } 100% { transform: translate(-60px, -50px) scale(1.6); opacity: 0; } }
+    .remolino { position: absolute; z-index: 4; pointer-events: none; animation: girar .6s linear infinite; }
     @keyframes girar { to { transform: rotate(360deg); } }
-
+    .chorro { position: absolute; z-index: 6; width: 3%; border-radius: 6px; pointer-events: none;
+              background: linear-gradient(90deg, #7fd3ff, #c8eeff, #7fd3ff); animation: chorro .3s linear infinite; opacity: .9; }
+    @keyframes chorro { 50% { opacity: .6; } }
+    .estrellas-mareo { position: absolute; left: 20%; right: 20%; top: -4%; height: 18%; z-index: 6; pointer-events: none; animation: girar 1.2s linear infinite; }
     .noche { position: fixed; inset: 0; background: rgba(20, 16, 60, .62); pointer-events: none; opacity: 0; transition: opacity .8s; z-index: 4; }
     body.oscuro .noche { opacity: 1; }
+    .bichito { transform-box: fill-box; transform-origin: center; animation: bichito .6s ease-in-out infinite alternate; }
+    @keyframes bichito { to { transform: translateY(-1.5px) rotate(8deg); } }
+    .bichito.fuera { animation: bichito-fuera .4s ease-in forwards; }
+    @keyframes bichito-fuera { to { transform: translateY(-20px) scale(0); opacity: 0; } }
+    .tira { transition: transform .8s ease-out; transform-origin: 50% 0; transform-box: fill-box; }
+    .papel-abierto .tira { transform: scaleY(3.2); }
+    #ovillo { z-index: 6; touch-action: none; }
 
     /* ---------- Interfaz ---------- */
-    .necesidades { position: fixed; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 30; }
-    .necesidad {
-      width: 56px; height: 56px; border-radius: 50%; position: relative;
-      background: conic-gradient(var(--color) calc(var(--nivel) * 1%), #ffffffaa 0);
-      box-shadow: 0 4px 0 rgba(0, 0, 0, .12);
-      display: grid; place-items: center;
-    }
-    .necesidad::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: #fff; }
-    .necesidad svg { position: relative; width: 30px; height: 30px; }
-    .necesidad.baja { animation: wiggle .6s ease-in-out infinite; }
-
-    .flecha { position: fixed; top: 46%; width: 64px; height: 64px; border-radius: 50%; background: #fff; z-index: 30;
-              box-shadow: 0 5px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; }
-    .flecha svg { width: 34px; height: 34px; }
-    .flecha:active { transform: scale(.9); }
-    #izq { left: 10px; } #der { right: 10px; }
-    .puntos { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 30; }
-    .puntos span { width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
-    .puntos span.activo { background: var(--ink); }
-
-    .bandeja { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; gap: 8px; z-index: 12;
-               background: #fff; padding: 8px 12px; border-radius: 40px; box-shadow: 0 6px 0 rgba(0, 0, 0, .12); max-width: calc(100vw - 24px); }
-    .item { width: min(64px, calc((100vw - 84px) / 6)); height: auto; aspect-ratio: 1 / 1; border-radius: 50%; display: grid; place-items: center; background: #fff7ec; flex: none;
-            touch-action: none; transition: transform .12s; }
-    .item svg { width: 75%; height: 75%; pointer-events: none; }
+    .barra { position: fixed; left: 0; right: 0; bottom: 0; height: 96px; z-index: 30; display: flex; justify-content: center; align-items: center; gap: min(4vw, 26px);
+             background: linear-gradient(transparent, rgba(255, 255, 255, .55)); padding-bottom: 6px; }
+    .boton-cuarto { width: 70px; height: 70px; border-radius: 50%; position: relative; display: grid; place-items: center;
+                    background: conic-gradient(var(--color) calc(var(--nivel, 100) * 1%), #ffffffb0 0); box-shadow: 0 5px 0 rgba(0, 0, 0, .15);
+                    transition: transform .15s; }
+    .boton-cuarto::before { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: #fff; }
+    .boton-cuarto.activo::before { background: #fff3c4; }
+    .boton-cuarto svg { position: relative; width: 40px; height: 40px; }
+    .boton-cuarto.baja { animation: wiggle .6s ease-in-out infinite; }
+    .boton-cuarto:active { transform: scale(.9); }
+    .carino { position: fixed; top: 16px; right: 16px; width: 64px; height: 64px; z-index: 30; display: grid; place-items: center;
+              background: #fff; border-radius: 50%; box-shadow: 0 5px 0 rgba(0, 0, 0, .12); }
+    .carino svg { width: 40px; height: 40px; transition: transform .3s; }
+    .carino .nivel { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#ff5a87 calc(var(--nivel, 50) * 1%), transparent 0);
+                     -webkit-mask: radial-gradient(circle, transparent 25px, #000 26px); mask: radial-gradient(circle, transparent 25px, #000 26px); }
+    #volver { position: fixed; top: 16px; left: 100px; width: 72px; height: 72px; border-radius: 50%; background: #fff; z-index: 30;
+              box-shadow: 0 6px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; }
+    #volver svg { width: 38px; height: 38px; }
+    .bandeja { position: fixed; left: 50%; bottom: 102px; transform: translateX(-50%); display: flex; gap: 8px; z-index: 31;
+               background: #fff; padding: 7px 12px; border-radius: 40px; box-shadow: 0 6px 0 rgba(0, 0, 0, .12); max-width: calc(100vw - 20px); }
+    .item { width: min(62px, calc((100vw - 84px) / 6)); aspect-ratio: 1 / 1; border-radius: 50%; display: grid; place-items: center;
+            background: #fff7ec; flex: none; touch-action: none; transition: transform .12s; }
+    .item svg { width: 76%; height: 76%; pointer-events: none; }
     .item:active, .item.activo { transform: scale(1.12); background: var(--amarillo); }
-    .arrastrando { position: fixed; width: 72px; height: 72px; z-index: 40; pointer-events: none; transform: translate(-50%, -50%) scale(1.15); }
-    .arrastrando svg { width: 100%; height: 100%; }
-    .volando { position: fixed; width: 64px; height: 64px; z-index: 40; pointer-events: none; transition: transform .1s; }
+    .item.brilla { animation: brillo .7s ease-in-out infinite alternate; }
+    .arrastrando, .herramienta-mano { position: fixed; width: 76px; height: 76px; z-index: 40; pointer-events: none; transform: translate(-50%, -50%) scale(1.15); }
+    .arrastrando svg, .herramienta-mano svg { width: 100%; height: 100%; }
+    .volando { position: fixed; width: 64px; height: 64px; z-index: 40; pointer-events: none; }
     .volando svg { width: 100%; height: 100%; }
-
-    .prop { position: absolute; z-index: 6; background: none; padding: 0; }
-    .prop.tocable { cursor: pointer; }
-    .prop.brilla { animation: brillo .7s ease-in-out infinite alternate; }
-    @keyframes brillo { to { filter: drop-shadow(0 0 14px #fff) brightness(1.15); } }
-
-    .pensamiento { position: absolute; z-index: 9; width: 84px; height: 72px; background: #fff; border-radius: 40px;
-                   box-shadow: 0 5px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; animation: aparecer .3s ease-out; }
+    .pensamiento { position: fixed; z-index: 29; width: 84px; height: 72px; background: #fff; border-radius: 40px;
+                   box-shadow: 0 5px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; animation: aparecer-p .3s ease-out; }
+    @keyframes aparecer-p { from { transform: scale(0); } }
     .pensamiento svg { width: 46px; height: 46px; }
-    .pensamiento::after { content: ""; position: absolute; left: 14px; bottom: -16px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
 
     @media (prefers-reduced-motion: reduce) {
-      .michi, .cola, .ojos-abiertos, #michi * , #michi svg, .estrellas-mareo, .necesidad.baja, .prop.brilla { animation: none !important; }
-      .corazon, .zeta, .gota { animation-duration: .01s; }
+      #escenario { transition-duration: .01s; }
+      .michi, .cola, .ojos-abiertos, #michi *, #michi svg, .estrellas-mareo, .boton-cuarto.baja, .obj.brilla, .item.brilla, .bichito, .remolino { animation: none !important; }
+      .corazon, .zeta, .gota, .destello, .nube-pum, .salpicon { animation-duration: .01s; }
     }
   </style>
 </head>
-<body class="cuarto-cocina">
+<body class="cuarto-sala">
   <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
-  <div class="necesidades" id="necesidades"></div>
-  <main class="escena" id="escena">
-    <div id="decoracion"></div>
+  <button id="volver" aria-label="Volver al cuarto" hidden></button>
+  <div class="carino" id="carino" aria-label="Cariño"><span class="nivel"></span></div>
+  <main id="escenario">
+    <div id="fondo"></div>
+    <div id="objetos"></div>
     <div id="michi"></div>
-    <div id="props"></div>
   </main>
+  <div id="vineta"></div>
   <div class="noche"></div>
-  <button class="flecha" id="izq" aria-label="Cuarto anterior"></button>
-  <button class="flecha" id="der" aria-label="Cuarto siguiente"></button>
   <div class="bandeja" id="bandeja" hidden></div>
-  <div class="puntos" id="puntos"></div>
+  <nav class="barra" id="barra"></nav>
 
   <script src="../../assets/js/common.js"></script>
   <script src="../../assets/js/dibujos.js"></script>
   <script src="../../assets/js/michi.js"></script>
+  <script src="../../assets/js/michi-casa.js"></script>
   <script>
     const $ = id => document.getElementById(id);
-    const michi = $("michi"), escena = $("escena"), props = $("props"), decoracion = $("decoracion"), bandeja = $("bandeja");
+    const escenario = $("escenario"), fondo = $("fondo"), objetos = $("objetos"), michi = $("michi"), bandeja = $("bandeja");
     michi.innerHTML = Michi.svg;
     const svgMichi = michi.querySelector("svg");
+    const esperar = ms => new Promise(r => setTimeout(r, ms));
 
     // ================= Sonidos =================
     // Grabaciones reales (CC0 / dominio público) cuando existen; el resto se sintetiza para que siempre suene algo.
-    // Pendientes de conseguir grabación real: risa, bostezo, mordisco, agua, descarga, aplausos (ver CREDITOS.md)
+    // Pendientes de grabación real: risa, bostezo, mordisco, agua, descarga, aplausos, pum, plop (ver CREDITOS.md)
     const ARCHIVOS = {
       maullido: "../../assets/sonidos/animales/gato.mp3",
       ronroneo: "../../assets/sonidos/michi/ronroneo.mp3",
@@ -204,21 +248,31 @@
       g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
       s.connect(f).connect(g).connect(a.destination); s.start();
     }
+    function barrido(f1, f2, dur, tipo = "sine", vol = .2) {
+      const a = audio(), o = a.createOscillator(), g = a.createGain();
+      o.type = tipo; o.frequency.setValueAtTime(f1, a.currentTime); o.frequency.exponentialRampToValueAtTime(f2, a.currentTime + dur);
+      g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + dur);
+      o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + dur);
+    }
     const SINTETICOS = {
       ronroneo: () => ruido(1.6, { f1: 180, vol: .5, am: 24 }),
       risa: () => [0, 1, 2, 3].forEach(k => setTimeout(() => Juegos.tono(820 - k * 60, .09, "triangle", .2), k * 120)),
       estornudo: () => { Juegos.tono(420, .25, "sine", .15); setTimeout(() => Juegos.tono(500, .25, "sine", .15), 280); setTimeout(() => ruido(.35, { filtro: "bandpass", f1: 3000, f2: 800, vol: .6 }), 620); },
-      bostezo: () => { const a = audio(), o = a.createOscillator(), g = a.createGain(); o.frequency.setValueAtTime(420, a.currentTime); o.frequency.exponentialRampToValueAtTime(180, a.currentTime + 1);
-        g.gain.setValueAtTime(.15, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + 1.1); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + 1.1); },
+      bostezo: () => barrido(420, 180, 1.1, "sine", .15),
       mordisco: () => [0, 90].forEach(t => setTimeout(() => ruido(.07, { filtro: "highpass", f1: 1500, vol: .5 }), t)),
       agua: () => ruido(1.8, { filtro: "bandpass", f1: 2500, f2: 1800, vol: .35 }),
-      descarga: () => ruido(1.6, { filtro: "lowpass", f1: 2500, f2: 300, vol: .5 }),
+      descarga: () => ruido(1.8, { filtro: "lowpass", f1: 2500, f2: 250, vol: .55 }),
       cascabel: () => [0, 70, 150, 230].forEach(t => setTimeout(() => { Juegos.tono(2600 + Math.random() * 500, .12, "sine", .08); Juegos.tono(3900, .08, "sine", .04); }, t)),
       aplausos: () => { for (let k = 0; k < 14; k++) setTimeout(() => ruido(.05, { filtro: "bandpass", f1: 1800 + Math.random() * 800, vol: .5 }), k * 90 + Math.random() * 40); },
+      pum: () => { barrido(110, 70, .45, "sawtooth", .12); ruido(.4, { f1: 300, f2: 120, vol: .25, am: 30 }); },
+      plop: () => barrido(520, 140, .18, "sine", .3),
+      chirrido: () => barrido(900, 1700, .12, "triangle", .15),
+      frote: () => ruido(.12, { filtro: "highpass", f1: 3000, vol: .12 }),
+      esfuerzo: () => barrido(240, 200, .9, "triangle", .06),
     };
     const existe = {};
     Object.entries(ARCHIVOS).forEach(([n, url]) => Juegos.cargar(url).then(() => (existe[n] = true)).catch(() => {}));
-    // Los efectos usan su propio canal (no cortan la voz ni otros efectos); Juegos.sonar se reserva al maullido
+    // Los efectos usan su propio canal (no cortan la voz ni otros efectos)
     async function sonido(n) {
       if (existe[n]) {
         try {
@@ -233,59 +287,80 @@
     }
 
     // ================= Necesidades =================
-    const NECESIDADES = [
-      { id: "hambre", color: "#ff9f43", cuarto: "cocina", ritmo: 5 },
-      { id: "limpieza", color: "#3fa7ff", cuarto: "banera", ritmo: 4 },
-      { id: "bano", color: "#4cd17a", cuarto: "inodoro", ritmo: 5 },
-      { id: "sueno", color: "#a66bff", cuarto: "dormitorio", ritmo: 3 },
-    ]; // ritmo: puntos que baja por minuto de juego (de 100 a "baja" en ~12 min)
+    // ritmo: puntos que baja por minuto de juego (de 100 a "baja" en ~12 min)
+    const NECESIDADES = { hambre: 5, limpieza: 4, bano: 5, sueno: 3, dientes: 2.5, carino: 2 };
     const BAJA = 35;
-    let nivel = { hambre: 100, limpieza: 100, bano: 100, sueno: 100 };
+    let nivel = Object.fromEntries(Object.keys(NECESIDADES).map(k => [k, k === "carino" ? 60 : 100]));
     try {
       const g = JSON.parse(localStorage.getItem("maya.michi"));
       if (g?.nivel) {
         const min = Math.min((Date.now() - g.t) / 60000, 60); // al volver nunca baja más de lo que bajaría en una hora
-        NECESIDADES.forEach(n => (nivel[n.id] = Math.max(40, (g.nivel[n.id] ?? 100) - n.ritmo * min * .5)));
+        for (const k in NECESIDADES) nivel[k] = Math.max(40, (g.nivel[k] ?? 100) - NECESIDADES[k] * min * .5);
       }
     } catch {}
     const guardar = () => { try { localStorage.setItem("maya.michi", JSON.stringify({ nivel, t: Date.now() })); } catch {} };
 
-    NECESIDADES.forEach(n => {
+    const CUARTOS = [
+      { id: "sala", nombre: "La sala", color: "#ff5a87", nivel: () => nivel.carino },
+      { id: "cocina", nombre: "La cocina", color: "#ff9f43", nivel: () => nivel.hambre },
+      { id: "bano", nombre: "El baño", color: "#3fa7ff", nivel: () => Math.min(nivel.limpieza, nivel.bano, nivel.dientes) },
+      { id: "dormitorio", nombre: "El dormitorio", color: "#a66bff", nivel: () => nivel.sueno },
+    ];
+    CUARTOS.forEach(c => {
       const b = document.createElement("button");
-      b.className = "necesidad"; b.id = "nec-" + n.id;
-      b.style.setProperty("--color", n.color);
-      b.innerHTML = Michi.ICONOS[n.id];
-      b.setAttribute("aria-label", n.id);
-      b.addEventListener("click", () => irA(n.cuarto));
-      $("necesidades").appendChild(b);
+      b.className = "boton-cuarto"; b.id = "nav-" + c.id;
+      b.style.setProperty("--color", c.color);
+      b.innerHTML = Michi.ICONOS[c.id];
+      b.setAttribute("aria-label", c.nombre);
+      b.addEventListener("click", () => irA(c.id));
+      $("barra").appendChild(b);
     });
+    $("carino").insertAdjacentHTML("beforeend", Michi.ICONOS.corazon);
+    $("volver").innerHTML = Michi.ICONOS.volver;
+
     let todoLleno = false;
     function pintarNecesidades() {
-      NECESIDADES.forEach(n => {
-        const b = $("nec-" + n.id);
-        b.style.setProperty("--nivel", Math.round(nivel[n.id]));
-        b.classList.toggle("baja", nivel[n.id] < BAJA);
+      CUARTOS.forEach(c => {
+        const b = $("nav-" + c.id), v = c.nivel();
+        b.style.setProperty("--nivel", Math.round(v));
+        b.classList.toggle("baja", v < BAJA && c.id !== "sala");
       });
-      const lleno = NECESIDADES.every(n => nivel[n.id] >= 95);
+      $("carino").style.setProperty("--nivel", Math.round(nivel.carino));
+      $("carino").querySelector("svg").style.transform = `scale(${.75 + nivel.carino / 400})`;
+      actualizarManchas();
+      const lleno = ["hambre", "limpieza", "bano", "sueno"].every(k => nivel[k] >= 95);
       if (lleno && !todoLleno && !ocupado) setTimeout(festejar, 900);
-      if (!lleno && NECESIDADES.some(n => nivel[n.id] < 85)) todoLleno = false;
+      if (["hambre", "limpieza", "bano", "sueno"].some(k => nivel[k] < 85)) todoLleno = false;
       if (lleno) todoLleno = true;
     }
-    function subir(id, cuanto) { nivel[id] = Math.min(100, nivel[id] + cuanto); pintarNecesidades(); guardar(); }
+    function subir(id, cuanto) { nivel[id] = Math.max(0, Math.min(100, nivel[id] + cuanto)); pintarNecesidades(); guardar(); }
     setInterval(() => {
-      NECESIDADES.forEach(n => { if (!(n.id === "sueno" && durmiendo)) nivel[n.id] = Math.max(0, nivel[n.id] - n.ritmo / 12); });
+      for (const k in NECESIDADES) if (!(k === "sueno" && durmiendo)) nivel[k] = Math.max(0, nivel[k] - NECESIDADES[k] / 12);
       pintarNecesidades(); guardar();
     }, 5000);
 
-    // ================= Estados y reacciones =================
-    let ocupado = false, durmiendo = false, ultimoToque = Date.now();
-    const esperar = ms => new Promise(r => setTimeout(r, ms));
-    function estado(clases, ms) {
-      clases.split(" ").forEach(c => michi.classList.add(c));
-      if (ms) setTimeout(() => clases.split(" ").forEach(c => michi.classList.remove(c)), ms);
+    // Manchas de barro: más sucio = más manchas (frente, panza, brazos, cachete, oreja)
+    const ORDEN_MANCHAS = ["frente", "panza", "pata-i", "cachete", "pata-d", "oreja"];
+    function actualizarManchas() {
+      if (modo === "banera") return; // durante el baño las manchas solo se van frotando
+      const n = nivel.limpieza >= 75 ? 0 : Math.min(6, Math.ceil((75 - nivel.limpieza) / 11));
+      ORDEN_MANCHAS.forEach((id, i) => {
+        const m = svgMichi.querySelector(`[data-mancha="${id}"]`);
+        m.classList.toggle("visible", i < n); m.classList.remove("limpia");
+      });
     }
-    function centroDe(el, fx = .5, fy = .5) { const r = el.getBoundingClientRect(); return [r.left + r.width * fx, r.top + r.height * fy]; }
-    function puntoMichi(x, y) { const r = svgMichi.getBoundingClientRect(); return [r.left + r.width * x / 240, r.top + r.height * y / 320]; }
+
+    // ================= Utilidades de estado y efectos =================
+    let ocupado = false, durmiendo = false, ultimoToque = Date.now(), modo = null;
+    function estado(clases, ms) {
+      const lista = clases.split(" ").filter(Boolean);
+      lista.forEach(c => michi.classList.add(c));
+      if (ms) setTimeout(() => lista.forEach(c => michi.classList.remove(c)), ms);
+    }
+    const quitar = clases => clases.split(" ").forEach(c => michi.classList.remove(c));
+    // Punto del dibujo de Michi (coordenadas 240x320) → pantalla, y al revés
+    function puntoMichi(x, y) { const p = new DOMPoint(x, y).matrixTransform(svgMichi.getScreenCTM()); return [p.x, p.y]; }
+    function aMichi(cx, cy) { const p = new DOMPoint(cx, cy).matrixTransform(svgMichi.getScreenCTM().inverse()); return [p.x, p.y]; }
 
     function efecto(clase, x, y, html = "", ms = 1500, estilo = "") {
       const e = document.createElement("div");
@@ -296,33 +371,97 @@
       setTimeout(() => e.remove(), ms);
       return e;
     }
-    const CORAZON = `<svg viewBox="0 0 100 100" stroke="#3b2a4a" stroke-width="6" stroke-linejoin="round"><path d="M50 86 C10 60 6 34 22 22 C36 12 48 22 50 32 C52 22 64 12 78 22 C94 34 90 60 50 86Z" fill="#ff5a87"/></svg>`;
+    const CORAZON = Michi.ICONOS.corazon;
+    const DESTELLO = `<svg viewBox="0 0 100 100"><path d="M50 4 L58 42 L96 50 L58 58 L50 96 L42 58 L4 50 L42 42Z" fill="#fff8c4" stroke="#ffd23f" stroke-width="3"/></svg>`;
     function corazones(n = 5) {
       const [x, y] = puntoMichi(120, 60);
       for (let i = 0; i < n; i++) setTimeout(() => efecto("corazon", x - 17 + (Math.random() - .5) * 90, y, CORAZON, 1400, `--dx:${(Math.random() - .5) * 80}px`), i * 140);
     }
+    function destellos(n = 6, zona = [40, 30, 200, 300]) {
+      for (let i = 0; i < n; i++) setTimeout(() => {
+        const [x, y] = puntoMichi(zona[0] + Math.random() * (zona[2] - zona[0]), zona[1] + Math.random() * (zona[3] - zona[1]));
+        efecto("destello", x - 15, y - 15, DESTELLO, 900);
+      }, i * 110);
+    }
+    // Burbuja de espuma pegada a Michi (en % del dibujo, así sigue la cámara y el zoom)
+    function burbuja(x, y, color = "#ffffff", tam = 14 + Math.random() * 16) {
+      const b = document.createElement("div");
+      b.className = "burbuja";
+      b.style.cssText = `left:${x / 2.4}%;top:${y / 3.2}%;width:${tam / 2.4}%;aspect-ratio:1;background:radial-gradient(circle at 35% 35%, #fff, ${color} 70%)`;
+      michi.appendChild(b);
+      return b;
+    }
+    function quitarBurbujas(pocoAPoco) {
+      [...michi.querySelectorAll(".burbuja")].forEach((b, i) => setTimeout(() => { b.classList.add("revienta"); setTimeout(() => b.remove(), 400); }, pocoAPoco ? i * 40 : 0));
+    }
 
+    // ================= Cámara =================
+    let camara = { s: 1, tx: 0, ty: 0 };
+    function enfocar(r, margen = .12) {
+      const arriba = 96, abajo = bandeja.hidden ? 104 : 190;
+      const w = r.w * (1 + margen * 2), h = r.h * (1 + margen * 2), x = r.x - r.w * margen, y = r.y - r.h * margen;
+      const disponibleH = innerHeight - arriba - abajo;
+      const s = Math.min((innerWidth - 24) / w, disponibleH / h, 3.5);
+      camara = { s, tx: (innerWidth - w * s) / 2 - x * s, ty: arriba + (disponibleH - h * s) / 2 - y * s };
+      escenario.style.transform = `translate(${camara.tx}px, ${camara.ty}px) scale(${s})`;
+      document.body.classList.add("enfocado");
+      $("volver").hidden = false;
+      return esperar(900);
+    }
+    function soltarCamara() {
+      camara = { s: 1, tx: 0, ty: 0 };
+      escenario.style.transform = "";
+      document.body.classList.remove("enfocado");
+      $("volver").hidden = true;
+    }
+    // Rectángulo de un objeto en coordenadas del escenario (sin la cámara)
+    const rectDe = el => ({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
+    const union = (...rs) => {
+      const x = Math.min(...rs.map(r => r.x)), y = Math.min(...rs.map(r => r.y));
+      return { x, y, w: Math.max(...rs.map(r => r.x + r.w)) - x, h: Math.max(...rs.map(r => r.y + r.h)) - y };
+    };
+
+    // ================= Posición de Michi =================
+    let posMichi = { cx: 0, abajo: 0, h: 0 };
+    const sueloPx = () => parseFloat(getComputedStyle(document.body).getPropertyValue("--suelo")) || Math.max(190, innerHeight * .22);
+    function lugarInicial() {
+      const h = Math.min(innerHeight * .44, innerWidth * 1.05);
+      return { cx: innerWidth * (cuarto === "bano" ? .44 : .5), abajo: sueloPx(), h: cuarto === "bano" ? h * .82 : h };
+    }
+    function ponerMichi(p, caminar = false) {
+      const cambio = Math.abs(p.cx - posMichi.cx) > 4 || Math.abs(p.abajo - posMichi.abajo) > 4;
+      posMichi = p;
+      michi.style.left = p.cx + "px"; michi.style.bottom = p.abajo + "px"; michi.style.height = p.h + "px";
+      if (caminar && cambio) { michi.classList.add("caminando"); sonido("cascabel"); return esperar(820).then(() => michi.classList.remove("caminando")); }
+      return esperar(cambio ? 820 : 0);
+    }
+    const rectMichi = (p = posMichi) => ({ x: p.cx - p.h * .375, y: innerHeight - p.abajo - p.h, w: p.h * .75, h: p.h });
+    // parte del dibujo (coordenadas 240x320) → rectángulo en el escenario
+    const parteMichi = (x1, y1, x2, y2, p = posMichi) => { const r = rectMichi(p), k = p.h / 320; return { x: r.x + x1 * k, y: r.y + y1 * k, w: (x2 - x1) * k, h: (y2 - y1) * k }; };
+
+    // ================= Reacciones al tocar (sin micrófono) =================
     async function reaccion(tipo) {
       if (ocupado) return;
       ocupado = true;
       quitarPensamiento();
+      subir("carino", 4);
       switch (tipo) {
         case "cabeza":
-          estado("cerrados ronronea sonrojado", 2200); sonido("ronroneo"); Juegos.decir("Rrrr… ¡me gusta!"); corazones(3); await esperar(2200); break;
+          estado("satisfecho ronronea sonrojado", 2200); sonido("ronroneo"); Juegos.decir("Rrrr… ¡me gusta!"); corazones(3); await esperar(2200); break;
         case "panza":
           estado("felices abierta cosquillas", 1800); sonido("risa"); sonido("cascabel"); Juegos.decir("¡Jiji, cosquillas!"); await esperar(1800); break;
         case "nariz":
           estado("cerrados", 1100); estado("estornudo", 1000); sonido("estornudo");
           await esperar(650); estado("abierta", 400); await esperar(500); Juegos.decir("¡Achís! Jiji"); await esperar(800); break;
         case "cola":
-          estado("salta abierta", 700); Juegos.sonar(ARCHIVOS.maullido).catch(() => {}); sonido("cascabel"); await esperar(750);
+          estado("salta sorpresa boca-o", 750); Juegos.sonar(ARCHIVOS.maullido).catch(() => {}); sonido("cascabel"); await esperar(800);
           estado("felices abierta", 1300); sonido("risa"); Juegos.decir("¡Uy, mi colita! Jiji"); await esperar(1300); break;
         case "pata":
           estado("saluda felices", 1700); Juegos.decir("¡Hola, Maya!"); await esperar(1700); break;
         case "mejilla":
           estado("sonrojado cerrados", 1800); Juegos.decir("¡Muak!"); corazones(6); await esperar(1800); break;
-        case "mareo":
-          estado("mareado cerrados", 3000);
+        case "mareo": {
+          estado("mareado espiral", 3000);
           const est = document.createElement("div");
           est.className = "estrellas-mareo";
           est.innerHTML = `<svg viewBox="0 0 200 60" width="100%" height="100%">${[0, 1, 2, 3, 4].map(k => { const a = k / 5 * Math.PI * 2;
@@ -331,17 +470,17 @@
           Juegos.decir("¡Uyuyuy, qué mareo!");
           await esperar(3000); est.remove();
           estado("felices", 1200); Juegos.decir("¡Ya estoy bien!"); await esperar(1200); break;
+        }
       }
       ocupado = false;
       toques.length = 0;
     }
 
-    // ---------- Toques sobre Michi (sin micrófono) ----------
     const toques = [];
     let caricia = null;
     svgMichi.addEventListener("pointerdown", e => {
-      if (herramienta) return; // en el baño, la esponja/toalla manejan el toque
       ultimoToque = Date.now();
+      if (modo) return; // en las escenas (baño, dientes…) los toques los maneja la herramienta
       const zona = e.target.closest("[data-zona]")?.dataset.zona;
       if (!zona) return;
       if (durmiendo) { sonido("ronroneo"); efecto("zeta", ...puntoMichi(150, 40), "z", 2400); return; }
@@ -352,14 +491,14 @@
       if (!caricia) return;
       caricia.recorrido += Math.hypot(e.clientX - caricia.x, e.clientY - caricia.y);
       caricia.x = e.clientX; caricia.y = e.clientY;
-      // deslizar el dedo sobre cabeza o lomo = caricia: ronronea más y salen corazones
+      // deslizar el dedo sobre cabeza o lomo = caricia: ronronea, ojos satisfechos, corazones y destellos
       if (caricia.recorrido > 70 && (caricia.zona === "cabeza" || caricia.zona === "cuerpo")) {
         caricia.recorrido = 0;
         if (!michi.classList.contains("acariciado")) {
-          estado("cerrados ronronea sonrojado acariciado", 1600); sonido("ronroneo");
+          estado("satisfecho ronronea sonrojado acariciado", 1600); sonido("ronroneo");
           if (!ocupado) Juegos.decir("Rrrrrr…");
         }
-        corazones(2);
+        corazones(2); destellos(2, [60, 30, 180, 180]); subir("carino", 2);
         caricia.acaricio = true;
       }
     });
@@ -374,82 +513,119 @@
       reaccion(c.zona === "cuerpo" ? "panza" : c.zona);
     });
 
-    // Los ojos siguen el dedo
+    // Los ojos siguen el dedo (y miran alrededor cuando nadie toca)
     addEventListener("pointermove", e => mirar(e.clientX, e.clientY));
     addEventListener("pointerdown", e => { mirar(e.clientX, e.clientY); ultimoToque = Date.now(); });
     function mirar(x, y) {
-      const [cx, cy] = puntoMichi(120, 100), d = Math.hypot(x - cx, y - cy) || 1;
-      const p = svgMichi.querySelector(".pupilas");
-      p.style.setProperty("--px", ((x - cx) / d * 4).toFixed(1) + "px");
-      p.style.setProperty("--py", ((y - cy) / d * 4).toFixed(1) + "px");
+      const [cx, cy] = puntoMichi(120, 102), d = Math.hypot(x - cx, y - cy) || 1;
+      svgMichi.querySelectorAll(".pupilas").forEach(p => {
+        p.style.setProperty("--px", ((x - cx) / d * 4).toFixed(1) + "px");
+        p.style.setProperty("--py", ((y - cy) / d * 4).toFixed(1) + "px");
+      });
     }
 
     // ================= Cuartos =================
-    const CUARTOS = [
-      { id: "cocina", nombre: "La cocina" }, { id: "banera", nombre: "La bañera" },
-      { id: "inodoro", nombre: "El baño" }, { id: "dormitorio", nombre: "El dormitorio" },
-    ];
-    let cuarto = 0, herramienta = null, espuma = 0, mojado = false;
-    CUARTOS.forEach(() => $("puntos").appendChild(document.createElement("span")));
-    $("izq").innerHTML = Michi.ICONOS.flechaIzq; $("der").innerHTML = Michi.ICONOS.flechaDer;
-    $("izq").addEventListener("click", () => cambiar(-1));
-    $("der").addEventListener("click", () => cambiar(1));
-    // deslizar sobre el fondo también cambia de cuarto
-    let deslizar = null;
-    escena.addEventListener("pointerdown", e => { if (e.target === escena || e.target.closest("#decoracion")) deslizar = e.clientX; });
-    escena.addEventListener("pointerup", e => { if (deslizar !== null && Math.abs(e.clientX - deslizar) > 80) cambiar(e.clientX < deslizar ? 1 : -1); deslizar = null; });
-
-    function cambiar(paso) { irA(CUARTOS[(cuarto + paso + CUARTOS.length) % CUARTOS.length].id); }
-    function irA(id) {
-      const i = CUARTOS.findIndex(c => c.id === id);
-      if (i === cuarto && props.dataset.cuarto === id) return;
-      if (durmiendo) despertar(true);
-      cuarto = i;
-      ocupado = false; herramienta = null;
-      michi.className = "";
-      quitarBurbujas();
-      document.body.className = "cuarto-" + id;
-      [...$("puntos").children].forEach((p, k) => p.classList.toggle("activo", k === i));
-      Juegos.decir(CUARTOS[i].nombre);
-      montarCuarto(id);
-    }
-
-    const svgDeco = (cuerpo, vb = "0 0 200 200") => `<svg viewBox="${vb}" stroke="#3b2a4a" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">${cuerpo}</svg>`;
-    function prop(html, estilo, alTocar, etiqueta) {
-      const d = document.createElement(alTocar ? "button" : "div");
-      d.className = "prop" + (alTocar ? " tocable" : "");
-      d.style.cssText = estilo;
-      d.innerHTML = html;
-      if (etiqueta) d.setAttribute("aria-label", etiqueta);
-      if (alTocar) d.addEventListener("click", alTocar);
-      props.appendChild(d);
+    let cuarto = null;
+    const svgObj = (html, estilo, opciones = {}) => {
+      const d = document.createElement(opciones.alTocar ? "button" : "div");
+      d.className = "obj" + (opciones.alTocar ? " tocable" : "") + (opciones.clase ? " " + opciones.clase : "");
+      d.style.cssText = estilo; d.innerHTML = html;
+      if (opciones.id) d.id = opciones.id;
+      if (opciones.etiqueta) d.setAttribute("aria-label", opciones.etiqueta);
+      if (opciones.alTocar) d.addEventListener("click", opciones.alTocar);
+      objetos.appendChild(d);
       return d;
-    }
-    function deco(html, estilo) { const d = document.createElement("div"); d.className = "decoracion"; d.style.cssText = estilo; d.innerHTML = html; decoracion.appendChild(d); }
+    };
+    const deco = (html, estilo) => { const d = document.createElement("div"); d.className = "deco"; d.style.cssText = estilo; d.innerHTML = html; fondo.appendChild(d); };
 
-    function montarCuarto(id) {
-      props.innerHTML = ""; decoracion.innerHTML = ""; props.dataset.cuarto = id;
+    // deslizar sobre el fondo (fuera de Michi y de los objetos) cambia de cuarto
+    let deslizar = null;
+    escenario.addEventListener("pointerdown", e => { if (!modo && (e.target === escenario || e.target.closest("#fondo"))) deslizar = e.clientX; });
+    escenario.addEventListener("pointerup", e => {
+      if (deslizar !== null && Math.abs(e.clientX - deslizar) > 80) {
+        const i = CUARTOS.findIndex(c => c.id === cuarto);
+        irA(CUARTOS[(i + (e.clientX < deslizar ? 1 : -1) + CUARTOS.length) % CUARTOS.length].id);
+      }
+      deslizar = null;
+    });
+
+    function irA(id, silencio) {
+      if (id === cuarto && !modo) return;
+      terminarModo(true);
+      if (durmiendo) despertar(true);
+      cuarto = id;
+      ocupado = false;
+      michi.className = "";
+      document.body.className = "cuarto-" + id;
+      CUARTOS.forEach(c => $("nav-" + c.id).classList.toggle("activo", c.id === id));
+      if (!silencio) Juegos.decir(CUARTOS.find(c => c.id === id).nombre);
+      fondo.innerHTML = ""; objetos.innerHTML = "";
       bandeja.innerHTML = ""; bandeja.hidden = true;
-      if (id === "cocina") montarCocina();
-      if (id === "banera") montarBanera();
-      if (id === "inodoro") montarInodoro();
-      if (id === "dormitorio") montarDormitorio();
+      ({ sala: montarSala, cocina: montarCocina, bano: montarBano, dormitorio: montarDormitorio })[id]();
+      michi.style.transition = "none";
+      ponerMichi(lugarInicial());
+      void michi.offsetWidth; michi.style.transition = "";
+    }
+    addEventListener("resize", () => { if (!modo) { soltarCamara(); ponerMichi(lugarInicial()); } });
+
+    // ---------- Sala ----------
+    function montarSala() {
+      deco(Casa.ventanaCiudad, "left:4vw;top:9dvh;width:min(34vw,28dvh)");
+      deco(Casa.cuadroPez, "right:6vw;top:14dvh;width:min(26vw,18dvh)");
+      deco(Casa.plantaColgante, "right:30vw;top:0;width:min(15vw,12dvh)");
+      deco(Casa.lamparaColgante, "left:44vw;top:0;width:min(20vw,15dvh)");
+      deco(Casa.planta(), "left:1vw;bottom:calc(var(--suelo) + 18dvh);width:min(16vw,12dvh)");
+      svgObj(Casa.alfombra("#c9a9e0"), "left:50%;transform:translateX(-50%);bottom:calc(var(--suelo) - 5dvh);width:min(94vw,70dvh);z-index:1");
+      svgObj(Casa.sillon, "left:-6vw;bottom:calc(var(--suelo) + 8dvh);width:min(38vw,28dvh);z-index:2");
+      svgObj(Casa.tele, "right:-3vw;bottom:calc(var(--suelo) + 9dvh);width:min(34vw,25dvh);z-index:2");
+      montarOvillo();
     }
 
-    // ---------- Cocina: arrastrar (o tocar) la comida hasta Michi ----------
+    // Ovillo: Maya lo lanza con el dedo, rueda con rebote y Michi lo mira y a veces le da un zarpazo
+    function montarOvillo() {
+      const o = svgObj(Casa.ovillo, "left:68vw;bottom:calc(var(--suelo) - 1dvh);width:min(13vw,9dvh)", { id: "ovillo", etiqueta: "ovillo" });
+      let x = innerWidth * .68, v = 0, giro = 0, anterior = null, animando = false;
+      const colocar = () => { o.style.left = x + "px"; o.style.transform = `rotate(${giro}deg)`; };
+      o.addEventListener("pointerdown", e => { e.stopPropagation(); anterior = { x: e.clientX, t: performance.now() }; o.setPointerCapture(e.pointerId); v = 0; });
+      o.addEventListener("pointermove", e => {
+        if (!anterior) return;
+        const ahora = performance.now(), dx = (e.clientX - anterior.x) / camara.s;
+        x += dx; giro += dx * 2; v = dx / Math.max(ahora - anterior.t, 8) * 16;
+        anterior = { x: e.clientX, t: ahora }; colocar();
+      });
+      o.addEventListener("pointerup", () => {
+        if (!anterior) return;
+        anterior = null;
+        if (Math.abs(v) < 2) v = (Math.random() < .5 ? -1 : 1) * 14; // un toque también lo hace rodar
+        Juegos.tono(500, .08, "triangle", .1);
+        if (!animando) rodar();
+      });
+      function rodar() {
+        animando = true;
+        const ancho = o.offsetWidth;
+        x += v; giro += v * 3; v *= .965;
+        if (x < 0 || x > innerWidth - ancho) { v = -v * .8; x = Math.max(0, Math.min(innerWidth - ancho, x)); Juegos.tono(300, .06, "sine", .1); }
+        colocar();
+        const [ox] = [x + ancho / 2];
+        mirar(ox, innerHeight - sueloPx());
+        if (Math.abs(ox - posMichi.cx) < posMichi.h * .35 && Math.abs(v) > 4 && !ocupado && !michi.classList.contains("zarpazo")) {
+          estado("zarpazo felices", 600); v = -v * 1.1; sonido("cascabel"); sonido("risa"); subir("carino", 3);
+        }
+        if (Math.abs(v) > .4 && document.body.contains(o)) requestAnimationFrame(rodar); else animando = false;
+      }
+    }
+
+    // ---------- Cocina (la mesa con platos llega en la parte 2) ----------
     function montarCocina() {
-      deco(svgDeco(`<rect x="10" y="40" width="180" height="120" rx="10" fill="#bfe6ff"/><path d="M100 40 L100 160 M10 100 L190 100" stroke-width="8" stroke="#fff"/><rect x="10" y="40" width="180" height="120" rx="10" fill="none"/>`),
-        "left:6%;top:12%;width:min(30vw,190px);height:min(22vw,130px)");
-      deco(svgDeco(`<rect x="0" y="20" width="200" height="30" rx="8" fill="#ff9f43"/><rect x="10" y="50" width="180" height="110" fill="#ffd9a8"/><circle cx="60" cy="100" r="8" fill="#3b2a4a"/><circle cx="140" cy="100" r="8" fill="#3b2a4a"/>`),
-        "right:4%;bottom:calc(38% - 10px);width:min(28vw,200px);height:min(22vw,160px)");
+      deco(Casa.heladera, "left:2vw;bottom:calc(var(--suelo) + 6dvh);width:min(26vw,20dvh)");
+      deco(Casa.ventanaCiudad, "right:8vw;top:8dvh;width:min(28vw,22dvh)");
+      deco(Casa.estante, "left:34vw;top:12dvh;width:min(32vw,24dvh)");
+      svgObj(Casa.alfombra("#ffcf8a"), "left:50%;transform:translateX(-50%);bottom:calc(var(--suelo) - 5dvh);width:min(90vw,66dvh);z-index:1");
       bandeja.hidden = false;
       Michi.COMIDAS.forEach(c => {
         const b = document.createElement("button");
-        b.className = "item";
-        b.innerHTML = c.dibujo;
-        b.setAttribute("aria-label", c.nombre);
+        b.className = "item"; b.innerHTML = c.dibujo; b.setAttribute("aria-label", c.nombre);
         arrastrable(b, c.dibujo, (x, y, arrastro) => {
-          // si se suelta sobre Michi, o solo se toca: la comida vuela a su boca
           const r = svgMichi.getBoundingClientRect();
           const encima = x > r.left && x < r.right && y > r.top && y < r.bottom;
           if (encima || !arrastro) comer(c, arrastro ? [x, y] : centroDe(b));
@@ -457,11 +633,10 @@
         bandeja.appendChild(b);
       });
     }
-
+    function centroDe(el) { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
     function arrastrable(el, dibujo, alSoltar) {
       el.addEventListener("pointerdown", e => {
-        e.preventDefault();
-        ultimoToque = Date.now();
+        e.preventDefault(); ultimoToque = Date.now();
         const fantasma = document.createElement("div");
         fantasma.className = "arrastrando"; fantasma.innerHTML = dibujo;
         fantasma.style.left = e.clientX + "px"; fantasma.style.top = e.clientY + "px";
@@ -470,174 +645,402 @@
         const mover = ev => { fantasma.style.left = ev.clientX + "px"; fantasma.style.top = ev.clientY + "px"; mirar(ev.clientX, ev.clientY); };
         const soltar = ev => {
           removeEventListener("pointermove", mover); removeEventListener("pointerup", soltar); removeEventListener("pointercancel", soltar);
-          fantasma.remove();
+          fantasma.animate([{ transform: "translate(-50%,-50%) scale(1.15)" }, { transform: "translate(-50%,-40%) scale(.9)" }, { transform: "translate(-50%,-50%) scale(1)" }], { duration: 200 }).finished.then(() => fantasma.remove());
           alSoltar(ev.clientX, ev.clientY, Math.hypot(ev.clientX - x0, ev.clientY - y0) > 25);
         };
         addEventListener("pointermove", mover); addEventListener("pointerup", soltar); addEventListener("pointercancel", soltar);
       });
     }
-
     async function comer(comida, [x, y]) {
       if (ocupado || durmiendo) return;
-      if (nivel.hambre >= 98) { // ya está lleno: lo dice con gracia
-        ocupado = true; estado("felices", 1500); Juegos.decir("¡Ya estoy llenito, gracias!"); await esperar(1500); ocupado = false; return;
-      }
+      if (nivel.hambre >= 98) { ocupado = true; estado("felices", 1500); Juegos.decir("¡Ya estoy llenito, gracias!"); await esperar(1500); ocupado = false; return; }
       ocupado = true; quitarPensamiento();
-      const [bx, by] = puntoMichi(120, 146);
+      const [bx, by] = puntoMichi(120, 148);
       const f = document.createElement("div");
       f.className = "volando"; f.innerHTML = comida.dibujo;
       f.style.left = x - 32 + "px"; f.style.top = y - 32 + "px";
       document.body.appendChild(f);
       await f.animate([{ transform: "translate(0,0)" }, { transform: `translate(${bx - x}px, ${by - y + 26}px) scale(.8)` }], { duration: 550, easing: "ease-in-out", fill: "forwards" }).finished;
-      for (const escala of [.55, .3, 0]) { // tres mordiscos
+      for (const escala of [.55, .3, 0]) { // tres mordiscos, con cachetes que mastican
         estado("abierta", 260); await esperar(260);
-        sonido("mordisco");
+        sonido("mordisco"); estado("masticar", 360);
         f.animate([{ transform: `translate(${bx - x}px, ${by - y + 26}px) scale(${escala})` }], { duration: 120, fill: "forwards" });
         await esperar(380);
       }
       f.remove();
-      if (comida.leGusta) {
-        estado("felices sonrojado", 1600); Juegos.decir(`¡Mmm, qué rico ${comida.nombre}!`); corazones(3); subir("hambre", 25);
-      } else {
-        estado("lengua cerrados", 1800); Juegos.decir("¡Puaj! Jiji, la zanahoria no me gusta mucho"); subir("hambre", 10);
-      }
+      if (comida.leGusta) { estado("corazon sonrojado", 1600); Juegos.decir(`¡Mmm, qué rico ${comida.nombre}!`); corazones(3); subir("hambre", 25); subir("dientes", -6); }
+      else { estado("lengua cerrados", 1800); Juegos.decir("¡Puaj! Jiji, la zanahoria no me gusta mucho"); subir("hambre", 10); }
       await esperar(1800);
       ocupado = false;
     }
 
-    // ---------- Bañera: esponja → espuma, ducha → enjuagar, toalla → secar ----------
-    function montarBanera() {
-      deco(svgDeco(`<path d="M10 70 L190 70 L176 150 Q170 176 140 176 L60 176 Q30 176 24 150Z" fill="#fff"/><rect x="2" y="56" width="196" height="20" rx="10" fill="#f0f4fa"/><path d="M50 176 L40 196 M150 176 L160 196" stroke-width="6"/>`),
-        "left:50%;transform:translateX(-50%);bottom:96px;width:min(80vw,440px);height:min(40vw,220px);z-index:8");
-      deco(svgDeco(`<path d="M30 10 L30 80 Q30 60 60 60 L120 60" fill="none" stroke-width="6"/><path d="M100 60 L160 60 L150 84 L110 84Z" fill="#bfc6d6"/>`),
-        "right:10%;top:14%;width:min(26vw,170px);height:min(22vw,130px)");
-      bandeja.hidden = false;
-      [["esponja", "esponja"], ["ducha", "ducha"], ["toalla", "toalla"]].forEach(([h, nombre]) => {
+    // ---------- Baño: inodoro, lavamanos (+ cepillo de dientes) y bañera ----------
+    function montarBano() {
+      deco(Casa.toallero, "left:34vw;top:12dvh;width:min(26vw,18dvh)");
+      deco(Casa.planta(), "right:1vw;top:14dvh;width:min(14vw,10dvh)");
+      svgObj(Casa.alfombra("#ffffff"), "left:50%;transform:translateX(-50%);bottom:calc(var(--suelo) - 4dvh);width:min(70vw,50dvh);z-index:1;opacity:.85");
+      svgObj(Casa.banera, "left:-7vw;bottom:calc(var(--suelo) + 3dvh);width:min(54vw,40dvh);z-index:2", { id: "banera", etiqueta: "bañera", alTocar: () => escena("banera") });
+      svgObj(Casa.baneraFrente, "left:-7vw;bottom:calc(var(--suelo) + 3dvh);width:min(54vw,40dvh)", { id: "banera-frente", clase: "frente" }).hidden = true;
+      svgObj(Casa.lavamanos, "right:24vw;bottom:calc(var(--suelo) + 4dvh);width:min(26vw,19dvh);z-index:2", { id: "lavamanos", etiqueta: "lavamanos", alTocar: () => escena("lavamanos") });
+      svgObj(Casa.lavamanosFrente, "right:24vw;bottom:calc(var(--suelo) + 4dvh);width:min(26vw,19dvh);z-index:2", { id: "lavamanos-frente", clase: "frente" });
+      svgObj(Casa.vasoCepillos, "right:calc(24vw + min(19vw,14dvh));bottom:calc(var(--suelo) + 4dvh + min(13vw,9.5dvh));width:min(7vw,5dvh);z-index:3", { id: "vaso", etiqueta: "cepillo de dientes", alTocar: () => escena("dientes") });
+      svgObj(Casa.inodoro, "right:-3vw;bottom:calc(var(--suelo) - 2dvh);width:min(30vw,21dvh);z-index:4", { id: "inodoro", etiqueta: "inodoro", alTocar: () => escena("inodoro") });
+      svgObj(Casa.papel, "right:calc(min(27vw,19dvh) - 2vw);bottom:calc(var(--suelo) + 12dvh);width:min(9vw,6dvh);z-index:3", { id: "papel", etiqueta: "papel higiénico" });
+      menuBano();
+      marcarPendientes();
+    }
+    function menuBano() {
+      bandeja.innerHTML = ""; bandeja.hidden = false;
+      [["inodoro", "bano"], ["lavamanos", "grifo"], ["banera", "ducha"], ["dientes", "cepilloAzul"]].forEach(([e, icono]) => {
         const b = document.createElement("button");
-        b.className = "item"; b.dataset.h = h;
-        b.innerHTML = Michi.ICONOS[h];
-        b.setAttribute("aria-label", nombre);
-        b.addEventListener("click", () => usar(h));
+        b.className = "item"; b.dataset.escena = e; b.innerHTML = Michi.ICONOS[icono];
+        b.setAttribute("aria-label", { inodoro: "inodoro", lavamanos: "lavarse las manos", banera: "bañera", dientes: "cepillarse los dientes" }[e]);
+        b.addEventListener("click", () => escena(e));
         bandeja.appendChild(b);
       });
-      herramienta = null;
     }
-    function burbujaEn(x, y) {
-      const r = michi.getBoundingClientRect();
-      const b = document.createElement("div");
-      b.className = "burbuja";
-      const t = 18 + Math.random() * 22;
-      b.style.cssText = `left:${x - r.left - t / 2}px;top:${y - r.top - t / 2}px;width:${t}px;height:${t}px`;
-      michi.appendChild(b);
-      espuma++;
+    // Lo que Michi necesita en el baño brilla para guiar a Maya
+    function marcarPendientes() {
+      if (cuarto !== "bano" || modo) return;
+      $("inodoro")?.classList.toggle("brilla", nivel.bano < BAJA);
+      $("banera")?.classList.toggle("brilla", nivel.limpieza < 60);
+      $("vaso")?.classList.toggle("brilla", nivel.dientes < 60);
     }
-    function quitarBurbujas() { michi.querySelectorAll(".burbuja").forEach(b => { b.classList.add("revienta"); setTimeout(() => b.remove(), 400); }); espuma = 0; }
-    // Con la esponja también se puede frotar a Michi con el dedo
-    svgMichi.addEventListener("pointermove", e => {
-      if (herramienta === "esponja" && e.buttons && Math.random() < .35) { burbujaEn(e.clientX, e.clientY); if (espuma % 6 === 0) sonido("risa"); }
+
+    function herramientas(lista, alElegir) {
+      bandeja.innerHTML = ""; bandeja.hidden = false;
+      lista.forEach(([id, icono, etiqueta]) => {
+        const b = document.createElement("button");
+        b.className = "item"; b.dataset.h = id; b.innerHTML = Michi.ICONOS[icono]; b.setAttribute("aria-label", etiqueta);
+        b.addEventListener("click", () => alElegir(id, b));
+        bandeja.appendChild(b);
+      });
+    }
+    const marcarHerramienta = id => bandeja.querySelectorAll(".item").forEach(b => b.classList.toggle("activo", b.dataset.h === id));
+    const brillarHerramienta = (id, si = true) => bandeja.querySelector(`[data-h="${id}"]`)?.classList.toggle("brilla", si);
+
+    // Herramienta "en la mano": sigue el dedo mientras frota; devuelve los puntos en coordenadas del dibujo de Michi
+    let frotar = null; // { icono, alFrotar(x, y, ev) }
+    let mano;
+    escenario.addEventListener("pointerdown", e => {
+      if (!frotar) return;
+      e.preventDefault();
+      mano = document.createElement("div"); mano.className = "herramienta-mano"; mano.innerHTML = Michi.ICONOS[frotar.icono];
+      document.body.appendChild(mano); moverMano(e);
     });
-    svgMichi.addEventListener("pointerdown", e => { if (herramienta === "esponja") burbujaEn(e.clientX, e.clientY); });
+    addEventListener("pointermove", e => { if (mano) moverMano(e); });
+    addEventListener("pointerup", () => { mano?.remove(); mano = null; quitar("frotando"); });
+    let ultimoFrote = 0;
+    function moverMano(e) {
+      mano.style.left = e.clientX + "px"; mano.style.top = e.clientY - 20 + "px";
+      const [x, y] = aMichi(e.clientX, e.clientY);
+      if (x < -10 || x > 250 || y < -10 || y > 330 || !frotar) return;
+      const ahora = performance.now();
+      if (ahora - ultimoFrote < 70) return;
+      ultimoFrote = ahora;
+      frotar.alFrotar(x, y, e);
+    }
 
-    async function usar(h) {
-      if (ocupado) return;
+    async function escena(id) {
+      if (ocupado || modo) return;
+      quitarPensamiento();
+      modo = id; ocupado = true;
       ultimoToque = Date.now();
-      bandeja.querySelectorAll(".item").forEach(b => b.classList.toggle("activo", b.dataset.h === h));
-      herramienta = h;
-      ocupado = true; quitarPensamiento();
-      if (h === "esponja") { // un toque ya enjabona solo; después puede seguir frotando con el dedo
-        Juegos.decir("¡A enjabonar!");
-        estado("felices cosquillas", 1500); sonido("risa");
-        for (let k = 0; k < 10; k++) { await esperar(110); burbujaEn(...puntoMichi(60 + Math.random() * 120, 60 + Math.random() * 220)); }
-        subir("limpieza", 15);
-      } else if (h === "ducha") {
-        Juegos.decir("¡Ducha!"); sonido("agua");
-        const [x0] = puntoMichi(0, 0), [x1, y1] = puntoMichi(240, 0);
-        for (let k = 0; k < 40; k++) setTimeout(() => efecto("gota", x0 + Math.random() * (x1 - x0), y1 - 40, "", 900), k * 45);
-        estado("cerrados", 2000); await esperar(900); quitarBurbujas();
-        mojado = true; michi.classList.add("mojado"); subir("limpieza", 20);
-        await esperar(1100); Juegos.decir("¡Ahora la toalla!");
-        bandeja.querySelector('[data-h="toalla"]').classList.add("activo");
-      } else if (h === "toalla") {
-        Juegos.decir(mojado ? "¡A secarse!" : "¡Toalla suavecita!");
-        estado("sacudir cerrados", 1000); await esperar(1000);
-        michi.classList.remove("mojado");
-        subir("limpieza", mojado ? 100 : 10); mojado = false;
-        estado("felices sonrojado", 1500); Juegos.decir("¡Qué limpito estoy!"); corazones(4);
-        await esperar(1500);
-        herramienta = null; bandeja.querySelectorAll(".item").forEach(b => b.classList.remove("activo"));
-      }
+      document.querySelectorAll(".obj.brilla").forEach(o => o.classList.remove("brilla"));
+      await ({ inodoro: escenaInodoro, lavamanos: escenaLavamanos, banera: escenaBanera, dientes: escenaDientes })[id]();
+    }
+    // Termina la escena y vuelve a la vista del cuarto
+    async function terminarModo(inmediato) {
+      if (!modo && !frotar) return;
+      const eraBanera = modo === "banera";
+      modo = null; frotar = null; mano?.remove(); mano = null;
+      soltarCamara();
+      quitarBurbujas(); michi.querySelectorAll(".bichito-grupo").forEach(b => b.remove());
+      michi.classList.remove("manos", "dientes", "frotando", "mojado");
+      $("banera-frente") && ($("banera-frente").hidden = true);
+      document.querySelectorAll(".remolino, .chorro").forEach(e => e.remove());
+      $("papel")?.classList.remove("papel-abierto", "brilla");
+      $("inodoro")?.querySelector(".cadena")?.closest(".obj")?.classList.remove("brilla");
+      if (eraBanera) actualizarManchas();
       ocupado = false;
+      if (inmediato || !cuarto) return;
+      if (cuarto === "bano") menuBano();
+      await ponerMichi(lugarInicial(), true);
+      marcarPendientes();
     }
+    $("volver").addEventListener("click", () => terminarModo());
 
-    // ---------- Baño: inodoro y lavamanos ----------
-    let pasoBano = "inodoro";
-    function montarInodoro() {
-      const inodoro = prop(svgDeco(`<rect x="40" y="10" width="120" height="70" rx="14" fill="#fff"/><path d="M20 96 L180 96 Q176 150 120 158 L120 190 L80 190 L80 158 Q24 150 20 96Z" fill="#fff"/><ellipse cx="100" cy="96" rx="80" ry="16" fill="#e8eef7"/><rect x="134" y="22" width="20" height="10" rx="5" fill="#bfc6d6"/>`),
-        "left:8%;bottom:110px;width:min(36vw,220px);height:min(36vw,220px)", irAlInodoro, "inodoro");
-      const lava = prop(svgDeco(`<path d="M30 70 L170 70 Q166 120 100 124 Q34 120 30 70Z" fill="#fff"/><rect x="88" y="124" width="24" height="70" fill="#fff"/><path d="M100 70 L100 34 Q100 22 120 22 L130 22" fill="none" stroke-width="8" stroke="#bfc6d6"/>`),
-        "right:6%;bottom:140px;width:min(30vw,180px);height:min(30vw,180px)", lavarManos, "lavamanos");
-      inodoro.id = "inodoro"; lava.id = "lavamanos";
-      marcarPaso();
-    }
-    function marcarPaso() {
-      $("inodoro")?.classList.toggle("brilla", pasoBano === "inodoro" && nivel.bano < 95);
-      $("lavamanos")?.classList.toggle("brilla", pasoBano === "lavar");
-    }
-    async function irAlInodoro() {
-      if (ocupado) return;
-      ocupado = true; quitarPensamiento(); ultimoToque = Date.now();
+    // ----- Inodoro: se sienta, hace fuerza, a veces "pum", alivio, papel, cadena y a lavarse las manos -----
+    async function escenaInodoro() {
+      const ino = rectDe($("inodoro"));
+      herramientas([["papel", "papel", "papel higiénico"], ["cadena", "cadena", "jalar la cadena"]], h => pasoInodoro(h));
       Juegos.decir("¡Vamos al baño!");
-      michi.classList.add("en-inodoro");
-      await esperar(900);
-      estado("cerrados", 1600); await esperar(1700);
-      sonido("descarga"); await esperar(900);
-      sonido("aplausos"); estado("felices", 1500); Juegos.decir("¡Muy bien, Michi!"); Juegos.confeti(20);
+      const sentado = { cx: ino.x + ino.w * .5, abajo: innerHeight - (ino.y + ino.h * .58), h: ino.h * 1.02 };
+      await ponerMichi({ ...sentado, abajo: sentado.abajo - ino.h * .2 }, true);
+      enfocar(union(ino, rectMichi(sentado), rectDe($("papel"))));
+      estado("salta", 700); await esperar(250);
+      await ponerMichi(sentado);
+      if (modo !== "inodoro") return;
+      // hace fuerza: cara de esfuerzo, cachetes inflados, tiembla un poquito
+      estado("esfuerzo boca-o temblor", 2600); sonido("esfuerzo"); Juegos.decir("Mmmmm…");
+      await esperar(1300); sonido("esfuerzo"); await esperar(1300);
+      if (modo !== "inodoro") return;
+      if (Math.random() < .6) { // a veces se le escapa un "pum" y se ríe
+        const [px, py] = puntoMichi(40, 270);
+        efecto("nube-pum", px - 110, py - 60, `<svg viewBox="0 0 120 100"><g fill="#a8e063" stroke="#6fae2e" stroke-width="3" opacity=".9">
+          <circle cx="40" cy="60" r="26"/><circle cx="70" cy="44" r="30"/><circle cx="92" cy="66" r="22"/><circle cx="58" cy="74" r="20"/></g></svg>`, 1800);
+        sonido("pum"); await esperar(500);
+        estado("felices abierta sonrojado", 1300); sonido("risa"); Juegos.decir("¡Upsi! Jiji"); await esperar(1400);
+      }
+      sonido("plop"); await esperar(300);
+      estado("satisfecho boca-o sonrojado", 2200); Juegos.decir("¡Ahhh, qué alivio!"); destellos(3, [60, 40, 180, 160]);
       subir("bano", 100);
-      await esperar(1300);
-      michi.classList.remove("en-inodoro");
-      pasoBano = "lavar"; marcarPaso();
-      await esperar(700); Juegos.decir("¡Ahora a lavarse las manitos!");
+      await esperar(2000);
+      if (modo !== "inodoro") return;
       ocupado = false;
+      pasoActual = "papel"; $("papel").classList.add("brilla"); brillarHerramienta("papel");
+      $("papel").onclick = () => pasoInodoro("papel");
+      Juegos.decir("¡Toca el papel!");
     }
-    async function lavarManos() {
-      if (ocupado) return;
-      ocupado = true; quitarPensamiento(); ultimoToque = Date.now();
-      michi.classList.add("en-lavamanos");
-      await esperar(700);
-      sonido("agua"); estado("saluda", 1600);
-      for (let k = 0; k < 8; k++) { await esperar(150); burbujaEn(...puntoMichi(150 + Math.random() * 50, 200 + Math.random() * 40)); }
-      await esperar(500); quitarBurbujas();
-      estado("felices sonrojado", 1400); Juegos.decir("¡Manitos limpias!"); corazones(3);
-      await esperar(1400);
-      michi.classList.remove("en-lavamanos");
-      pasoBano = "inodoro"; marcarPaso();
-      ocupado = false;
+    let pasoActual = null;
+    async function pasoInodoro(h) {
+      if (modo !== "inodoro" || ocupado) return;
+      if (h === "papel" && pasoActual === "papel") {
+        ocupado = true; pasoActual = "cadena";
+        $("papel").classList.remove("brilla"); brillarHerramienta("papel", false);
+        $("papel").classList.add("papel-abierto"); Juegos.tono(700, .1, "sine", .1); estado("felices", 900);
+        await esperar(900);
+        brillarHerramienta("cadena"); Juegos.decir("¡Ahora jala la cadena!");
+        ocupado = false;
+      } else if (h === "cadena" && pasoActual === "cadena") {
+        ocupado = true; pasoActual = null; brillarHerramienta("cadena", false);
+        const ino = $("inodoro"), r = rectDe(ino);
+        estado("salta", 700); await esperar(200);
+        await ponerMichi({ cx: r.x + r.w * .5, abajo: innerHeight - (r.y + r.h) - r.h * .05, h: r.h * 1.02 });
+        const rem = document.createElement("div");
+        rem.className = "remolino";
+        rem.style.cssText = `left:${r.x + r.w * .26}px;top:${r.y + r.h * .41}px;width:${r.w * .48}px;height:${r.w * .48}px`;
+        rem.innerHTML = `<svg viewBox="0 0 100 100"><path d="M50 50 m-4 0 a4 4 0 1 1 8 0 a10 10 0 1 1 -20 0 a18 18 0 1 1 36 0 a26 26 0 1 1 -52 0" fill="none" stroke="#3fa7ff" stroke-width="6" stroke-linecap="round" transform="scale(1 .35) translate(0 92)"/></svg>`;
+        objetos.appendChild(rem);
+        sonido("descarga"); estado("sorpresa boca-o", 1400);
+        await esperar(1500); rem.remove();
+        sonido("aplausos"); estado("felices abierta", 1500); Juegos.decir("¡Muy bien, Michi!"); Juegos.confeti(20); subir("carino", 6);
+        await esperar(1500);
+        ocupado = false;
+        modo = null; frotar = null;
+        $("papel").classList.remove("papel-abierto");
+        Juegos.decir("¡Ahora a lavarse las manitos!");
+        await escena("lavamanos");
+      }
     }
 
-    // ---------- Dormitorio: la lámpara lo duerme y lo despierta ----------
+    // ----- Lavamanos: primer plano de las manos, 2 jabones, frotar, grifo, sacudir -----
+    async function escenaLavamanos() {
+      const lav = rectDe($("lavamanos"));
+      // Michi se para detrás del lavamanos con las manos al frente, sobre la pileta
+      const h = lav.h * 1.15;
+      const lugar = { cx: lav.x + lav.w * .5, abajo: innerHeight - (lav.y + lav.h * .78), h };
+      await ponerMichi({ ...lugar, abajo: lugar.abajo - 20 }, true);
+      michi.style.zIndex = 2; // detrás de la pileta
+      await ponerMichi(lugar);
+      michi.classList.add("manos");
+      herramientas([["jabon", "jabon", "jabón amarillo"], ["jabonRosa", "jabonRosa", "jabón rosado"], ["grifo", "grifo", "abrir el grifo"]], h => herramientaLavamanos(h));
+      await enfocar(union(parteMichi(40, 150, 200, 280, lugar), { ...lav, y: lav.y + lav.h * .4, h: lav.h * .35 }), .1);
+      Juegos.decir("¡Elige un jabón!");
+      ocupado = false;
+      brillarHerramienta("jabon"); brillarHerramienta("jabonRosa");
+    }
+    let espumaManos = 0;
+    function herramientaLavamanos(h) {
+      if (modo !== "lavamanos" || ocupado) return;
+      brillarHerramienta("jabon", false); brillarHerramienta("jabonRosa", false);
+      if (h === "grifo") return enjuagarManos();
+      marcarHerramienta(h); espumaManos = 0;
+      const color = h === "jabon" ? "#ffe680" : "#ffc2df";
+      Juegos.decir(h === "jabon" ? "¡Jabón amarillo! Frota sus manitos" : "¡Jabón rosado! Frota sus manitos");
+      frotar = {
+        icono: h, alFrotar: (x, y) => {
+          if (y < 180 || Math.abs(x - 120) > 85) return; // solo cerca de las manos
+          burbuja(x + (Math.random() - .5) * 14, y + (Math.random() - .5) * 14, color);
+          michi.classList.add("frotando"); if (++espumaManos % 4 === 0) sonido("frote");
+          if (espumaManos === 12) { brillarHerramienta("grifo"); Juegos.decir("¡Mucha espuma! Ahora abre el grifo"); estado("felices", 1200); }
+        },
+      };
+    }
+    async function enjuagarManos() {
+      ocupado = true; frotar = null; marcarHerramienta("grifo"); brillarHerramienta("grifo", false);
+      const lav = rectDe($("lavamanos")), k = posMichi.h / 320, r = rectMichi();
+      const ch = document.createElement("div");
+      ch.className = "chorro";
+      ch.style.cssText = `left:${lav.x + lav.w * .54}px;top:${lav.y + lav.h * .44}px;height:${r.y + 250 * k - (lav.y + lav.h * .44)}px;width:${lav.w * .05}px`;
+      objetos.appendChild(ch);
+      sonido("agua"); estado("cerrados frotando", 1800);
+      quitarBurbujas(true);
+      await esperar(1900); ch.remove();
+      michi.classList.remove("manos"); estado("sacudir felices", 1100);
+      for (let i = 0; i < 10; i++) { const [x, y] = puntoMichi(100 + Math.random() * 40, 250); efecto("salpicon", x, y, "", 700, `--dx:${(Math.random() - .5) * 160}px;--dy:${-30 - Math.random() * 80}px`); }
+      await esperar(1100);
+      destellos(5, [60, 200, 180, 280]); Juegos.decir("¡Manitos limpias!"); subir("limpieza", 8); subir("carino", 3);
+      await esperar(1400);
+      michi.style.zIndex = "";
+      await terminarModo();
+    }
+
+    // ----- Bañera: manchas de barro, esponja o jabón por todo el cuerpo, ducha, toalla -----
+    let manchasQuitadas = 0;
+    async function escenaBanera() {
+      const ban = rectDe($("banera"));
+      const lugar = { cx: ban.x + ban.w * .52, abajo: innerHeight - (ban.y + ban.h * .78), h: ban.h * 1.6 };
+      await ponerMichi({ cx: ban.x + ban.w * .9, abajo: lugar.abajo - ban.h * .25, h: lugar.h * .95 }, true);
+      estado("salta", 700); await esperar(250);
+      $("banera-frente").hidden = false;
+      await ponerMichi(lugar);
+      sonido("agua");
+      herramientas([["esponja", "esponja", "esponja"], ["jabon", "jabon", "jabón"], ["ducha", "ducha", "ducha"], ["toalla", "toalla", "toalla"]], h => herramientaBanera(h));
+      await enfocar(union(rectMichi(lugar), ban), .06);
+      const sucias = svgMichi.querySelectorAll(".mancha.visible").length;
+      Juegos.decir(sucias ? "¡Uy, Michi tiene barro! Elige la esponja o el jabón" : "¡Hora del baño! Elige la esponja o el jabón");
+      manchasQuitadas = 0;
+      ocupado = false;
+      brillarHerramienta("esponja"); brillarHerramienta("jabon");
+    }
+    let reaccionFrote = 0;
+    async function herramientaBanera(h) {
+      if (modo !== "banera" || ocupado) return;
+      brillarHerramienta("esponja", false); brillarHerramienta("jabon", false);
+      if (h === "esponja" || h === "jabon") {
+        marcarHerramienta(h);
+        const color = h === "esponja" ? "#d4ecff" : "#ffe680";
+        Juegos.decir(h === "esponja" ? "¡Esponja! Frota a Michi" : "¡Jabón! Frota a Michi");
+        frotar = {
+          icono: h, alFrotar: (x, y) => {
+            burbuja(x + (Math.random() - .5) * 18, y + (Math.random() - .5) * 18, color);
+            if (Math.random() < .3) sonido("frote");
+            // quitar manchas cercanas
+            svgMichi.querySelectorAll(".mancha.visible:not(.limpia)").forEach(m => {
+              if (Math.hypot(x - +m.dataset.x, y - +m.dataset.y) < 26) {
+                m.classList.add("limpia"); manchasQuitadas++;
+                const [sx, sy] = puntoMichi(+m.dataset.x, +m.dataset.y); efecto("destello", sx - 15, sy - 15, DESTELLO, 900);
+                Juegos.tono(1200, .1, "sine", .1);
+                if (!svgMichi.querySelector(".mancha.visible:not(.limpia)")) { Juegos.decir("¡Ya no hay barro! Ahora la ducha"); brillarHerramienta("ducha"); }
+              }
+            });
+            // reacciona según dónde lo frotan
+            const ahora = Date.now();
+            if (ahora - reaccionFrote > 1600) {
+              reaccionFrote = ahora;
+              if (y < 175) estado("cerrados satisfecho", 1200);
+              else if (y > 195 && Math.abs(x - 120) < 45) { estado("felices abierta cosquillas", 1000); sonido("risa"); }
+              if (y < 70) { estado("sorpresa", 600); }
+            }
+          },
+        };
+        if (svgMichi.querySelectorAll(".burbuja").length === 0) brillarHerramienta("ducha", false);
+        setTimeout(() => { if (modo === "banera" && !svgMichi.querySelector(".mancha.visible:not(.limpia)")) brillarHerramienta("ducha"); }, 4000);
+      } else if (h === "ducha") {
+        ocupado = true; frotar = null; marcarHerramienta("ducha"); brillarHerramienta("ducha", false);
+        sonido("agua"); estado("cerrados", 2000);
+        const [x0, y0] = puntoMichi(10, -30), [x1] = puntoMichi(230, 0), [, yb] = puntoMichi(0, 230);
+        for (let k = 0; k < 46; k++) setTimeout(() => efecto("gota", x0 + Math.random() * (x1 - x0), y0, "", 900, `--caida:${yb - y0}px`), k * 40);
+        await esperar(900); quitarBurbujas(true);
+        michi.classList.add("mojado");
+        await esperar(1100); Juegos.decir("¡Ahora la toalla!"); brillarHerramienta("toalla");
+        ocupado = false;
+      } else if (h === "toalla") {
+        ocupado = true; frotar = null; marcarHerramienta("toalla"); brillarHerramienta("toalla", false);
+        Juegos.decir("¡A secarse!");
+        estado("sacudir cerrados", 1000);
+        for (let i = 0; i < 16; i++) { const [x, y] = puntoMichi(40 + Math.random() * 160, 40 + Math.random() * 160); efecto("salpicon", x, y, "", 700, `--dx:${(Math.random() - .5) * 220}px;--dy:${(Math.random() - .7) * 160}px`); }
+        await esperar(1000);
+        michi.classList.remove("mojado");
+        const quedan = svgMichi.querySelectorAll(".mancha.visible:not(.limpia)").length;
+        subir("limpieza", quedan ? 20 + manchasQuitadas * 10 : 100);
+        estado("felices sonrojado brillante", 1800); destellos(9); Juegos.decir(quedan ? "¡Más limpito!" : "¡Qué limpito y brillante estoy!"); corazones(4); subir("carino", 5);
+        await esperar(1800);
+        svgMichi.querySelectorAll(".mancha.limpia").forEach(m => m.classList.remove("visible", "limpia"));
+        estado("salta", 700); await esperar(250);
+        $("banera-frente").hidden = true;
+        await terminarModo();
+      }
+    }
+
+    // ----- Dientes: primer plano de la boca, bichitos de azúcar, 2 cepillos -----
+    const POS_BICHITOS = [[104, 143], [118, 144], [132, 143], [110, 175], [126, 175], [140, 145]];
+    const COLORES_BICHITO = ["#a66bff", "#ff7eb6", "#4cd17a", "#ff9f43", "#3fa7ff", "#ffd23f"];
+    async function escenaDientes() {
+      const lugar = { cx: innerWidth * .5, abajo: sueloPx(), h: lugarInicial().h };
+      await ponerMichi(lugar, true);
+      michi.classList.add("dientes");
+      // cuantos más días sin cepillarse, más bichitos (siempre hay al menos 2 para jugar)
+      const n = Math.max(2, Math.min(6, Math.ceil((100 - nivel.dientes) / 15)));
+      const cab = svgMichi.querySelector(".cabeza");
+      const grupo = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      grupo.setAttribute("class", "bichito-grupo");
+      grupo.innerHTML = POS_BICHITOS.slice(0, n).map(([x, y], i) => `<g class="bichito" data-x="${x}" data-y="${y}" data-frote="0">
+        <circle cx="${x}" cy="${y}" r="5.5" fill="${COLORES_BICHITO[i]}" stroke-width="1.5"/>
+        <circle cx="${x - 2}" cy="${y - 1}" r="1.2" fill="#2a1a17" stroke="none"/><circle cx="${x + 2}" cy="${y - 1}" r="1.2" fill="#2a1a17" stroke="none"/></g>`).join("");
+      cab.appendChild(grupo);
+      herramientas([["cepilloAzul", "cepilloAzul", "cepillo azul"], ["cepilloRosa", "cepilloRosa", "cepillo rosado"]], h => {
+        marcarHerramienta(h); brillarHerramienta("cepilloAzul", false); brillarHerramienta("cepilloRosa", false);
+        Juegos.decir("¡A cepillar! Saca los bichitos de azúcar");
+        frotar = { icono: h, alFrotar: cepillar };
+      });
+      await enfocar(parteMichi(56, 30, 184, 196, lugar), .05);
+      sonido("bostezo");
+      Juegos.decir(`¡Aaah! Michi tiene ${n} bichitos de azúcar. Elige un cepillo`);
+      ocupado = false;
+      brillarHerramienta("cepilloAzul"); brillarHerramienta("cepilloRosa");
+    }
+    function cepillar(x, y) {
+      if (y < 125 || y > 190 || Math.abs(x - 120) > 40) return;
+      burbuja(x + (Math.random() - .5) * 10, y + (Math.random() - .5) * 8, "#ffffff", 6 + Math.random() * 6);
+      if (Math.random() < .4) sonido("frote");
+      svgMichi.querySelectorAll(".bichito:not(.fuera)").forEach(b => {
+        if (Math.hypot(x - +b.dataset.x, y - +b.dataset.y) < 16) {
+          b.dataset.frote = +b.dataset.frote + 1;
+          if (+b.dataset.frote >= 4) {
+            b.classList.add("fuera"); sonido("chirrido");
+            setTimeout(() => b.remove(), 400);
+            if (!svgMichi.querySelector(".bichito:not(.fuera)")) dientesLimpios();
+          }
+        }
+      });
+    }
+    async function dientesLimpios() {
+      ocupado = true; frotar = null;
+      await esperar(500);
+      quitarBurbujas(true);
+      destellos(6, [96, 132, 148, 182]); Juegos.decir("¡Aaah! ¡Qué dientes tan limpios!"); sonido("cascabel");
+      subir("dientes", 100); subir("carino", 4);
+      await esperar(1600);
+      michi.classList.remove("dientes"); estado("felices sonrojado", 1400);
+      await esperar(1200);
+      await terminarModo();
+    }
+
+    // ---------- Dormitorio (cama con mantita y primer plano llegan en la parte 2) ----------
     let cuna = [], zetas;
     function montarDormitorio() {
-      deco(svgDeco(`<rect x="10" y="20" width="180" height="140" rx="12" fill="#2b2e6b"/><circle cx="140" cy="70" r="26" fill="#ffd23f"/><circle cx="152" cy="62" r="22" fill="#2b2e6b" stroke="none"/>
-        <circle cx="50" cy="50" r="4" fill="#fff" stroke="none"/><circle cx="80" cy="110" r="3" fill="#fff" stroke="none"/><circle cx="40" cy="130" r="3" fill="#fff" stroke="none"/>`),
-        "left:6%;top:12%;width:min(30vw,190px);height:min(24vw,150px)");
-      deco(svgDeco(`<rect x="0" y="80" width="200" height="60" rx="16" fill="#a66bff"/><rect x="0" y="110" width="200" height="40" rx="10" fill="#7d4fd6"/><rect x="14" y="60" width="60" height="34" rx="16" fill="#fff"/><path d="M10 150 L10 190 M190 150 L190 190" stroke-width="8"/>`),
-        "left:50%;transform:translateX(-50%);bottom:84px;width:min(86vw,460px);height:min(46vw,250px);z-index:3");
-      prop(svgDeco(`<path d="M60 20 L140 20 L160 80 L40 80Z" fill="#ffd23f"/><rect x="94" y="80" width="12" height="80" fill="#bfc6d6"/><ellipse cx="100" cy="166" rx="40" ry="12" fill="#bfc6d6"/>`),
-        "right:5%;top:22%;width:min(24vw,140px);height:min(24vw,140px)", () => (durmiendo ? despertar() : dormir()), "lámpara").id = "lampara";
+      deco(Casa.ventanaNoche, "left:5vw;top:10dvh;width:min(32vw,24dvh)");
+      deco(Casa.cuadroPez, "right:8vw;top:12dvh;width:min(22vw,15dvh)");
+      svgObj(Casa.alfombra("#9d7fd8"), "left:50%;transform:translateX(-50%);bottom:calc(var(--suelo) - 6dvh);width:min(92vw,70dvh);z-index:1");
+      svgObj(Casa.camaGato, "left:50%;transform:translateX(-50%);bottom:calc(var(--suelo) - 4dvh);width:min(80vw,46dvh);z-index:2", { id: "cama" });
+      svgObj(Casa.lampara, "right:3vw;bottom:calc(var(--suelo) + 14dvh);width:min(22vw,14dvh);z-index:3", { id: "lampara", etiqueta: "lámpara", alTocar: () => (durmiendo ? despertar() : dormir()) });
     }
-    // "Duérmete niño" con notas suaves; se repite mientras duerme
     const CANCION = [[392, 1], [330, 1], [392, 2], [330, 1], [392, 1], [440, 1], [392, 1], [349, 1], [330, 2], [294, 1], [330, 1], [349, 2], [294, 1], [262, 3]];
     function tocarCuna() {
       let t = 0;
       cuna = CANCION.map(([f, d]) => { const id = setTimeout(() => Juegos.nota(f, 1.2), t); t += d * 520; return id; });
       cuna.push(setTimeout(() => durmiendo && tocarCuna(), t + 800));
     }
-    async function dormir() {
+    function dormir() {
       if (ocupado) return;
       ultimoToque = Date.now(); quitarPensamiento();
       durmiendo = true;
       document.body.classList.add("oscuro");
       Juegos.decir("¡Buenas noches, Michi!");
+      const cama = rectDe($("cama"));
+      ponerMichi({ cx: cama.x + cama.w * .5, abajo: innerHeight - (cama.y + cama.h * .7), h: cama.h * 1.5 });
       michi.className = "duerme cerrados";
       tocarCuna();
       zetas = setInterval(() => { efecto("zeta", ...puntoMichi(60, 20), "z", 2400); subir("sueno", 6); }, 1300);
@@ -649,6 +1052,7 @@
       michi.className = "";
       if (silencio) return;
       ocupado = true;
+      ponerMichi(lugarInicial());
       estado("estirarse bosteza abierta cerrados", 1500); sonido("bostezo");
       await esperar(1500);
       estado("felices", 1500); Juegos.decir("¡Buenos días, Maya!");
@@ -660,50 +1064,52 @@
     let pensamiento;
     function quitarPensamiento() { pensamiento?.remove(); pensamiento = null; }
     const GESTOS = {
-      hambre: ["pancita", "¡Tengo hambre!"], limpieza: ["rascarse", "¡Quiero un baño de espuma!"],
-      bano: ["apurado", "¡Quiero ir al baño!"], sueno: ["bosteza abierta cerrados", "Tengo sueñito…"],
+      hambre: ["pancita", "¡Tengo hambre!", "cocina", null, "cocina"],
+      limpieza: ["rascarse", "¡Quiero un baño de espuma!", "bano", "banera", "ducha"],
+      bano: ["apurado", "¡Quiero ir al baño!", "bano", "inodoro", "bano"],
+      sueno: ["bosteza abierta cerrados", "Tengo sueñito…", "dormitorio", null, "dormitorio"],
+      dientes: ["abierta", "¡Mis dientes!", "bano", "dientes", "cepilloAzul"],
     };
     setInterval(() => {
-      if (ocupado || durmiendo || pensamiento) return;
-      const n = NECESIDADES.filter(x => nivel[x.id] < BAJA).sort((a, b) => nivel[a.id] - nivel[b.id])[0];
-      if (!n) return;
-      const [clases, frase] = GESTOS[n.id];
+      if (ocupado || durmiendo || pensamiento || modo) return;
+      const k = Object.keys(GESTOS).filter(x => nivel[x] < BAJA).sort((a, b) => nivel[a] - nivel[b])[0];
+      if (!k) return;
+      const [clases, frase, destino, esc, icono] = GESTOS[k];
       estado(clases, 2000);
-      if (n.id === "sueno") sonido("bostezo");
+      if (k === "sueno") sonido("bostezo");
       Juegos.decir(frase);
-      const r = michi.getBoundingClientRect();
+      const r = svgMichi.getBoundingClientRect();
       pensamiento = document.createElement("button");
       pensamiento.className = "pensamiento";
-      pensamiento.innerHTML = Michi.ICONOS[n.id];
+      pensamiento.innerHTML = Michi.ICONOS[icono];
       pensamiento.setAttribute("aria-label", frase);
-      pensamiento.style.cssText = `left:${Math.min(r.right - 20, innerWidth - 100)}px;top:${Math.max(r.top - 10, 84)}px;position:fixed`;
-      pensamiento.addEventListener("click", () => { quitarPensamiento(); irA(n.cuarto); });
+      pensamiento.style.cssText = `left:${Math.min(r.right - 30, innerWidth - 100)}px;top:${Math.max(r.top, 90)}px`;
+      pensamiento.addEventListener("click", async () => { quitarPensamiento(); irA(destino); if (esc) { await esperar(300); escena(esc); } });
       document.body.appendChild(pensamiento);
       setTimeout(quitarPensamiento, 6000);
     }, 15000);
 
-    // Bosteza si nadie juega con él un rato
+    // Bosteza si nadie juega con él un rato; en la sala, a veces juega solo con el ovillo
     setInterval(() => {
-      if (!ocupado && !durmiendo && Date.now() - ultimoToque > 25000) {
-        ultimoToque = Date.now(); estado("bosteza abierta cerrados", 1600); sonido("bostezo");
-      }
+      if (ocupado || durmiendo || modo || Date.now() - ultimoToque < 25000) return;
+      ultimoToque = Date.now();
+      if (cuarto === "sala" && Math.random() < .5) { estado("zarpazo felices", 700); sonido("cascabel"); $("ovillo")?.dispatchEvent(new PointerEvent("pointerup")); }
+      else { estado("bosteza abierta cerrados", 1600); sonido("bostezo"); }
     }, 5000);
 
     async function festejar() {
-      if (ocupado || durmiendo) return;
+      if (ocupado || durmiendo || modo) return;
       ocupado = true; todoLleno = true;
-      estado("baila felices abierta", 3000); Juegos.fiesta(); Juegos.decir("¡Gracias por cuidarme, Maya!");
+      estado("baila felices abierta", 3000); Juegos.fiesta(); Juegos.decir("¡Gracias por cuidarme, Maya!"); destellos(8);
       [0, 900, 1800].forEach(t => setTimeout(() => sonido("cascabel"), t));
       await esperar(3000);
       ocupado = false;
     }
 
     // ================= Inicio =================
-    todoLleno = NECESIDADES.every(n => nivel[n.id] >= 95); // no festejar solo por abrir el juego
+    todoLleno = ["hambre", "limpieza", "bano", "sueno"].every(k => nivel[k] >= 95); // no festejar solo por abrir el juego
+    irA("sala", true);
     pintarNecesidades();
-    props.dataset.cuarto = "";
-    cuarto = -1;
-    irA("cocina");
     setTimeout(() => { if (!ocupado) { estado("saluda felices", 1700); Juegos.decir("¡Hola, Maya! Soy Michi"); } }, 900);
   </script>
 </body>

@@ -1,5 +1,6 @@
 # SPEC-009 — Michi con nuevo estilo visual (nivel "Boba Cat")
-Estado: borrador
+Estado: aprobada
+> Aprobada por el usuario en el chat el 2026-10-21. Michi se queda gris con ojos verdes.
 > Depende de SPEC-006. Referencia visual: "Boba Cat" de gbadebob (Rive, CC BY 4.0), solo como inspiración de estilo.
 
 ## Qué
@@ -55,4 +56,4 @@ SPEC-006. Dibujo propio en SVG: sin archivos externos, sin créditos obligatorio
 ## Notas técnicas
 - Todo en `assets/js/michi.js` (SVG) y `juegos/gato/index.html`; mismas clases animables para no romper la lógica
 - Fondos como SVG con `filter: blur()` aplicado una vez a una capa estática
-- Pregunta abierta para el usuario: ¿Michi se queda gris, o prefieres otro color (sin ser rosado como el Boba)?
+- Color confirmado por el usuario: gris atigrado con ojos verdes
