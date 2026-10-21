@@ -10,6 +10,7 @@ assets/
   iconos/                   ← icono.svg (fuente) + PNG 180/192/512 renderizados desde el SVG
   css/base.css              ← variables de color (:root), .btn-casa, animaciones pop/wiggle/confeti
   js/common.js              ← objeto global `Juegos` (ver API abajo)
+  js/colorear.js            ← dibujos para colorear (zonas + detalles) e íconos de herramientas; solo Pintar
   js/dibujos.js             ← objeto global `Dibujos`: todos los SVG (animales, objetos, íconos, casita)
   sonidos/
     CREDITOS.md             ← origen y licencia de cada sonido (obligatorio mantenerlo)

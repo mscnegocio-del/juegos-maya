@@ -1,5 +1,5 @@
 // Plantilla del service worker. NO editar sw.js a mano: se genera con tools/actualizar-sw.py
-const VERSION = "maya-597b34993d";
+const VERSION = "maya-ddbeea3c55";
 const ARCHIVOS = [
   "./",
   "juegos/animales/",
@@ -16,6 +16,7 @@ const ARCHIVOS = [
   "assets/iconos/icono-192.png",
   "assets/iconos/icono-512.png",
   "assets/iconos/icono.svg",
+  "assets/js/colorear.js",
   "assets/js/common.js",
   "assets/js/dibujos.js",
   "assets/sonidos/animales/caballo.mp3",

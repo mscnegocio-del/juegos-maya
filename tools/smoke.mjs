@@ -26,7 +26,13 @@ const PAGINAS = {
     await p.click("#cancion"); await p.waitForTimeout(1200); // la canción ilumina teclas
   },
   "juegos/pintar/": async p => {
-    await p.mouse.move(100, 200); await p.mouse.down(); await p.mouse.move(250, 350); await p.mouse.up();
+    await p.locator(".tarjeta").nth(1).click();                       // abre la vaca
+    const z = await p.locator("#zonas").boundingBox();
+    await p.mouse.click(z.x + z.width / 2, z.y + z.height / 2);      // balde en la cabeza
+    await p.click('[data-herr="pincel"]');
+    await p.mouse.move(z.x + 40, z.y + 40); await p.mouse.down(); await p.mouse.move(z.x + 120, z.y + 90); await p.mouse.up();
+    await p.click('[data-herr="deshacer"]');
+    await p.click('[data-herr="listo"]');
   },
 };
 

@@ -8,7 +8,7 @@ feliz. Sin micrófono y sin repetir la voz. Sin monedas, compras, anuncios ni ca
 
 ## Personaje
 - Gato original en SVG (estilo de `dibujos.js`): cuerpo entero de frente, color a elegir por el usuario
-  (propuesta: gris con manchas blancas). Nombre propuesto: **Michi** (el usuario decide)
+  (propuesta: gris con manchas blancas). Nombre: **Michi** (confirmado por el usuario el 2026-10-21)
 - Piezas animables por separado: ojos (parpadeo, cerrados, felices ^^), boca (sonrisa, abierta, lengua),
   orejas, cola (se mueve siempre), patas, panza, bigotes, mejillas (se sonrojan)
 - Respira en reposo, mira hacia donde toca Maya, bosteza si pasa mucho tiempo sin tocarlo
