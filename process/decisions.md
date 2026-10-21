@@ -8,6 +8,7 @@
 | Deploy con GitHub Actions desde `main` | 2026-10-21 | Pages desde rama `gh-pages` | Despliegue automático en cada push, sin rama extra | — |
 | `main` como rama por defecto; el entorno `github-pages` solo permite desplegar desde `main` | 2026-10-21 | Dejar la rama de trabajo como predeterminada | El primer despliegue falló porque Pages solo deja desplegar desde la rama por defecto | — |
 | Dibujos centralizados en `assets/js/dibujos.js` (objeto global, strings SVG) | 2026-10-21 | Archivos .svg sueltos, `<use>`/sprites | Mantiene las partes animables (ojos, boca) por CSS, se reutiliza entre juegos y se cachea una vez; sin build | SPEC-005 |
+| Dibujos para colorear en `colorear.js` aparte, con zonas SVG (no relleno por píxeles) | 2026-10-21 | Ponerlos en `dibujos.js`; flood fill sobre canvas | Solo Pintar los usa (no cargan en otros juegos); las zonas rellenan exacto sin "fugas" y se guardan como JSON liviano | SPEC-008 |
 | Canva descartado | 2026-10-21 | Canva (generate-image) | El usuario no tiene Canva Pro | — |
 | Gráficos: SVG propios inline | 2026-10-21 | Emojis del sistema, OpenMoji, Fluent Emoji | Estilo uniforme, se ven igual en todo dispositivo, animables por partes, livianos. OpenMoji exige atribución; Fluent Emoji (MIT) queda como apoyo rápido | SPEC-001 |
 | Sonidos solo CC0 de Freesound (vista previa HQ mp3) | 2026-10-21 | Pixabay, Wikimedia Commons, Kenney | Pixabay bloquea (403); Wikimedia con licencias que exigen atribución; Kenney no tiene animales | SPEC-001 |

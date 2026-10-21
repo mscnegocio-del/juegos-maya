@@ -12,3 +12,4 @@
 - Publicado en GitHub Pages (PR #1). El primer despliegue falló hasta poner `main` como rama por defecto
 - SPEC-005: dibujos compartidos en `dibujos.js`; menú, Globos, Colores y casita en SVG
 - SPEC-005 publicada (PR #2). SPEC-004: juego Piano de colores
+- SPEC-004 publicada (PR #3). SPEC-008: Colorear con galería de dibujos

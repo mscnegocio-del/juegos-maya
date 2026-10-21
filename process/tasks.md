@@ -25,11 +25,14 @@
 | 7 | PWA instalable y offline (manifest, íconos, fuente local, service worker generado) | SPEC-003 | hecho |
 | 8 | Globos, Colores, menú y casita con SVG propios; `dibujos.js` compartido | SPEC-005 | hecho |
 | 9 | Juego Piano de colores (7 teclas, animales, multitáctil, canción Estrellita) | SPEC-004 | hecho |
+| 10 | Colorear: galería de 12 dibujos, balde por zonas, pincel, goma, deshacer, guardado, "cobra vida" | SPEC-008 | hecho |
 | 6 | Juego Contar hasta 5 (manzanas, estrellas, flores, pelotas; voz cuenta; dificultad progresiva) | SPEC-002 | hecho |
 
 ## Backlog (priorizado)
 | # | Idea | Spec | Estado |
 |---|------|------|--------|
+| 1 | Mascota virtual: gato propio con cuidados y reacciones | SPEC-006 | borrador |
+| 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |
 | 7 | Vestir al osito (arrastrar gorro, lentes, bufanda) | — | idea |

@@ -13,110 +13,336 @@
   <meta name="apple-mobile-web-app-title" content="Maya">
   <link rel="stylesheet" href="../../assets/css/base.css">
   <style>
-    body { overflow: hidden; background: #fff; }
-    canvas { position: fixed; inset: 0; touch-action: none; }
-    .paleta {
-      position: fixed; left: 0; right: 0; bottom: 0;
-      display: flex; justify-content: center; flex-wrap: wrap; gap: 12px;
-      padding: 12px 16px 18px;
-      background: rgba(255, 247, 236, .92);
-      box-shadow: 0 -4px 0 rgba(0, 0, 0, .06);
+    body { min-height: 100%; background: linear-gradient(#efe4ff, #fff7ec); }
+    [hidden] { display: none !important; }
+
+    /* ---------- Galería ---------- */
+    .galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(150px, 42%), 1fr));
+      gap: 16px;
+      max-width: 900px; margin: 0 auto;
+      padding: 104px 16px 32px;
     }
-    .color, .accion {
-      width: 60px; height: 60px; border-radius: 50%;
-      box-shadow: 0 5px 0 rgba(0, 0, 0, .15);
+    .tarjeta {
+      aspect-ratio: 1 / 1; position: relative;
+      background: #fff; border-radius: var(--radius);
+      box-shadow: 0 8px 0 rgba(0, 0, 0, .1);
       transition: transform .15s;
     }
-    .color.activo { transform: scale(1.25); outline: 5px solid #fff; outline-offset: -5px; }
-    .accion { background: #fff; font-size: 32px; }
-    .accion:active { transform: scale(.9); }
+    .tarjeta:active { transform: translateY(6px); }
+    .tarjeta svg { position: absolute; inset: 8%; width: 84%; height: 84%; overflow: visible; }
+
+    /* ---------- Editor ---------- */
+    .editor {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+      padding: 96px 12px 12px;
+    }
+    .lienzo {
+      position: relative; flex: none;
+      width: min(calc(100vw - 24px), calc(100dvh - 300px));
+      aspect-ratio: 1 / 1;
+      background: #fff; border-radius: 24px;
+      box-shadow: 0 8px 0 rgba(0, 0, 0, .1);
+      overflow: hidden;
+      touch-action: none;
+    }
+    .lienzo > * { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .lineas { pointer-events: none; }
+    .destello { animation: destello .3s ease-out; }
+    @keyframes destello { from { opacity: .4; } }
+    .lienzo.balde canvas { pointer-events: none; } /* con el balde se toca la zona del SVG de abajo */
+    .lienzo.vivo { animation: vivir .6s ease-in-out 3 alternate; }
+    @keyframes vivir { from { transform: rotate(-3deg) scale(1); } to { transform: rotate(3deg) scale(1.05); } }
+
+    .herramientas {
+      display: flex; flex-direction: column; gap: 10px; align-items: center;
+      width: min(100%, 640px);
+    }
+    .fila { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .color, .herr {
+      width: 52px; height: 52px; border-radius: 50%;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, .15);
+      transition: transform .12s;
+    }
+    .color.activo { transform: scale(1.22); outline: 4px solid #fff; outline-offset: -4px; }
+    .herr { background: #fff; display: grid; place-items: center; }
+    .herr svg { width: 34px; height: 34px; }
+    .herr.activo { background: var(--amarillo); transform: scale(1.12); }
+    .herr:active, .color:active { transform: scale(.9); }
+    .grosor { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center;
+              box-shadow: 0 4px 0 rgba(0, 0, 0, .12); }
+    .grosor span { display: block; border-radius: 50%; background: var(--ink); }
+    .grosor.activo { background: var(--amarillo); }
+    .herr.listo { width: 64px; height: 64px; }
+    .herr.listo svg { width: 48px; height: 48px; }
+
+    @media (orientation: landscape) and (min-width: 700px) {
+      .editor { flex-direction: row; padding: 96px 16px 16px; gap: 20px; }
+      .lienzo { width: min(calc(100dvh - 112px), calc(100vw - 360px)); }
+      .herramientas { width: 300px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .lienzo.vivo { animation: none; } }
   </style>
 </head>
 <body>
-  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
-  <canvas id="lienzo"></canvas>
-  <div class="paleta" id="paleta">
-    <button class="accion" id="estrellas" aria-label="Estrellas">⭐</button>
-    <button class="accion" id="borrar" aria-label="Borrar todo">🧽</button>
-  </div>
+  <a class="btn-casa" href="../../" id="casa" aria-label="Volver">🏠</a>
+
+  <main class="galeria" id="galeria"></main>
+
+  <section class="editor" id="editor" hidden>
+    <div class="lienzo balde" id="lienzo">
+      <svg class="zonas" id="zonas" viewBox="0 0 200 200"></svg>
+      <canvas id="trazos" width="800" height="800"></canvas>
+      <svg class="lineas" id="lineas" viewBox="0 0 200 200"></svg>
+    </div>
+    <div class="herramientas">
+      <div class="fila" id="colores"></div>
+      <div class="fila" id="grosores"></div>
+      <div class="fila" id="botones"></div>
+    </div>
+  </section>
 
   <script src="../../assets/js/common.js"></script>
   <script src="../../assets/js/dibujos.js"></script>
+  <script src="../../assets/js/colorear.js"></script>
   <script>
-    const NOMBRES = ["rojo", "azul", "amarillo", "verde", "morado", "naranja", "rosado"];
-    const lienzo = document.getElementById("lienzo");
-    const ctx = lienzo.getContext("2d");
-    const paleta = document.getElementById("paleta");
-    let color = Juegos.COLORES[0], modoEstrellas = false;
-    const trazos = new Map(); // un trazo por dedo (multitáctil)
+    const { DIBUJOS, ICONOS } = Colorear;
+    const TRAZO = 'stroke="#3b2a4a" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"';
+    const HOJA = { id: "hoja", nombre: "una hoja en blanco", zonas: ['path d="M0 0 L200 0 L200 200 L0 200Z"'], detalles: "", hoja: true };
+    const TODOS = [HOJA, ...DIBUJOS];
+    const COLORES = [
+      ["#ff5a5f", "rojo"], ["#ff9f43", "naranja"], ["#ffd23f", "amarillo"], ["#4cd17a", "verde"], ["#3fa7ff", "azul"],
+      ["#a66bff", "morado"], ["#ff7eb6", "rosado"], ["#a0673f", "marrón"], ["#f5c9a0", "color piel"], ["#3b2a4a", "negro"],
+    ];
+    const GROSORES = [14, 28, 50]; // en unidades del canvas (800 px)
 
-    function ajustar() {
-      const dpr = devicePixelRatio || 1;
-      const copia = document.createElement("canvas");
-      copia.width = lienzo.width; copia.height = lienzo.height;
-      if (lienzo.width) copia.getContext("2d").drawImage(lienzo, 0, 0);
-      lienzo.width = innerWidth * dpr;
-      lienzo.height = innerHeight * dpr;
-      lienzo.style.width = innerWidth + "px";
-      lienzo.style.height = innerHeight + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.drawImage(copia, 0, 0, copia.width / dpr, copia.height / dpr);
-      ctx.lineCap = ctx.lineJoin = "round";
+    const $ = id => document.getElementById(id);
+    const galeria = $("galeria"), editor = $("editor"), lienzo = $("lienzo");
+    const svgZonas = $("zonas"), svgLineas = $("lineas"), canvas = $("trazos"), ctx = canvas.getContext("2d");
+    const casa = $("casa");
+    ctx.lineCap = ctx.lineJoin = "round";
+
+    // ---------- Guardado (por dispositivo; si falla, se juega igual sin guardar) ----------
+    const clave = id => `maya.colorear.${id}`;
+    function leer(id) { try { return JSON.parse(localStorage.getItem(clave(id))) || {}; } catch { return {}; } }
+    function escribir(id, datos) { try { localStorage.setItem(clave(id), JSON.stringify(datos)); } catch {} }
+
+    // Contornos visibles: cada zona oculta (con una máscara) la parte de su borde que queda debajo de
+    // las zonas siguientes, como en un libro de colorear donde no se ven las líneas tapadas
+    let nMascara = 0;
+    function contornos(d) {
+      if (d.hoja) return "";
+      const pre = `m${++nMascara}-`;
+      const defs = d.zonas.map((_, i) => i === d.zonas.length - 1 ? "" :
+        `<mask id="${pre}${i}" maskUnits="userSpaceOnUse" x="-20" y="-20" width="240" height="240">
+          <rect x="-20" y="-20" width="240" height="240" fill="#fff"/>
+          ${d.zonas.slice(i + 1).map(z => `<${z} fill="#000" stroke="none"/>`).join("")}
+        </mask>`).join("");
+      const lineas = d.zonas.map((z, i) => `<${z} fill="none"${i < d.zonas.length - 1 ? ` mask="url(#${pre}${i})"` : ""}/>`).join("");
+      return `<defs>${defs}</defs>${lineas}${d.detalles}`;
     }
-    addEventListener("resize", ajustar);
-    ajustar();
 
-    Juegos.COLORES.forEach((c, i) => {
+    // Un dibujo como SVG completo: relleno + trazos guardados + líneas encima (para las miniaturas)
+    function svgCompleto(d, datos = {}) {
+      const rellenos = d.zonas.map((z, i) => `<${z} fill="${datos.rellenos?.[i] || "#fff"}" stroke="none"/>`).join("");
+      const trazo = datos.trazo ? `<image href="${datos.trazo}" width="200" height="200"/>` : "";
+      const lineas = contornos(d);
+      const borde = d.hoja ? `<rect x="2" y="2" width="196" height="196" rx="16" fill="none" stroke-dasharray="12 10"/>` : "";
+      return `<svg viewBox="0 0 200 200" ${TRAZO} aria-hidden="true">${rellenos}${trazo}${lineas}${borde}</svg>`;
+    }
+
+    function mostrarGaleria() {
+      galeria.innerHTML = "";
+      TODOS.forEach(d => {
+        const b = document.createElement("button");
+        b.className = "tarjeta pop";
+        b.setAttribute("aria-label", d.nombre);
+        b.innerHTML = svgCompleto(d, leer(d.id));
+        b.addEventListener("click", () => { Juegos.decir(`¡${d.nombre[0].toUpperCase()}${d.nombre.slice(1)}!`); abrir(d); });
+        galeria.appendChild(b);
+      });
+      editor.hidden = true;
+      galeria.hidden = false;
+      casa.setAttribute("aria-label", "Volver al menú");
+    }
+
+    // ---------- Editor ----------
+    let actual, rellenos, color = COLORES[0][0], herramienta = "balde", grosor = GROSORES[1], historial = [];
+
+    function abrir(d) {
+      actual = d;
+      const datos = leer(d.id);
+      rellenos = datos.rellenos ? { ...datos.rellenos } : {};
+      historial = [];
+      svgZonas.innerHTML = d.zonas.map((z, i) => `<${z} data-zona="${i}" fill="${rellenos[i] || "#fff"}"/>`).join("");
+      svgLineas.innerHTML = d.hoja ? "" : `<g ${TRAZO}>${contornos(d)}</g>`;
+      ctx.clearRect(0, 0, 800, 800);
+      if (datos.trazo) { const img = new Image(); img.onload = () => ctx.drawImage(img, 0, 0, 800, 800); img.src = datos.trazo; }
+      elegirHerramienta(d.hoja ? "pincel" : "balde", true);
+      galeria.hidden = true;
+      editor.hidden = false;
+      casa.setAttribute("aria-label", "Volver a los dibujos");
+      scrollTo(0, 0);
+    }
+
+    function guardar() {
+      if (!actual) return;
+      const vacio = !ctx.getImageData(0, 0, 800, 800).data.some((v, i) => i % 4 === 3 && v);
+      escribir(actual.id, { rellenos, trazo: vacio ? null : canvas.toDataURL("image/png") });
+    }
+
+    // La casita: desde el editor vuelve a la galería (guardando); desde la galería, al menú
+    casa.addEventListener("click", e => {
+      if (editor.hidden) return;
+      e.preventDefault();
+      guardar();
+      mostrarGaleria();
+    });
+    addEventListener("pagehide", guardar);
+
+    function recordar(paso) { historial.push(paso); if (historial.length > 8) historial.shift(); }
+
+    // Balde: rellenar la zona tocada
+    svgZonas.addEventListener("pointerdown", e => {
+      const zona = e.target.closest("[data-zona]");
+      if (!zona || (herramienta !== "balde" && herramienta !== "goma")) return;
+      const i = zona.dataset.zona, nuevo = herramienta === "goma" ? "#fff" : color;
+      if ((rellenos[i] || "#fff") === nuevo) return;
+      recordar({ tipo: "zona", i, antes: rellenos[i] });
+      rellenos[i] = nuevo;
+      zona.setAttribute("fill", nuevo);
+      Juegos.animar(zona, "destello"); // solo opacidad: no pisa el transform de las zonas rotadas
+      Juegos.tono(500 + Math.random() * 300, 0.12, "sine", 0.2);
+    });
+
+    // Pincel, estrellitas y goma sobre el canvas
+    const trazos = new Map();
+    const punto = e => { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) * 800 / r.width, (e.clientY - r.top) * 800 / r.height]; };
+
+    function estrellita(x, y) {
+      const r = 18 + Math.random() * 22, giro = Math.random() * Math.PI;
+      ctx.save();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.beginPath();
+      for (let k = 0; k < 10; k++) {
+        const a = giro + k * Math.PI / 5, rr = k % 2 ? r * .45 : r;
+        ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+      }
+      ctx.closePath();
+      ctx.fillStyle = Juegos.azar(COLORES.slice(0, 7))[0];
+      ctx.strokeStyle = "#3b2a4a"; ctx.lineWidth = 5;
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      if (herramienta === "balde") return;
+      canvas.setPointerCapture(e.pointerId);
+      if (!trazos.size) recordar({ tipo: "canvas", imagen: ctx.getImageData(0, 0, 800, 800) });
+      const [x, y] = punto(e);
+      trazos.set(e.pointerId, { x, y, n: 0, movio: false });
+      if (herramienta === "estrellas") { estrellita(x, y); Juegos.tono(800 + Math.random() * 600, 0.1); }
+    });
+    canvas.addEventListener("pointermove", e => {
+      const t = trazos.get(e.pointerId);
+      if (!t) return;
+      const [x, y] = punto(e);
+      t.movio = true;
+      if (herramienta === "estrellas") {
+        if (++t.n % 5 === 0) estrellita(x, y);
+      } else {
+        ctx.globalCompositeOperation = herramienta === "goma" ? "destination-out" : "source-over";
+        ctx.strokeStyle = color;
+        ctx.lineWidth = herramienta === "goma" ? grosor * 1.6 : grosor;
+        ctx.beginPath(); ctx.moveTo(t.x, t.y); ctx.lineTo(x, y); ctx.stroke();
+      }
+      t.x = x; t.y = y;
+    });
+    function soltar(e) {
+      const t = trazos.get(e.pointerId);
+      if (!t) return;
+      trazos.delete(e.pointerId);
+      if (!t.movio && herramienta === "pincel") { // un toque sin mover deja un punto
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(t.x, t.y, grosor / 2, 0, Math.PI * 2); ctx.fill();
+      }
+      if (!t.movio && herramienta === "goma") { // un toque con la goma también despinta la zona de abajo
+        canvas.style.pointerEvents = "none";
+        const debajo = document.elementFromPoint(e.clientX, e.clientY);
+        canvas.style.pointerEvents = "";
+        if (debajo?.dataset?.zona !== undefined) debajo.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+      }
+    }
+    ["pointerup", "pointercancel"].forEach(ev => canvas.addEventListener(ev, soltar));
+
+    function deshacer() {
+      const paso = historial.pop();
+      if (!paso) { Juegos.animar(document.querySelector('[data-herr="deshacer"]'), "wiggle"); return; }
+      if (paso.tipo === "zona") {
+        if (paso.antes) rellenos[paso.i] = paso.antes; else delete rellenos[paso.i];
+        svgZonas.querySelector(`[data-zona="${paso.i}"]`).setAttribute("fill", paso.antes || "#fff");
+      } else {
+        ctx.putImageData(paso.imagen, 0, 0);
+      }
+      Juegos.tono(300, 0.15, "triangle", 0.15);
+    }
+
+    // Terminado: el dibujo "cobra vida" (se mueve y suena su animal si lo tiene)
+    function terminar() {
+      guardar();
+      Juegos.animar(lienzo, "vivo");
+      Juegos.fiesta();
+      if (actual.sonido) Juegos.sonar(`../../assets/sonidos/animales/${actual.sonido}.mp3`).then(() => Juegos.decir("¡Qué bonito, Maya!")).catch(() => Juegos.decir("¡Qué bonito, Maya!"));
+      else Juegos.decir("¡Qué bonito, Maya!");
+    }
+
+    // ---------- Barra de herramientas ----------
+    const NOMBRES_HERR = { balde: "¡A rellenar!", pincel: "¡Pincel!", estrellas: "¡Estrellitas!", goma: "¡Goma!" };
+    function elegirHerramienta(h, silencio) {
+      herramienta = h;
+      lienzo.classList.toggle("balde", h === "balde");
+      document.querySelectorAll("[data-herr]").forEach(b => b.classList.toggle("activo", b.dataset.herr === h));
+      $("grosores").hidden = !(h === "pincel" || h === "goma");
+      if (!silencio) Juegos.decir(NOMBRES_HERR[h]);
+    }
+
+    COLORES.forEach(([c, nombre], i) => {
       const b = document.createElement("button");
       b.className = "color" + (i === 0 ? " activo" : "");
       b.style.background = c;
-      b.setAttribute("aria-label", NOMBRES[i]);
+      b.setAttribute("aria-label", nombre);
       b.addEventListener("click", () => {
-        color = c; modoEstrellas = false;
-        paleta.querySelectorAll(".color").forEach(x => x.classList.toggle("activo", x === b));
-        Juegos.decir(NOMBRES[i]);
+        color = c;
+        document.querySelectorAll(".color").forEach(x => x.classList.toggle("activo", x === b));
+        if (herramienta === "goma" || herramienta === "estrellas") elegirHerramienta(actual?.hoja ? "pincel" : "balde", true);
+        Juegos.decir(nombre);
       });
-      paleta.insertBefore(b, document.getElementById("estrellas"));
+      $("colores").appendChild(b);
     });
 
-    function estrella(x, y) {
-      ctx.font = 28 + Math.random() * 24 + "px serif";
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(Juegos.azar(["⭐", "🌟", "💖", "🌸", "✨"]), x, y);
-    }
+    GROSORES.forEach((g, i) => {
+      const b = document.createElement("button");
+      b.className = "grosor" + (i === 1 ? " activo" : "");
+      b.setAttribute("aria-label", ["delgado", "mediano", "grueso"][i]);
+      b.innerHTML = `<span style="width:${8 + i * 8}px;height:${8 + i * 8}px"></span>`;
+      b.addEventListener("click", () => { grosor = g; document.querySelectorAll(".grosor").forEach(x => x.classList.toggle("activo", x === b)); });
+      $("grosores").appendChild(b);
+    });
 
-    lienzo.addEventListener("pointerdown", e => {
-      lienzo.setPointerCapture(e.pointerId);
-      trazos.set(e.pointerId, { x: e.clientX, y: e.clientY, n: 0 });
-      if (modoEstrellas) { estrella(e.clientX, e.clientY); Juegos.tono(800 + Math.random() * 600, 0.1); }
-    });
-    lienzo.addEventListener("pointermove", e => {
-      const t = trazos.get(e.pointerId);
-      if (!t) return;
-      if (modoEstrellas) {
-        if (++t.n % 6 === 0) estrella(e.clientX, e.clientY);
-      } else {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 22;
-        ctx.beginPath();
-        ctx.moveTo(t.x, t.y);
-        ctx.lineTo(e.clientX, e.clientY);
-        ctx.stroke();
-      }
-      t.x = e.clientX; t.y = e.clientY;
-    });
-    ["pointerup", "pointercancel"].forEach(ev => lienzo.addEventListener(ev, e => trazos.delete(e.pointerId)));
+    [["balde", "rellenar"], ["pincel", "pincel"], ["estrellas", "estrellitas"], ["goma", "goma"], ["deshacer", "deshacer"], ["listo", "terminar"]]
+      .forEach(([h, etiqueta]) => {
+        const b = document.createElement("button");
+        b.className = "herr" + (h === "listo" ? " listo" : "");
+        b.dataset.herr = h;
+        b.setAttribute("aria-label", etiqueta);
+        b.innerHTML = ICONOS[h];
+        b.addEventListener("click", () => h === "deshacer" ? deshacer() : h === "listo" ? terminar() : elegirHerramienta(h));
+        $("botones").appendChild(b);
+      });
 
-    document.getElementById("estrellas").addEventListener("click", () => {
-      modoEstrellas = true;
-      paleta.querySelectorAll(".color").forEach(x => x.classList.remove("activo"));
-      Juegos.decir("¡Estrellitas!");
-    });
-    document.getElementById("borrar").addEventListener("click", () => {
-      ctx.clearRect(0, 0, innerWidth, innerHeight);
-      Juegos.tono(400, 0.3, "sine");
-      Juegos.decir("¡Nueva hoja!");
-    });
+    mostrarGaleria();
   </script>
 </body>
 </html>

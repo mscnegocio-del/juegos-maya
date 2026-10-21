@@ -6,7 +6,9 @@
 - SPEC-002 Contar hasta 5: implementada
 - SPEC-003 PWA offline: implementada (falta probar la instalación en el dispositivo del usuario)
 - SPEC-005 SVG en Globos, Colores y menú: implementada y publicada (PR #2)
-- SPEC-004 Piano de colores: implementada (falta publicar y probar en dispositivo)
+- SPEC-004 Piano de colores: implementada y publicada (PR #3)
+- SPEC-008 Colorear con galería: implementada (falta publicar y probar en dispositivo)
+- Mascota: el gato se llama **Michi** (confirmado). SPEC-006/007 en borrador
 
 ## ✅ Hecho en esta sesión
 - Base del sitio: menú (`index.html`, 2 columnas en celular) + 4 juegos: Globos, Animales (emojis + voz),
@@ -21,6 +23,7 @@
 - SPEC-002: juego Contar (`juegos/contar/`), tarjeta en el menú y caso en el smoke test
 - SPEC-005: `dibujos.js` compartido; menú, Globos (partículas al reventar), Colores (objetos con carita) y casita en SVG
 - SPEC-004: `juegos/piano/` (7 teclas con animales, notas con `Juegos.nota`, multitáctil, canción Estrellita), sexta tarjeta del menú
+- SPEC-008: Pintar con galería de 12 dibujos en líneas + hoja en blanco, balde por zonas, pincel, estrellitas, goma, deshacer, guardado y "cobra vida"
 - Publicado en GitHub Pages: el sitio en vivo es instalable y abre sin conexión (verificado con Chromium)
 - SPEC-003: manifest, ícono (la vaca), fuente local, `sw.js` generado por `tools/actualizar-sw.py` (también en CI)
 
@@ -36,5 +39,6 @@
 ## 📌 Próximos pasos (próxima sesión)
 1. Que el usuario pruebe Contar en un dispositivo real
 2. Que el usuario instale la app desde https://mscnegocio-del.github.io/juegos-maya/ y la pruebe en modo avión
-3. Publicar SPEC-004 (PR hacia main) y que el usuario pruebe Piano en la tablet (multitáctil real)
-4. Ideas del backlog: ¿Quién se esconde?, Memoria de 4 cartas, sonidos reales en Globos
+3. Publicar SPEC-008 (PR hacia main) y que el usuario pruebe Piano y Colorear en la tablet
+4. Aprobar SPEC-006 (Michi, núcleo) y luego SPEC-007
+5. Ideas del backlog: ¿Quién se esconde?, Memoria de 4 cartas, sonidos reales en Globos
