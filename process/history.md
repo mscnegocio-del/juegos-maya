@@ -6,3 +6,4 @@
 - Sonidos CC0 de los 12 animales procesados (SPEC-001, en progreso)
 - Harness creado
 - SPEC-001: 12 animales en SVG + audio real integrado (falta prueba en dispositivo)
+- SPEC-002: juego Contar hasta 5 implementado

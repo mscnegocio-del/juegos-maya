@@ -15,6 +15,11 @@ const PAGINAS = {
   "juegos/globos/": null,
   "juegos/animales/": p => p.click(".animal"),
   "juegos/colores/": p => p.click(".opcion"),
+  "juegos/contar/": async p => {
+    const objetos = p.locator(".objeto");
+    for (let i = 0; i < await objetos.count(); i++) await objetos.nth(i).click();
+    await objetos.first().click(); // tocar uno ya contado no debe romper nada
+  },
   "juegos/pintar/": async p => {
     await p.mouse.move(100, 200); await p.mouse.down(); await p.mouse.move(250, 350); await p.mouse.up();
   },
