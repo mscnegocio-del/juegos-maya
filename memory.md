@@ -2,7 +2,7 @@
 > Última actualización: 2026-10-21
 
 ## 🎯 Foco actual
-- SPEC-001 Animales v2: implementada salvo la prueba en un dispositivo real (la hace el usuario)
+- SPEC-001 Animales v2: implementada (el usuario la probó en un dispositivo real)
 - SPEC-002 Contar hasta 5: implementada
 
 ## ✅ Hecho en esta sesión
@@ -25,9 +25,9 @@
 ## 🔴 Bloqueantes
 - Ninguno para desarrollar
 - Publicar requiere una acción del usuario: llevar la rama a `main` y activar Settings → Pages → Source: GitHub Actions
-- La voz y los sonidos no se han probado en un dispositivo real (en Chromium headless no se escuchan)
+- Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
-1. Que el usuario pruebe Animales en celular/tablet. Si va bien, marcar SPEC-001 como `implementada`
+1. Que el usuario pruebe Contar en un dispositivo real
 2. Pedir aprobación de SPEC-003 (PWA offline). El menú tiene 5 tarjetas: la última queda sola en la fila; un 6.º juego lo completa
 3. Backlog: pasar Globos, Colores y el menú a SVG con el mismo estilo

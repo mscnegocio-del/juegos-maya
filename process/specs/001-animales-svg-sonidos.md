@@ -1,5 +1,5 @@
 # SPEC-001 — Animales v2: ilustraciones SVG y sonidos reales
-Estado: aprobada
+Estado: implementada
 > Aprobada por el usuario en el chat el 2026-10-21 («Sí, empieza con Animales en SVG y sonidos reales»).
 > Los criterios se redactaron después: revisarlos con el usuario si algo cambia el alcance.
 
@@ -17,7 +17,7 @@ imita el sonido por grabaciones reales, para que se vea y suene igual en cualqui
 - [x] Si el MP3 falla, la voz dice "La vaca hace muuu" (comportamiento v1). Sin `speechSynthesis` el juego sigue funcionando
 - [x] Página completa (HTML + audio) ≤ 300 KB (163 KB)
 - [x] `tools/smoke.mjs` sin errores; capturas revisadas a 390 px y en escritorio
-- [ ] El usuario lo prueba en un celular o tablet real (sonido + voz)
+- [x] El usuario lo prueba en un celular o tablet real (sonido + voz). Confirmado el 2026-10-21
 
 ## Fuera de alcance
 - Llama y mono (reemplazados por elefante y gallo, ver decisions.md)

@@ -7,3 +7,4 @@
 - Harness creado
 - SPEC-001: 12 animales en SVG + audio real integrado (falta prueba en dispositivo)
 - SPEC-002: juego Contar hasta 5 implementado
+- SPEC-001 cerrada: el usuario confirmó que funciona en un dispositivo real

@@ -12,7 +12,7 @@
 | 6 | Utilidades comunes `common.js` + `base.css` | — | hecho |
 | 7 | Workflow GitHub Pages | — | hecho |
 | 8 | Llevar la rama a `main` y activar Pages (Settings → Pages → GitHub Actions) | — | pendiente (acción del usuario) |
-| 9 | Probar voz y sonidos en celular/tablet real | — | pendiente (usuario) |
+| 9 | Probar voz y sonidos en celular/tablet real | — | hecho (Animales confirmado por el usuario) |
 
 ## Sprint 2 — Calidad visual y sonora
 | # | Tarea | Spec | Estado |
@@ -21,7 +21,7 @@
 | 2 | Scripts reutilizables de sonido y smoke test en `tools/` | SPEC-001 | hecho |
 | 3 | Dibujar 12 animales en SVG inline (estilo uniforme, partes animables) | SPEC-001 | hecho |
 | 4 | Integrar audio real en Animales (precarga, sin solapes, voz al terminar) | SPEC-001 | hecho |
-| 5 | Verificar SPEC-001 (smoke + capturas hechos; falta dispositivo real) | SPEC-001 | en progreso (usuario) |
+| 5 | Verificar SPEC-001 (smoke, capturas y dispositivo real) | SPEC-001 | hecho |
 | 6 | Juego Contar hasta 5 (manzanas, estrellas, flores, pelotas; voz cuenta; dificultad progresiva) | SPEC-002 | hecho |
 
 ## Backlog (priorizado)
