@@ -32,6 +32,9 @@
   muebles y fondos en `assets/img/casa/`, capa invisible con zonas tocables y barro; escenas en `#capa`
 - SPEC-003: manifest, ícono (la vaca), fuente local, `sw.js` generado por `tools/actualizar-sw.py` (también en CI)
 
+- Plan de mejoras (chat): specs SPEC-011 a 016 redactadas en **borrador**, esperando aprobación una por una
+  (Rive por capas, progreso adaptativo, niveles en Globos y Colores, álbum de stickers, GSAP)
+
 ## ⚠️ Decisiones de esta sesión (detalle en process/decisions.md)
 - HTML/CSS/JS puro sin build; Canva descartado (no hay Pro); gráficos con SVG propios
 - Sonidos: solo CC0 de Freesound. La llama pasa a elefante y el mono a gallo
@@ -44,6 +47,9 @@
 - Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
+0. Que el usuario revise y apruebe (o ajuste) SPEC-011…016 y las decisiones pendientes (Rive, GSAP, `maya.progreso`).
+   Preguntas abiertas: ¿GSAP en paralelo mientras prepara las capas? ¿Orden entre niveles y juegos nuevos?
+   ¿Premio como sticker, estrella en el menú o ambos?
 1. Que el usuario pruebe Contar en un dispositivo real
 2. Que el usuario instale la app desde https://mscnegocio-del.github.io/juegos-maya/ y la pruebe en modo avión
 3. Michi parte 2: pedir al usuario imágenes nuevas (fondo de cocina y dormitorio, mesa con mantel, cama de gato,
