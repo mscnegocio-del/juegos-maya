@@ -33,6 +33,7 @@
 | 15 | Álbum de stickers (24 stickers, página por juego, premio al completar nivel) | SPEC-015 | hecho |
 | 16 | Globos con 6 niveles adaptativos y stickers | SPEC-013 | hecho |
 | 17 | Colores con 8 niveles adaptativos, clasificar, mezclar pinturas y stickers | SPEC-014 | hecho |
+| 18 | Colorear 2.0: hoja nueva, mis dibujos, galería al azar, herramientas mágicas, 39 láminas, 4 niveles, stickers | SPEC-017 | hecho |
 | 6 | Juego Contar hasta 5 (manzanas, estrellas, flores, pelotas; voz cuenta; dificultad progresiva) | SPEC-002 | hecho |
 
 ## Backlog (priorizado)
@@ -42,7 +43,6 @@
 | 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
 | 2a | Michi por capas animado con Rive (spike en rama aparte; faltan las capas del usuario) | SPEC-011 | borrador |
 | 2g | Juegos nuevos: patrones, ¿qué falta?, conceptos espaciales, emociones con Michi, trazar caminos, letras M-A-Y-A, números 1–10 | — | idea |
-| 3 | Colorear 2.0: hoja nueva, goma visible, galería al azar, herramientas mágicas, 24 láminas, niveles, stickers | SPEC-017 | borrador |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |
 | 7 | Vestir al osito (arrastrar gorro, lentes, bufanda) | — | idea |
