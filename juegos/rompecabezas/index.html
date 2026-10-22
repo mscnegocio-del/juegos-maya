@@ -267,16 +267,31 @@
     }
 
     // ---------- Final: dibujo vivo, despertar del dinosaurio y registro de progreso ----------
+    // Cada dinosaurio tiene su propia voz: palabra que se dice y se ve, y un sonido sintetizado distinto (tono, vibrato, brillo y duración).
+    // Son sonidos suaves (nada de rugidos reales fuertes) y no asustan
+    const VOCES = {
+      trex:   { txt: "¡RAAAR!",  voz: "¡Raaar!",  tipo: "sawtooth", f0: 190, f1: 70,  dur: 1.1, lfo: 22, prof: 18, cut: 900,  vol: .16 },
+      trice:  { txt: "¡BRRRU!",  voz: "¡Brrru!",  tipo: "square",   f0: 120, f1: 90,  dur: .9,  lfo: 30, prof: 22, cut: 700,  vol: .12 },
+      bronto: { txt: "¡MUUUUU!", voz: "¡Muuuuu!", tipo: "sine",     f0: 95,  f1: 70,  dur: 1.6, lfo: 4,  prof: 6,  cut: 500,  vol: .22 },
+      estego: { txt: "¡GRUUU!",  voz: "¡Gruuu!",  tipo: "triangle", f0: 150, f1: 85,  dur: 1.0, lfo: 14, prof: 12, cut: 800,  vol: .2 },
+      rapto:  { txt: "¡IIIK-IK!",voz: "¡Iik iik!",tipo: "sawtooth", f0: 620, f1: 900, dur: .5,  lfo: 38, prof: 40, cut: 2600, vol: .08, doble: true },
+      anqui:  { txt: "¡HUMMM!",  voz: "¡Humm!",   tipo: "sine",     f0: 80,  f1: 60,  dur: 1.3, lfo: 8,  prof: 10, cut: 400,  vol: .24 },
+      ptero:  { txt: "¡IIIIAAA!",voz: "¡Iiiiaaa!",tipo: "triangle", f0: 780, f1: 1250,dur: .9,  lfo: 12, prof: 60, cut: 3000, vol: .1 },
+      espino: { txt: "¡GROOAR!", voz: "¡Grooar!", tipo: "sawtooth", f0: 140, f1: 55,  dur: 1.3, lfo: 18, prof: 20, cut: 700,  vol: .15 },
+    };
     let ac;
-    function rugido() {
+    function rugido(v = VOCES.trex) {
       try {
-        ac ??= new (window.AudioContext || window.webkitAudioContext)(); const t = ac.currentTime;
-        const o = ac.createOscillator(), l = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain(), v = ac.createGain();
-        o.type = "sawtooth"; o.frequency.setValueAtTime(190, t); o.frequency.exponentialRampToValueAtTime(70, t + 1.1);
-        l.frequency.value = 22; v.gain.value = 18; l.connect(v).connect(o.frequency);
-        f.type = "lowpass"; f.frequency.setValueAtTime(900, t); f.frequency.exponentialRampToValueAtTime(260, t + 1.1);
-        g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.16, t + .12); g.gain.exponentialRampToValueAtTime(.0001, t + 1.2);
-        o.connect(f).connect(g).connect(ac.destination); o.start(t); l.start(t); o.stop(t + 1.25); l.stop(t + 1.25);
+        ac ??= new (window.AudioContext || window.webkitAudioContext)();
+        [0, v.doble ? .45 : null].forEach(retardo => {
+          if (retardo === null) return;
+          const t = ac.currentTime + retardo, o = ac.createOscillator(), l = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain(), vib = ac.createGain();
+          o.type = v.tipo; o.frequency.setValueAtTime(v.f0, t); o.frequency.exponentialRampToValueAtTime(v.f1, t + v.dur);
+          l.frequency.value = v.lfo; vib.gain.value = v.prof; l.connect(vib).connect(o.frequency);
+          f.type = "lowpass"; f.frequency.setValueAtTime(v.cut, t); f.frequency.exponentialRampToValueAtTime(Math.max(200, v.cut * .3), t + v.dur);
+          g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(v.vol, t + .12); g.gain.exponentialRampToValueAtTime(.0001, t + v.dur + .1);
+          o.connect(f).connect(g).connect(ac.destination); o.start(t); l.start(t); o.stop(t + v.dur + .15); l.stop(t + v.dur + .15);
+        });
       } catch {}
     }
     const paso = () => Juegos.tono(70, .2, "sine", .3);
@@ -311,8 +326,9 @@
         }
       });
       gsap.delayedCall(1.9, () => {     // rugido: letras que explotan sobre la cabeza y el dibujo se infla
-        rugido(); Juegos.decir("¡Raaar!");
-        const g = document.createElement("div"); g.className = "grito"; g.textContent = "¡RAAAR!"; document.body.appendChild(g);
+        const v = VOCES[cuadro.id] || VOCES.trex;
+        rugido(v); Juegos.decir(v.voz);
+        const g = document.createElement("div"); g.className = "grito"; g.textContent = v.txt; document.body.appendChild(g);
         const w = g.offsetWidth; gsap.set(g, { left: Math.max(8, Math.min(innerWidth - w - 8, X(W0 / 2) - w / 2)), top: Y(0) - 46 });
         gsap.fromTo(g, { scale: 0, rotation: -14 }, { scale: 1.2, rotation: 6, duration: .45, ease: "back.out(3)" });
         gsap.to(g, { x: "+=5", y: "+=3", duration: .05, repeat: 14, yoyo: true });
