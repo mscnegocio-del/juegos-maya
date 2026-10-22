@@ -46,6 +46,7 @@
   <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
   <div class="contador" id="contador"><span class="mini" id="mini"></span><span id="numero">0</span></div>
 
+  <script src="../../assets/vendor/gsap/gsap.min.js"></script>
   <script src="../../assets/js/common.js"></script>
   <script src="../../assets/js/dibujos.js"></script>
   <script>
@@ -85,7 +86,7 @@
         estallar(g, color);
         total++;
         numero.textContent = total;
-        Juegos.animar(contador, "pop");
+        Juegos.rebotar(contador);
         if (total % 10 === 0) setTimeout(() => { Juegos.fiesta(); Juegos.decir("¡Muy bien, Maya!"); }, 400);
       });
       g.addEventListener("animationend", e => e.animationName === "subir" && g.remove());
