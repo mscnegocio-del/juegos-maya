@@ -59,7 +59,9 @@
    (hay un parche listo en el scratchpad de la sesión; si se perdió, rehacerlo desde el prototipo). Orden aleatorio de juegos incluido
 0b. SPEC-018 Rompecabezas IMPLEMENTADO con las 8 ilustraciones de dinosaurios. Siguiente: ilustrar los 12 animales y más temas con el mismo
    prompt (fondo distinto cada uno). Menú animado (prototipos/menu-animado.html): aprobado pero sin aplicar al `index.html`.
-0c. Que Maya pruebe Colorear 2.0, Globos y Colores en el dispositivo; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
+0c. Spike Pintar por regiones hecho (`prototipos/pintar-regiones/`, informe `process/spike-pintar-regiones.md`): falta que el usuario lo valide
+   y pase las ilustraciones de contornos de ChatGPT antes de migrar las 39 láminas (necesita spec). No se tocó `juegos/pintar/`.
+0d. Que Maya pruebe Colorear 2.0, Globos y Colores en el dispositivo; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
    Probar en iOS que la app instalada conserve el progreso.
    Preguntas abiertas: ¿orden entre niveles y juegos nuevos?
    ¿Premio como sticker, estrella en el menú o ambos?
