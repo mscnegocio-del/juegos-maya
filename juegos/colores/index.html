@@ -13,29 +13,56 @@
   <meta name="apple-mobile-web-app-title" content="Maya">
   <link rel="stylesheet" href="../../assets/css/base.css">
   <style>
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 100px 16px 24px; }
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 100px 16px 24px; touch-action: none; }
     .pregunta {
       display: flex; align-items: center; gap: 14px;
-      font-size: clamp(32px, 7vw, 52px); font-weight: 800; text-align: center;
+      font-size: clamp(28px, 6.5vw, 48px); font-weight: 800; text-align: center;
       background: #fff; border-radius: 40px; padding: 8px 28px;
       box-shadow: 0 6px 0 rgba(0, 0, 0, .1);
     }
-    .repetir { background: none; font-size: 40px; }
-    .opciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; margin-top: 40px; }
+    .repetir { background: none; font-size: 40px; min-width: 56px; }
+    .opciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; margin-top: 36px; max-width: 720px; }
     .opcion {
-      width: clamp(120px, 26vw, 200px);
+      width: clamp(104px, 26vw, 190px);
       aspect-ratio: 1 / 1;
-      background: none;
+      background: none; padding: 0; touch-action: none;
       filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .12));
       transition: transform .2s, opacity .3s;
     }
-    .opcion svg { width: 100%; height: 100%; overflow: visible; display: block; }
+    .opciones.cuatro .opcion { width: clamp(100px, 38vw, 170px); }
+    .opcion svg { width: 100%; height: 100%; overflow: visible; display: block; pointer-events: none; }
     .opcion.si { animation: festejar .5s cubic-bezier(.3, 1.6, .5, 1) 2 alternate; }
     @keyframes festejar { from { transform: scale(1.15) translateY(0); } to { transform: scale(1.15) translateY(-24px); } }
-    @media (prefers-reduced-motion: reduce) { .opcion.si { animation: none; } }
     .opcion:active { transform: scale(.92); }
     .opcion.no { opacity: .35; }
     .opcion.si { transform: scale(1.15); }
+    .opcion.guardado { opacity: 0; pointer-events: none; transition: opacity .3s; }
+
+    /* Nivel 7: cajas de colores para clasificar */
+    .cajas { display: flex; gap: 18px; justify-content: center; margin-top: 30px; }
+    .caja { width: clamp(110px, 28vw, 180px); height: clamp(90px, 20vw, 130px); border-radius: 18px 18px 30px 30px; border: 5px solid var(--ink);
+            background: var(--c); box-shadow: inset 0 -14px 0 rgba(0, 0, 0, .15), 0 6px 0 rgba(0, 0, 0, .12); position: relative; }
+    .caja::before { content: ""; position: absolute; left: -10px; right: -10px; top: -16px; height: 20px; border-radius: 12px;
+                    border: 5px solid var(--ink); background: var(--c); }
+    .caja.lista { animation: wiggle .5s; }
+    .opcion.arrastrando { z-index: 30; transition: none; filter: drop-shadow(0 16px 6px rgba(0, 0, 0, .2)); }
+
+    /* Nivel 8: botes de pintura y tazón para mezclar */
+    .mezcla { display: flex; align-items: flex-end; justify-content: center; gap: 18px; margin-top: 30px; }
+    .bote { width: clamp(96px, 24vw, 140px); height: clamp(110px, 28vw, 160px); border-radius: 12px 12px 26px 26px; border: 5px solid var(--ink);
+            background: linear-gradient(var(--c) 0 30%, #fff 30% 36%, #f3ebe0 36%); position: relative; transition: transform .3s; padding: 0; }
+    .bote.usado { opacity: .4; pointer-events: none; }
+    .tazon { width: clamp(130px, 34vw, 200px); aspect-ratio: 2 / 1.2; border: 5px solid var(--ink); border-radius: 0 0 50% 50% / 0 0 80% 80%;
+             background: #fff; overflow: hidden; position: relative; }
+    .tazon .pintura { position: absolute; inset: 100% 0 0 0; transition: inset .6s, background .8s; }
+    .gota-pintura { position: fixed; width: 26px; height: 34px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; border: 3px solid var(--ink); z-index: 20; pointer-events: none; }
+    .mas { font-size: 44px; font-weight: 800; align-self: center; }
+
+    /* Extra: "trae algo de la casa" */
+    .encontre { margin-top: 30px; width: 180px; height: 180px; border-radius: 50%; background: var(--verde); color: #fff; font-size: 30px; font-weight: 800;
+                box-shadow: 0 8px 0 rgba(0, 0, 0, .15); display: grid; place-items: center; }
+    .encontre svg { width: 70%; height: 70%; }
+    @media (prefers-reduced-motion: reduce) { .opcion.si, .caja.lista { animation: none; } }
   </style>
 </head>
 <body>
@@ -44,72 +71,237 @@
     <span id="texto">¿Dónde está el...?</span>
     <button class="repetir" id="repetir" aria-label="Repetir">🔊</button>
   </div>
-  <div class="opciones" id="opciones"></div>
+  <div id="zona"></div>
 
   <script src="../../assets/vendor/gsap/gsap.min.js"></script>
   <script src="../../assets/js/common.js"></script>
   <script src="../../assets/js/dibujos.js"></script>
+  <script src="../../assets/js/stickers.js"></script>
   <script>
-    const COLORES = [
-      { nombre: "rojo", hex: "#ff5a5f" },
-      { nombre: "azul", hex: "#3fa7ff" },
-      { nombre: "amarillo", hex: "#ffd23f" },
-      { nombre: "verde", hex: "#4cd17a" },
-      { nombre: "morado", hex: "#a66bff" },
-      { nombre: "naranja", hex: "#ff9f43" },
-      { nombre: "rosado", hex: "#ff7eb6" },
+    // m/f: forma del adjetivo según el objeto ("el globo rojo", "la flor roja")
+    const BASICOS = [
+      { nombre: "rojo", f: "roja", hex: "#ff5a5f" }, { nombre: "azul", hex: "#3fa7ff" }, { nombre: "amarillo", f: "amarilla", hex: "#ffd23f" },
+      { nombre: "verde", hex: "#4cd17a" }, { nombre: "morado", f: "morada", hex: "#a66bff" }, { nombre: "naranja", hex: "#ff9f43" },
+      { nombre: "rosado", f: "rosada", hex: "#ff7eb6" },
     ];
+    const NUEVOS = [ // nivel 3
+      { nombre: "celeste", hex: "#9fdcff" }, { nombre: "café", hex: "#a8703f" }, { nombre: "negro", f: "negra", hex: "#2f2438" },
+      { nombre: "blanco", f: "blanca", hex: "#ffffff" }, { nombre: "gris", hex: "#a9a7b4" },
+    ];
+    const TONOS = [ // nivel 6: clarito y oscuro de un mismo color
+      ["rojo", "#ffa3a6", "#c2262c"], ["azul", "#a9d9ff", "#1f5fa8"], ["verde", "#a6ecbd", "#1f8a45"], ["morado", "#d6bcff", "#5f2fb0"],
+    ];
+    const MEZCLAS = [ // nivel 8
+      ["azul", "amarillo", "verde"], ["rojo", "amarillo", "naranja"], ["rojo", "azul", "morado"], ["rojo", "blanco", "rosado"],
+    ];
+    const FORMAS = [
+      { dibujo: Dibujos.globo, nombre: "globo", fem: false }, { dibujo: Dibujos.pelota, nombre: "pelota", fem: true },
+      { dibujo: Dibujos.flor, nombre: "flor", fem: true }, { dibujo: Dibujos.estrella, nombre: "estrella", fem: true },
+    ];
+    const TODOS = [...BASICOS, ...NUEVOS];
+    const color = nombre => TODOS.find(c => c.nombre === nombre);
+    const adj = (c, fem) => (fem && c.f) || c.nombre;
+    const CHECK = `<svg viewBox="0 0 100 100"><path d="M18 52 L42 76 L84 26" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-    const texto = document.getElementById("texto");
-    const opciones = document.getElementById("opciones");
-    let objetivo, bloqueado = false, aciertos = 0;
+    const texto = document.getElementById("texto"), zona = document.getElementById("zona");
+    let nivel = Juegos.progreso.configurar("colores", { maxNivel: 8 });
+    let ronda = null, bloqueado = false, rondasJugadas = 0;
 
-    const preguntar = () => Juegos.decir(`¿Dónde está el ${objetivo.nombre}?`);
+    function preguntar() { Juegos.decir(ronda.voz); }
+    const decirPregunta = (html, voz) => { texto.innerHTML = html; ronda.voz = voz; preguntar(); };
+    const pinta = (c, palabra = c.nombre) => `<span style="color:${c.hex === "#ffffff" ? "#b9b3a8" : c.hex}">${palabra}</span>`;
 
-    // En cada ronda todas las opciones son el mismo objeto, así solo cambia el color
-    const FORMAS = [Dibujos.globo, Dibujos.pelota, Dibujos.flor, Dibujos.estrella];
-    let forma = FORMAS[0];
-
-    function ronda() {
-      forma = Juegos.azar(FORMAS);
-      bloqueado = false;
-      // Empieza con 2 opciones y sube a 3 cuando ya va acertando
-      const n = aciertos < 3 ? 2 : 3;
-      const elegidos = Juegos.mezclar(COLORES).slice(0, n);
-      objetivo = Juegos.azar(elegidos);
-      texto.innerHTML = `¿Dónde está el <span style="color:${objetivo.hex}">${objetivo.nombre}</span>?`;
-      opciones.innerHTML = "";
-      elegidos.forEach(c => {
-        const b = document.createElement("button");
-        b.className = "opcion pop";
-        b.innerHTML = forma(c.hex);
-        b.setAttribute("aria-label", c.nombre);
-        b.addEventListener("click", () => elegir(b, c));
-        opciones.appendChild(b);
-      });
-      preguntar();
+    function nuevaRonda() {
+      bloqueado = false; zona.innerHTML = "";
+      ronda = { errores: 0 };
+      rondasJugadas++;
+      if (nivel >= 3 && rondasJugadas % 8 === 0) return rondaCasa();
+      if (nivel === 7) return rondaClasificar();
+      if (nivel === 8) return rondaMezclar();
+      rondaElegir();
     }
 
-    function elegir(boton, color) {
+    // ---------- Niveles 1 a 6: elegir la opción pedida ----------
+    function rondaElegir() {
+      const racha = Juegos.progreso.leer("colores").racha;
+      let opciones, objetivo, html, voz;
+      const formaFija = Juegos.azar(FORMAS);
+      const crear = (c, forma = formaFija) => ({ c, forma });
+      if (nivel <= 4) {
+        const n = nivel === 1 ? 2 : nivel === 2 ? (racha < 2 ? 3 : 4) : 3;
+        let paleta = nivel === 3 ? [...Juegos.mezclar(NUEVOS).slice(0, 2), ...Juegos.mezclar(BASICOS).slice(0, n - 2)] : Juegos.mezclar(BASICOS).slice(0, n);
+        opciones = paleta.map(c => crear(c, nivel === 4 ? Juegos.azar(FORMAS) : formaFija));
+        objetivo = nivel === 3 ? opciones.find(o => NUEVOS.includes(o.c)) : Juegos.azar(opciones);
+        html = `¿Dónde está el ${pinta(objetivo.c)}?`; voz = `¿Dónde está el ${objetivo.c.nombre}?`;
+      } else if (nivel === 5) {
+        const [f1, f2] = Juegos.mezclar(FORMAS), [c1, c2] = Juegos.mezclar(BASICOS);
+        opciones = Juegos.mezclar([crear(c1, f1), crear(c1, f2), crear(c2, f1), crear(c2, f2)]);
+        objetivo = Juegos.azar(opciones);
+        const art = objetivo.forma.fem ? "la" : "el", a = adj(objetivo.c, objetivo.forma.fem);
+        html = `¿Dónde está ${art} ${objetivo.forma.nombre} ${pinta(objetivo.c, a)}?`; voz = `¿Dónde está ${art} ${objetivo.forma.nombre} ${a}?`;
+      } else {
+        const [base, claro, oscuro] = Juegos.azar(TONOS), otro = Juegos.azar(TONOS.filter(x => x[0] !== base));
+        opciones = Juegos.mezclar([
+          crear({ nombre: base + " clarito", hex: claro }), crear({ nombre: base + " oscuro", hex: oscuro }),
+          crear({ nombre: otro[0] + " " + (Math.random() < .5 ? "clarito" : "oscuro"), hex: Math.random() < .5 ? otro[1] : otro[2] }),
+        ]);
+        const pedido = base + (Math.random() < .5 ? " clarito" : " oscuro");
+        objetivo = opciones.find(o => o.c.nombre === pedido);
+        html = `¿Dónde está el ${pinta(objetivo.c)}?`; voz = `¿Dónde está el ${objetivo.c.nombre}?`;
+      }
+      ronda.objetivo = objetivo;
+      const caja = document.createElement("div");
+      caja.className = "opciones" + (opciones.length === 4 ? " cuatro" : "");
+      opciones.forEach(o => {
+        const b = document.createElement("button");
+        b.className = "opcion pop"; b.innerHTML = o.forma.dibujo(o.c.hex); b.setAttribute("aria-label", o.c.nombre);
+        b.datos = o;
+        b.addEventListener("click", () => elegir(b, o));
+        caja.appendChild(b);
+      });
+      zona.appendChild(caja);
+      if (window.gsap) gsap.from(caja.children, { scale: .3, opacity: 0, duration: .45, stagger: .08, ease: "back.out(2)", clearProps: "transform,opacity" });
+      decirPregunta(html, voz);
+    }
+
+    function elegir(boton, o) {
       if (bloqueado) return;
-      if (color === objetivo) {
+      if (o === ronda.objetivo) {
         bloqueado = true;
-        aciertos++;
         boton.classList.add("si", "sonando"); // .sonando abre la boca: el objeto sonríe
-        opciones.querySelectorAll(".opcion").forEach(o => o !== boton && o.classList.add("no"));
-        Juegos.fiesta();
-        Juegos.decir(Juegos.azar(["¡Muy bien!", "¡Sí! Es el " + color.nombre, "¡Excelente, Maya!"]));
-        setTimeout(ronda, 2200);
+        zona.querySelectorAll(".opcion").forEach(x => x !== boton && x.classList.add("no"));
+        terminarRonda(Juegos.azar(["¡Muy bien!", "¡Sí! Es el " + o.c.nombre, "¡Excelente, Maya!"]));
       } else {
         // Sin castigo: solo un movimiento suave y se repite la pregunta
+        ronda.errores++;
         Juegos.animar(boton, "wiggle");
         Juegos.tono(220, 0.2, "triangle", 0.15);
-        Juegos.decir(`Ese es ${color.nombre}. Busca el ${objetivo.nombre}`);
+        Juegos.decir(nivel === 5 ? `Ese no es. ${ronda.voz}` : `Ese es ${o.c.nombre}. ${ronda.voz}`);
       }
     }
 
+    // ---------- Nivel 7: arrastrar cada objeto a la caja de su color ----------
+    function rondaClasificar() {
+      const racha = Juegos.progreso.leer("colores").racha;
+      const cajasCol = Juegos.mezclar(BASICOS).slice(0, racha < 2 ? 2 : 3);
+      const objetos = Juegos.mezclar(cajasCol.flatMap(c => [c, c]).slice(0, 4 + (cajasCol.length - 2) * 2));
+      const fila = document.createElement("div"); fila.className = "opciones";
+      const cajas = document.createElement("div"); cajas.className = "cajas";
+      cajasCol.forEach(c => { const k = document.createElement("div"); k.className = "caja"; k.style.setProperty("--c", c.hex); k.dataset.color = c.nombre; cajas.appendChild(k); });
+      objetos.forEach(c => {
+        const b = document.createElement("button");
+        b.className = "opcion pop"; b.innerHTML = Juegos.azar(FORMAS).dibujo(c.hex); b.dataset.color = c.nombre; b.setAttribute("aria-label", c.nombre);
+        arrastrable(b, cajas);
+        fila.appendChild(b);
+      });
+      ronda.quedan = objetos.length;
+      zona.append(fila, cajas);
+      decirPregunta("¡Guarda cada uno en su caja!", "¡Guarda cada uno en la caja de su color!");
+    }
+
+    function arrastrable(b, cajas) {
+      let inicio = null;
+      b.addEventListener("pointerdown", e => {
+        if (bloqueado) return;
+        inicio = { x: e.clientX, y: e.clientY }; b.setPointerCapture(e.pointerId); b.classList.add("arrastrando");
+        Juegos.tono(500, .06, "triangle", .1);
+      });
+      b.addEventListener("pointermove", e => { if (inicio) b.style.transform = `translate(${e.clientX - inicio.x}px, ${e.clientY - inicio.y}px) scale(1.1)`; });
+      b.addEventListener("pointerup", e => {
+        if (!inicio) return;
+        inicio = null; b.classList.remove("arrastrando");
+        const caja = [...cajas.children].find(k => { const r = k.getBoundingClientRect(); return e.clientX > r.left - 20 && e.clientX < r.right + 20 && e.clientY > r.top - 40 && e.clientY < r.bottom + 20; });
+        if (caja && caja.dataset.color === b.dataset.color) {
+          b.classList.add("guardado"); Juegos.animar(caja, "lista"); Juegos.pop(caja); Juegos.decir(b.dataset.color);
+          if (--ronda.quedan === 0) { bloqueado = true; setTimeout(() => terminarRonda("¡Todo ordenado!"), 500); }
+        } else {
+          if (caja) { ronda.errores++; Juegos.decir(`Ese es ${b.dataset.color}. Busca su caja`); }
+          b.style.transform = ""; // vuelve a su lugar con la transición de .opcion
+        }
+      });
+    }
+
+    // ---------- Nivel 8: mezclar dos pinturas y encontrar el color que sale ----------
+    function rondaMezclar() {
+      const [a, b, sale] = Juegos.azar(MEZCLAS).map(color);
+      ronda.sale = sale;
+      const m = document.createElement("div"); m.className = "mezcla";
+      m.innerHTML = `<button class="bote" data-c="${a.nombre}" style="--c:${a.hex}" aria-label="pintura ${a.nombre}"></button>
+        <div class="tazon"><div class="pintura"></div></div>
+        <button class="bote" data-c="${b.nombre}" style="--c:${b.hex}" aria-label="pintura ${b.nombre}"></button>`;
+      zona.appendChild(m);
+      const pintura = m.querySelector(".pintura"), echados = [];
+      m.querySelectorAll(".bote").forEach(bote => bote.addEventListener("click", () => {
+        if (bloqueado || bote.classList.contains("usado")) return;
+        const c = color(bote.dataset.c);
+        bote.classList.add("usado"); echados.push(c);
+        const cuantos = echados.length; // cada bote recuerda si fue el primero o el segundo, aunque los toquen rápido
+        Juegos.decir(c.nombre);
+        echar(bote, c, m.querySelector(".tazon"));
+        setTimeout(() => {
+          pintura.style.inset = cuantos === 1 ? "50% 0 0 0" : "15% 0 0 0";
+          pintura.style.background = cuantos === 1 ? c.hex : `linear-gradient(90deg, ${echados[0].hex}, ${c.hex})`;
+          if (cuantos === 2) setTimeout(() => {
+            pintura.style.background = sale.hex;
+            if (window.gsap) gsap.fromTo(pintura, { rotation: -8 }, { rotation: 0, duration: .8, ease: "elastic.out(1, .3)" });
+            Juegos.tono(784, .2, "triangle");
+            Juegos.decir(`¡${a.nombre} y ${b.nombre} hacen ${sale.nombre}!`);
+            setTimeout(() => preguntaMezcla(sale), 2600);
+          }, 700);
+        }, 500);
+      }));
+      decirPregunta(`Mezcla ${pinta(a)} y ${pinta(b)}`, `Toca las dos pinturas para mezclar ${a.nombre} y ${b.nombre}`);
+    }
+    function echar(bote, c, tazon) {
+      const r = bote.getBoundingClientRect(), t = tazon.getBoundingClientRect();
+      for (let i = 0; i < 4; i++) {
+        const g = document.createElement("div");
+        g.className = "gota-pintura"; g.style.background = c.hex;
+        g.style.left = r.left + r.width / 2 - 13 + "px"; g.style.top = r.top + "px";
+        document.body.appendChild(g);
+        if (window.gsap) gsap.to(g, { left: t.left + t.width / 2 - 13 + (Math.random() - .5) * 40, top: t.top + t.height * .4, duration: .5, delay: i * .08,
+                                     ease: "power2.in", onComplete: () => g.remove() });
+        else setTimeout(() => g.remove(), 300);
+      }
+    }
+    function preguntaMezcla(sale) {
+      const otros = Juegos.mezclar(BASICOS.filter(c => c !== sale)).slice(0, 2);
+      const caja = document.createElement("div"); caja.className = "opciones";
+      ronda.objetivo = null;
+      Juegos.mezclar([sale, ...otros]).forEach(c => {
+        const o = { c, forma: FORMAS[0] };
+        if (c === sale) ronda.objetivo = o;
+        const b = document.createElement("button");
+        b.className = "opcion pop"; b.innerHTML = Dibujos.globo(c.hex); b.setAttribute("aria-label", c.nombre); b.datos = o;
+        b.addEventListener("click", () => elegir(b, o));
+        caja.appendChild(b);
+      });
+      zona.appendChild(caja);
+      decirPregunta(`¿Dónde está el ${pinta(sale)}?`, `¿Qué color salió? ¿Dónde está el ${sale.nombre}?`);
+    }
+
+    // ---------- Extra: buscar algo de ese color en la casa (papá confirma) ----------
+    function rondaCasa() {
+      const c = Juegos.azar(BASICOS.slice(0, 4));
+      ronda.casa = true;
+      const b = document.createElement("button");
+      b.className = "encontre"; b.innerHTML = CHECK; b.setAttribute("aria-label", "lo encontré");
+      b.addEventListener("click", () => { if (bloqueado) return; bloqueado = true; Juegos.rebotar(b); Juegos.fiesta(); Juegos.decir("¡Bravo! ¡Lo encontraste!"); setTimeout(nuevaRonda, 2400); });
+      zona.appendChild(b);
+      decirPregunta(`¡Trae algo ${pinta(c)}!`, `¡Trae algo ${c.nombre} de la casa! Cuando lo tengas, toca el botón verde`);
+    }
+
+    // Ronda bien hecha con a lo sumo un error: cuenta como acierto; si no, como fallo (solo para bajar en silencio)
+    function terminarRonda(frase) {
+      const antes = nivel;
+      const r = ronda.errores <= 1 ? Juegos.progreso.acierto("colores") : Juegos.progreso.fallo("colores");
+      nivel = r.nivel;
+      if (!r.subio && !r.sticker) { Juegos.confeti(24); Juegos.decir(frase); }
+      setTimeout(nuevaRonda, r.subio || r.sticker ? 3800 : 2200);
+    }
+
     document.getElementById("repetir").addEventListener("click", preguntar);
-    ronda();
+    nuevaRonda();
   </script>
 </body>
 </html>

@@ -73,7 +73,32 @@ const PAGINAS = {
     await p.locator(".pestana").nth(0).click(); await p.waitForTimeout(700);
   },
   "juegos/animales/": p => p.click(".animal"),
-  "juegos/colores/": p => p.click(".opcion"),
+  "juegos/colores/": async p => {
+    // Colores (SPEC-014): en cada nivel se resuelve una ronda completa
+    for (let n = 1; n <= 8; n++) {
+      await p.evaluate(n => Juegos.progreso.guardar("colores", { nivel: n, racha: 0, fallos: 0, ultimas: [] }), n);
+      await p.reload(); await p.waitForTimeout(900);
+      if (n === 7) {
+        const cajas = await p.locator(".caja").all();
+        for (const b of await p.locator(".opcion").all()) {
+          const c = await b.getAttribute("data-color"), o = await b.boundingBox();
+          for (const k of cajas) if (await k.getAttribute("data-color") === c) {
+            const d = await k.boundingBox();
+            await p.mouse.move(o.x + o.width / 2, o.y + o.height / 2); await p.mouse.down();
+            await p.mouse.move(d.x + d.width / 2, d.y + d.height / 2, { steps: 6 }); await p.mouse.up();
+          }
+        }
+      } else {
+        if (n === 8) { for (const b of await p.locator(".bote").all()) await b.click(); await p.waitForTimeout(4200); }
+        await p.evaluate(() => [...document.querySelectorAll(".opcion")].find(b => b.datos === ronda.objetivo).click());
+      }
+      await p.waitForTimeout(700);
+      const r = await p.evaluate(() => ({ nivel, ok: !!document.querySelector(".opcion.si") || document.querySelectorAll(".opcion.guardado").length > 0, d: Juegos.progreso.leer("colores") }));
+      if (r.nivel !== n || !r.ok || r.d.aciertos !== 1) errores.push(`colores nivel ${n}: ${JSON.stringify(r)}`);
+      if (n === 5 || n === 8) await p.screenshot({ path: `tools/capturas/colores-nivel${n}.png` });
+      await p.evaluate(() => Juegos.progreso.reiniciar("colores"));
+    }
+  },
   "juegos/contar/": async p => {
     const objetos = p.locator(".objeto");
     for (let i = 0; i < await objetos.count(); i++) await objetos.nth(i).click();
