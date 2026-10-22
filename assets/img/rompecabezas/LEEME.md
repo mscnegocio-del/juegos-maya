@@ -10,8 +10,7 @@ nivel (2×2, 3×2, 5×2, 4×3, 4×4) sin deformar la imagen, y un personaje muy 
 | Carpeta | Archivo | Estado |
 |---|---|---|
 | (ya existe) | `assets/img/michi/feliz.webp` | ✅ |
-| `dinosaurios/` | `trex.webp` `trice.webp` `bronto.webp` `estego.webp` | ❌ falta |
-| `dinosaurios/` | `rapto.webp` `anqui.webp` `ptero.webp` `espino.webp` | ❌ falta |
+| `dinosaurios/` | `trex` `trice` `bronto` `estego` `rapto` `anqui` `ptero` `espino` (.webp) | ✅ las 8 (2026-10-22) |
 
 Los 12 animales y los 7 cuadros de colorear siguen siendo dibujos por código (provisionales) hasta que haya ilustraciones.
 Para agregarlos: poner la imagen en `assets/img/rompecabezas/animales/<id>.webp` y una línea en el catálogo.
@@ -39,3 +38,6 @@ Después, una por una (cambia solo esta parte; cada fondo es distinto):
 
 Reglas: sin dientes grandes ni expresión feroz; nada oscuro; misma luz y mismo estilo 3D, pero **fondos diferentes**.
 Al convertir a WebP (por ejemplo con squoosh.app) conserva 1536×1024.
+
+
+Nota: `trex` y `trice` comparten el mismo fondo (selva con volcán y lago). Si quieres fondos distintos en todas, regenera esas dos con otro paisaje.

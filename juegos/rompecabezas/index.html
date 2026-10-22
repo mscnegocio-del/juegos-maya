@@ -55,10 +55,12 @@
   <script src="../../assets/js/stickers.js"></script>
   <script src="../../assets/js/rompecabezas-catalogo.js"></script>
   <script>
-    const T = "#3b2a4a", LADO = 60, P = 14;
+    const T = "#3b2a4a", P = 14;
     const calma = matchMedia("(prefers-reduced-motion: reduce)").matches, R = gsap.utils.random;
-    // Niveles: [columnas, filas]. El 3 (10 piezas) es el que Maya ya sabe armar, y por eso se empieza ahí
-    const NIVELES = { 1: [2, 2], 2: [3, 2], 3: [5, 2], 4: [4, 3], 5: [4, 4] };
+    // El nivel 3 (10 piezas) es el que Maya ya sabe armar, y por eso se empieza ahí
+    // Niveles: [columnas, filas, ancho, alto] del tablero en unidades. Las ilustraciones son 3:2 y el personaje va centrado: el tablero
+    // nunca es más estrecho que 4:3 (así no se corta), y las piezas salen casi cuadradas; las de 10 piezas son altas (5×2 sobre 3:2)
+    const NIVELES = { 1: [2, 2, 120, 90], 2: [3, 2, 180, 135], 3: [5, 2, 300, 200], 4: [4, 3, 240, 180], 5: [4, 4, 240, 180] };
     const FANTASMA = { 1: .18, 2: .18, 3: .16, 4: .09, 5: .06 };
 
     // ---------- Cuadros: 12 animales, 8 dinosaurios y 8 más (28) ----------
@@ -131,17 +133,19 @@
 
     // ---------- Piezas con lengüetas ----------
     const horiz = (c, r) => ((c + r) % 2 ? 1 : -1), vert = (c, r) => ((c + r) % 2 ? -1 : 1);
-    function borde(A, B, d) {
+    let CW = 60, CH = 60, W0 = 300, H0 = 120;   // tamaño de cada pieza y del tablero, en unidades
+    // Borde con lengüeta de tamaño fijo (u) sin importar el largo del borde: d = +1 sale, -1 entra, 0 plano
+    function borde(A, B, d, u) {
       if (!d) return ` L ${B[0]} ${B[1]}`;
-      const ux = (B[0] - A[0]) / LADO, uy = (B[1] - A[1]) / LADO, nx = uy * d, ny = -ux * d, H = 12;
-      const p = (t, h) => `${(A[0] + ux * LADO * t + nx * h).toFixed(1)} ${(A[1] + uy * LADO * t + ny * h).toFixed(1)}`;
-      return ` L ${p(.40, 0)} C ${p(.40, .3 * H)} ${p(.33, .35 * H)} ${p(.33, .65 * H)} C ${p(.33, 1.0 * H)} ${p(.67, 1.0 * H)} ${p(.67, .65 * H)} C ${p(.67, .35 * H)} ${p(.60, .3 * H)} ${p(.60, 0)} L ${B[0]} ${B[1]}`;
+      const L = Math.hypot(B[0] - A[0], B[1] - A[1]), ux = (B[0] - A[0]) / L, uy = (B[1] - A[1]) / L, nx = uy * d, ny = -ux * d;
+      const p = (a, h) => `${(A[0] + ux * (L / 2 + a * u) + nx * h * u).toFixed(1)} ${(A[1] + uy * (L / 2 + a * u) + ny * h * u).toFixed(1)}`;
+      return ` L ${p(-6, 0)} C ${p(-6, 3.6)} ${p(-10.2, 4.2)} ${p(-10.2, 7.8)} C ${p(-10.2, 12)} ${p(10.2, 12)} ${p(10.2, 7.8)} C ${p(10.2, 4.2)} ${p(6, 3.6)} ${p(6, 0)} L ${B[0]} ${B[1]}`;
     }
     function trazado(c, r, COLS, ROWS) {
-      const x = c * LADO, y = r * LADO;
+      const x = c * CW, y = r * CH, u = Math.min(CW, CH) / 60;
       const top = r > 0 ? -vert(c, r - 1) : 0, bottom = r < ROWS - 1 ? vert(c, r) : 0, right = c < COLS - 1 ? horiz(c, r) : 0, left = c > 0 ? -horiz(c - 1, r) : 0;
-      return `M ${x} ${y}` + borde([x, y], [x + LADO, y], top) + borde([x + LADO, y], [x + LADO, y + LADO], right) +
-             borde([x + LADO, y + LADO], [x, y + LADO], bottom) + borde([x, y + LADO], [x, y], left) + " Z";
+      return `M ${x} ${y}` + borde([x, y], [x + CW, y], top, u) + borde([x + CW, y], [x + CW, y + CH], right, u) +
+             borde([x + CW, y + CH], [x, y + CH], bottom, u) + borde([x, y + CH], [x, y], left, u) + " Z";
     }
 
     // ---------- Estado ----------
@@ -151,13 +155,12 @@
     if (!Juegos.progreso.juegos().includes("rompecabezas")) Juegos.progreso.guardar("rompecabezas", { nivel: 3 });
     nivel = Juegos.progreso.configurar("rompecabezas", { maxNivel: 5 });
 
-    const origen = p => { const t = $("tablero"); return { x: t.offsetLeft + (p.c * LADO - P) * k, y: t.offsetTop + (p.r * LADO - P) * k }; };
+    const origen = p => { const t = $("tablero"); return { x: t.offsetLeft + (p.c * CW - P) * k, y: t.offsetTop + (p.r * CH - P) * k }; };
 
     function armar(c = siguiente()) {
       clearInterval(pista);
       cuadro = c; ocupado = false; puestas = 0; pistas = 0; ultimo = Date.now();
-      [COLS, ROWS] = NIVELES[nivel];
-      const W0 = COLS * LADO, H0 = ROWS * LADO;
+      [COLS, ROWS, W0, H0] = NIVELES[nivel]; CW = W0 / COLS; CH = H0 / ROWS;
       $("escenario").querySelectorAll(".pieza").forEach(x => x.remove()); piezas = [];
       $("defs").innerHTML = `<g id="escena">${escena(c, W0, H0)}</g>`;
       // Tamaño: el tablero cabe a lo ancho y deja sitio abajo para las piezas sueltas (la pieza mide ≥ 72 px)
@@ -165,9 +168,9 @@
       const n = COLS * ROWS, kMax = Math.min((innerWidth - 24) / W0, 1.6);
       let cols = 3; k = 1;
       for (let kk = kMax; kk >= 1; kk -= .04) {
-        const tw1 = (P * 2 + LADO) * kk, c1 = Math.max(3, Math.floor((innerWidth - 8) / (tw1 * .88))), filas1 = Math.ceil(n / c1);
+        const tw1 = (P * 2 + CW) * kk, th1 = (P * 2 + CH) * kk, c1 = Math.max(3, Math.floor((innerWidth - 8) / (tw1 * .88))), filas1 = Math.ceil(n / c1);
         k = kk; cols = c1;
-        if (filas1 * tw1 * .9 <= innerHeight - 140 - H0 * kk - 28 - 24) break;
+        if (filas1 * th1 * .9 <= innerHeight - 140 - H0 * kk - 28 - 24) break;
       }
       const t = $("tablero");
       Object.assign(t.style, { width: W0 * k + "px", height: H0 * k + "px", left: (innerWidth - W0 * k) / 2 + "px", top: "140px" });
@@ -180,17 +183,17 @@
       pintarAyuda();
 
       // Piezas sueltas repartidas por la mitad de abajo, sin taparse del todo
-      const tw = (P * 2 + LADO) * k, zonaY = 140 + H0 * k + 28, alto0 = innerHeight - tw - 24 - zonaY;
-      const filas = Math.ceil(n / cols), celdaW = (innerWidth - 8) / cols, celdaH = filas > 1 ? Math.min(tw * 1.05, alto0 / (filas - 1)) : 0;
+      const tw = (P * 2 + CW) * k, th = (P * 2 + CH) * k, zonaY = 140 + H0 * k + 28, alto0 = innerHeight - th - 24 - zonaY;
+      const filas = Math.ceil(n / cols), celdaW = (innerWidth - 8) / cols, celdaH = filas > 1 ? Math.min(th * 1.05, alto0 / (filas - 1)) : 0;
       const celdas = gsap.utils.shuffle(Array.from({ length: cols * filas }, (_, i) => i));
       for (let r = 0; r < ROWS; r++) for (let col = 0; col < COLS; col++) {
         const d = trazado(col, r, COLS, ROWS), id = `c${col}-${r}`, el = document.createElement("div");
         el.className = "pieza"; el.dataset.pieza = `${col}-${r}`;
-        el.innerHTML = `<svg width="${tw}" height="${tw}" viewBox="${col * LADO - P} ${r * LADO - P} ${LADO + 2 * P} ${LADO + 2 * P}">
+        el.innerHTML = `<svg width="${tw}" height="${th}" viewBox="${col * CW - P} ${r * CH - P} ${CW + 2 * P} ${CH + 2 * P}">
           <defs><clipPath id="${id}"><path d="${d}"/></clipPath></defs>
           <g clip-path="url(#${id})"><use href="#escena"/></g><path d="${d}" fill="none" stroke="${T}" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
         $("escenario").appendChild(el);
-        const q = celdas.pop(), x = Math.min((q % cols) * celdaW + 4 + R(-4, 4), innerWidth - tw - 2), y = Math.min(zonaY + Math.floor(q / cols) * celdaH + R(-4, 4), innerHeight - tw - 8);
+        const q = celdas.pop(), x = Math.min((q % cols) * celdaW + 4 + R(-4, 4), innerWidth - tw - 2), y = Math.min(zonaY + Math.floor(q / cols) * celdaH + R(-4, 4), innerHeight - th - 8);
         const p = { c: col, r, el, puesta: false, rot: R(-8, 8) }; piezas.push(p);
         gsap.set(el, { x, y, rotation: p.rot });
         arrastrable(p, tw);
@@ -245,7 +248,7 @@
       if (!calma) {
         gsap.fromTo(p.el.querySelector("svg"), { scale: 1.1 }, { scale: 1, duration: .4, ease: "elastic.out(1.2, .4)" });
         gsap.fromTo($("escenario"), { y: 0 }, { y: "+=3", duration: .05, yoyo: true, repeat: 1, clearProps: "y" }); // un "pum" suave
-        chispas(o.x + (P + LADO / 2) * k, o.y + (P + LADO / 2) * k, 6);
+        chispas(o.x + (P + CW / 2) * k, o.y + (P + CH / 2) * k, 6);
       }
       if (puestas === COLS * ROWS) return terminar();
       if (puestas === Math.round(COLS * ROWS / 3)) Juegos.decir("¡Muy bien!");
@@ -280,19 +283,19 @@
     const HUELLA = `<svg viewBox="0 0 60 60" width="46" height="46" fill="#a9825a" stroke="${T}" stroke-width="3" stroke-linejoin="round"><path d="M30 56 L18 40 Q30 34 42 40Z"/><path d="M16 36 L8 14 L22 22Z"/><path d="M30 32 L30 6 L40 28Z"/><path d="M44 36 L52 14 L38 22Z"/></svg>`;
 
     function despertar() {
-      const tr = $("tablero").getBoundingClientRect(), W0 = COLS * LADO;
+      const tr = $("tablero").getBoundingClientRect();
       const X = u => tr.left + u * k, Y = u => tr.top + u * k, esc = $("escenario");
       [0, 1, 2, 3].forEach(i => gsap.delayedCall(.2 + i * .38, () => {
         paso(); gsap.fromTo(esc, { y: 0 }, { y: "+=7", duration: .06, yoyo: true, repeat: 3, clearProps: "y" });
         const h = document.createElement("div"); h.className = "huella"; h.innerHTML = HUELLA; document.body.appendChild(h);
-        gsap.set(h, { left: X(W0 * (.15 + i * .17)) - 23, top: Y(ROWS * LADO * .86), rotation: i % 2 ? 12 : -12, scale: 0 });
+        gsap.set(h, { left: X(W0 * (.15 + i * .17)) - 23, top: Y(H0 * .86), rotation: i % 2 ? 12 : -12, scale: 0 });
         gsap.to(h, { scale: 1, duration: .3, ease: "back.out(3)" }); gsap.to(h, { opacity: 0, duration: 1, delay: 2.4, onComplete: () => h.remove() });
       }));
       gsap.delayedCall(1.7, () => {     // el volcán erupciona (los dibujos provisionales) o lluvia de estrellas (las ilustraciones)
-        if (cuadro.imagen) { for (let i = 0; i < 18; i++) chispas(X(W0 * R(.2, .8)), Y(ROWS * LADO * R(.3, .7)), 1); return; }
+        if (cuadro.imagen) { for (let i = 0; i < 18; i++) chispas(X(W0 * R(.2, .8)), Y(H0 * R(.3, .7)), 1); return; }
         const fl = document.createElement("div"); fl.className = "destello-fondo"; document.body.appendChild(fl);
         gsap.to(fl, { opacity: .7, duration: .15, yoyo: true, repeat: 1, onComplete: () => fl.remove() });
-        const bx = X(W0 - 48 * (ROWS * LADO / 120)), by = Y(ROWS * LADO * .32);
+        const bx = X(W0 - 48 * (H0 / 120)), by = Y(H0 * .32);
         for (let i = 0; i < 26; i++) {
           const e = document.createElement("div"); e.className = "lava"; const s = R(10, 20);
           e.style.cssText = `width:${s}px;height:${s}px;background:${["#ff5a5f", "#ff9f43", "#ffd23f"][i % 3]};border:2px solid ${T}`; document.body.appendChild(e);

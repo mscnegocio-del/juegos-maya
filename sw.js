@@ -1,5 +1,5 @@
 // Plantilla del service worker. NO editar sw.js a mano: se genera con tools/actualizar-sw.py
-const VERSION = "maya-c3a7fcc41c";
+const VERSION = "maya-c063e3208d";
 const ARCHIVOS = [
   "./",
   "juegos/album/",
@@ -36,6 +36,14 @@ const ARCHIVOS = [
   "assets/img/michi/satisfecho.webp",
   "assets/img/michi/sorprendido.webp",
   "assets/img/rompecabezas/dinosaurios/.gitkeep",
+  "assets/img/rompecabezas/dinosaurios/anqui.webp",
+  "assets/img/rompecabezas/dinosaurios/bronto.webp",
+  "assets/img/rompecabezas/dinosaurios/espino.webp",
+  "assets/img/rompecabezas/dinosaurios/estego.webp",
+  "assets/img/rompecabezas/dinosaurios/ptero.webp",
+  "assets/img/rompecabezas/dinosaurios/rapto.webp",
+  "assets/img/rompecabezas/dinosaurios/trex.webp",
+  "assets/img/rompecabezas/dinosaurios/trice.webp",
   "assets/js/colorear.js",
   "assets/js/common.js",
   "assets/js/dibujos.js",

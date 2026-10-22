@@ -1,5 +1,5 @@
 # SPEC-018 — Rompecabezas (juego nuevo)
-Estado: aprobada
+Estado: implementada
 > Aprobada por el usuario el 2026-10-22. **Rediseño visual (mismo día):** los personajes dejan de ser figuras por código y pasan
 > a ilustraciones tipo juguete 3D (ver sección "Rediseño visual"). El juego ya está implementado con dibujos provisionales.
 > Prototipo visual: `prototipos/rompecabezas.html` (autocontenido, ábrelo en el navegador; no lo carga el sitio).
@@ -28,28 +28,28 @@ Bebi, etc.), así que son rasgos habituales, no estadísticas:
   ("¡Muy bien! Armaste el pato"); pasa solo al siguiente
 
 ## Criterios de aceptación
-- [ ] Juego `juegos/rompecabezas/index.html` con `.btn-casa`, tarjeta en el menú e ícono propio en `dibujos.js`
-- [ ] Piezas con lengüetas generadas por código (sin imágenes externas), arrastrables con el dedo, multitáctil
-- [ ] Tablero con fantasma del dibujo y huecos punteados; imán, sonido y destello al encajar
-- [ ] **Niveles** con `Juegos.progreso` ("rompecabezas"): 1) 4 piezas (2×2), 2) 6 (3×2), 3) **10 (5×2, el de hoy)**,
+- [x] Juego `juegos/rompecabezas/index.html` con `.btn-casa`, tarjeta en el menú e ícono propio en `dibujos.js`
+- [x] Piezas con lengüetas generadas por código (sin imágenes externas), arrastrables con el dedo, multitáctil
+- [x] Tablero con fantasma del dibujo y huecos punteados; imán, sonido y destello al encajar
+- [x] **Niveles** con `Juegos.progreso` ("rompecabezas"): 1) 4 piezas (2×2), 2) 6 (3×2), 3) **10 (5×2, el de hoy)**,
   4) 12 (4×3), 5) 16 (4×4); sube con 5 rondas bien y baja en silencio; empieza en el 3 si no hay progreso
-- [ ] Ayudas por nivel: nivel 1–2 con fantasma y pista; desde el 4 el fantasma es más tenue; se puede quitar
-- [ ] **28 cuadros** en escenas (cielo, pasto, nubes, mar): los 12 animales del juego Animales, **8 dinosaurios** (tiranosaurio,
+- [x] Ayudas por nivel: nivel 1–2 con fantasma y pista; desde el 4 el fantasma es más tenue; se puede quitar
+- [x] **28 cuadros** en escenas (cielo, pasto, nubes, mar): los 12 animales del juego Animales, **8 dinosaurios** (tiranosaurio,
   tricerátops, braquiosaurio, estegosaurio, más velociraptor, anquilosaurio, pterodáctilo y espinosaurio; con volcán al fondo),
   y 8 más (Michi y su casa, vehículos, comida, mar). El prototipo trae 4 dinosaurios y 6 animales
-- [ ] **Dinosaurios destacados**: a Maya le encantan; la sorpresa del día y cada 3.er rompecabezas son de dinosaurio, y
+- [x] **Dinosaurios destacados**: a Maya le encantan; la sorpresa del día y cada 3.er rompecabezas son de dinosaurio, y
   el nivel 1–5 tiene siempre al menos un dinosaurio entre los primeros 4
-- [ ] **Siempre al azar, sin repetir hasta ver todos**: se baraja una "bolsa" al entrar; cada rompecabezas sale una vez y
+- [x] **Siempre al azar, sin repetir hasta ver todos**: se baraja una "bolsa" al entrar; cada rompecabezas sale una vez y
   recién cuando se terminaron los 28 se vuelve a barajar (nunca el mismo dos veces seguidas). Se recuerda cuáles ya armó
   para que mañana no empiece siempre por los mismos
-- [ ] **Despertar del dinosaurio** (final de los 8 dinosaurios): 4 pasos que hacen temblar la pantalla y dejan huellas en el
+- [x] **Despertar del dinosaurio** (final de los 8 dinosaurios): 4 pasos que hacen temblar la pantalla y dejan huellas en el
   pasto, el volcán erupciona (lava con gravedad, humo, destello naranja), letras "¡RAAAR!" que explotan sobre la cabeza,
   rugido suave y el dibujo se infla y sacude; dura ~5 s y no asusta (volumen bajo, nada oscuro)
-- [ ] Cada pieza que encaja suelta chispitas y un pequeño "pum" en la pantalla
-- [ ] Al terminar el dibujo cobra vida (saltar / nadar / latir) y suena el animal si tiene sonido real
-- [ ] Página nueva "Rompecabezas" en el álbum con 12 stickers (uno por nivel completado, 4 de ellos dinosaurios)
-- [ ] Todo se dice en voz alta; piezas ≥ 72 px en celular; sin tiempo ni castigos; respeta `prefers-reduced-motion`
-- [ ] Funciona sin internet; smoke test: armar un rompecabezas entero arrastrando y ver el sticker
+- [x] Cada pieza que encaja suelta chispitas y un pequeño "pum" en la pantalla
+- [x] Al terminar el dibujo cobra vida (saltar / nadar / latir) y suena el animal si tiene sonido real
+- [x] Página nueva "Rompecabezas" en el álbum con 12 stickers (uno por nivel completado, 4 de ellos dinosaurios)
+- [x] Todo se dice en voz alta; piezas ≥ 72 px en celular; sin tiempo ni castigos; respeta `prefers-reduced-motion`
+- [x] Funciona sin internet; smoke test: armar un rompecabezas entero arrastrando y ver el sticker
 
 ## Fuera de alcance
 - Fotos reales o subir fotos propias; rotar piezas; cronómetro o puntajes
@@ -80,5 +80,14 @@ redondeados, luz suave de estudio, pastel con acentos vivos, sin contornos negro
 - Estado de recursos: ✅ Michi (`assets/img/michi/feliz.webp`); ❌ faltan los 8 dinosaurios; los 12 animales y 7 cuadros
   de colorear siguen provisionales hasta tener ilustraciones
 - Pendiente cuando lleguen las imágenes: usar las mismas como stickers del álbum y en una lámina de Colorear
-- Criterios de aceptación del rediseño: [ ] 8 ilustraciones de dinosaurios en la carpeta, [ ] revisadas en celular y tablet sin
-  recortes del personaje en los 5 niveles, [ ] sin errores en consola, [ ] peso total de imágenes anotado
+- Criterios de aceptación del rediseño: [x] 8 ilustraciones de dinosaurios en la carpeta, [x] revisadas en celular y tablet sin
+  recortes del personaje en los 5 niveles, [x] sin errores en consola, [x] peso total de imágenes anotado
+
+## Implementación (2026-10-22)
+- `juegos/rompecabezas/`: 5 niveles (4, 6, 10, 12 y 16 piezas), piezas con lengüetas de tamaño fijo y **rectangulares** (el tablero va en 4:3
+  o 3:2 para que la ilustración 3:2 nunca se corte; las de 10 piezas son altas), fantasma, imán, pista suave, bolsa aleatoria sin repetir,
+  despertar del dinosaurio, stickers y tarjeta en el menú
+- Las 8 ilustraciones de dinosaurios (1,2 MB en total, 108–176 KB cada una) y Michi son los cuadros; con ≥ 8 reales se retiran los
+  dibujos por código (hoy son 9 cuadros). Falta ilustrar los 12 animales y otros temas para llegar a 28
+- Stickers de dinosaurio en el álbum con la ilustración recortada en círculo
+- `trex` y `trice` comparten fondo; se pueden regenerar con otro paisaje

@@ -55,9 +55,9 @@ const PAGINAS = {
     await p.waitForTimeout(6500);                                          // final + registro del progreso
     const fin = await p.evaluate(() => Juegos.progreso.leer("rompecabezas"));
     if (!fin.stickers.length || fin.nivel !== 2) errores.push(`rompecabezas: tras armar ${JSON.stringify(fin)}`);
-    // la bolsa no repite hasta ver los 28
-    const vistos = await p.evaluate(() => { localStorage.removeItem("maya.rompecabezas"); const s = []; for (let i = 0; i < 28; i++) s.push(siguiente().id); return new Set(s).size; });
-    if (vistos !== 28) errores.push(`rompecabezas: la bolsa repitió (${vistos} distintos de 28)`);
+    // con las 8 ilustraciones reales + Michi ya no hay dibujos provisionales, y la bolsa no repite hasta ver todos
+    const bolsa = await p.evaluate(() => { localStorage.removeItem("maya.rompecabezas"); const s = []; for (let i = 0; i < CUADROS.length; i++) s.push(siguiente().id); return [new Set(s).size, CUADROS.length, CUADROS.filter(c => c.provisional).length, CUADROS.filter(c => c.dino).length]; });
+    if (bolsa[0] !== bolsa[1] || bolsa[1] < 9 || bolsa[2] !== 0 || bolsa[3] !== 8) errores.push(`rompecabezas: bolsa ${bolsa}`);
     await p.evaluate(() => Juegos.progreso.reiniciar("rompecabezas"));
   },
   "juegos/globos/": async p => {

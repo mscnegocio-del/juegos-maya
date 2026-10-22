@@ -98,6 +98,7 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
   animation: pop .5s cubic-bezier(.3, 1.6, .5, 1);
 }
 .premio svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.premio img { width: 100%; height: 100%; display: block; border-radius: 50%; object-fit: cover; }
 
 /* Partes animables de los dibujos (assets/js/dibujos.js). El estado .sonando las activa */
 .ojos, .cabeza, .oreja-i, .oreja-d { transform-box: fill-box; }
