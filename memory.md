@@ -36,7 +36,8 @@
   superior derecha del menú). Ningún juego lo usa todavía: lo usarán Globos (013), Colores (014) y el álbum (015)
 - SPEC-015 **implementada**: álbum (`juegos/album/`, tarjeta en el menú) y `stickers.js`
 - SPEC-013 **implementada**: Globos con 6 niveles; ya da stickers de la página Globos
-- SPEC-016 aprobada; 011 y 014 siguen en borrador
+- SPEC-014 **implementada**: Colores con 8 niveles (clasificar, mezclar pinturas, "trae algo de la casa")
+- SPEC-016 aprobada; 011 sigue en borrador
 - SPEC-016 hecha: GSAP 3.15.0 en `assets/vendor/`, menú animado, transiciones, confeti con física, `Juegos.rebotar/premio/irA`.
   Solo falta usar `Juegos.premio` cuando existan niveles (012) y álbum (015)
 
@@ -52,7 +53,7 @@
 - Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
-0. Que el usuario pruebe Globos con niveles en su dispositivo y apruebe 014 (Colores); también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
+0. Que el usuario pruebe Globos y Colores con niveles en su dispositivo; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
    Probar en iOS que la app instalada conserve el progreso.
    Preguntas abiertas: ¿orden entre niveles y juegos nuevos?
    ¿Premio como sticker, estrella en el menú o ambos?
