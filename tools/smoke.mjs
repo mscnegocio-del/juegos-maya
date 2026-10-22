@@ -38,6 +38,22 @@ const PAGINAS = {
     await p.click('#panel [data-accion="cerrar"]');
   },
   "juegos/globos/": null,
+  "juegos/album/": async p => {
+    // Álbum (SPEC-015): completar un nivel da el siguiente sticker de la página del juego y se ve pegado en el álbum
+    const r = await p.evaluate(() => {
+      Juegos.progreso.reiniciar("globos"); Juegos.progreso.configurar("globos", { maxNivel: 6 });
+      let s; for (let i = 0; i < 5; i++) s = Juegos.progreso.acierto("globos").sticker;
+      return s?.id + "," + Juegos.progreso.leer("globos").stickers.join("|");
+    });
+    await p.waitForTimeout(2600);                                       // premio volando a la casita
+    await p.reload(); await p.waitForTimeout(1200);
+    const pegados = await p.locator(".hueco.tiene").count();
+    if (r !== "pato,pato" || pegados !== 1) errores.push(`álbum: ${r} / pegados ${pegados}`);
+    await p.locator(".hueco.tiene").click(); await p.waitForTimeout(400);   // suena y dice su nombre
+    await p.locator(".hueco:not(.tiene)").first().click();               // silueta: invita a jugar
+    await p.locator(".pestana").nth(1).click(); await p.waitForTimeout(700);
+    await p.locator(".pestana").nth(0).click(); await p.waitForTimeout(700);
+  },
   "juegos/animales/": p => p.click(".animal"),
   "juegos/colores/": p => p.click(".opcion"),
   "juegos/contar/": async p => {
