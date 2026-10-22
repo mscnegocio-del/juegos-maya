@@ -1,5 +1,7 @@
 # SPEC-017 — Colorear 2.0: hoja nueva, herramientas mágicas, más dibujos, niveles y galería al azar
-Estado: borrador
+Estado: aprobada
+> Aprobada por el usuario en el chat el 2026-10-22; se implementa por partes (1 arreglos y galería, 2 herramientas,
+> 3 láminas, 4 niveles y stickers).
 > Depende de SPEC-008 (Pintar actual), SPEC-012 (progreso), SPEC-015 (álbum) y SPEC-016 (GSAP).
 > Origen: pedido del usuario (2026-10-22) tras probarlo Maya ("no se puede despintar y volver a pintar") y revisión
 > de apps de colorear para 2–6 años en 2026 (sin anuncios, brillitos, pincel mágico, sellos, dibujos que se animan,

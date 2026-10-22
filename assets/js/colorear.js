@@ -103,6 +103,10 @@ const Colorear = (() => {
     deshacer: icono(`<path d="M30 40 Q66 22 80 52 Q86 74 62 84" fill="none" stroke-width="9"/><path d="M14 40 L38 22 L40 52Z" fill="${T}"/>`),
     listo: icono(`<circle cx="50" cy="50" r="40" fill="#4cd17a"/><path d="M30 52 L44 66 L72 36" fill="none" stroke="#fff" stroke-width="10"/>`),
     hoja: icono(`<path d="M24 10 L64 10 L80 26 L80 90 L24 90Z" fill="#fff"/><path d="M64 10 L64 26 L80 26" fill="none"/>`),
+    escoba: icono(`<path d="M70 8 L56 48" fill="none" stroke="#a0673f" stroke-width="9"/>
+      <path d="M44 44 L70 54 L60 92 Q40 92 18 80Z" fill="#ffd23f"/><path d="M34 62 L28 82 M46 66 L42 88 M56 68 L54 90" fill="none" stroke-width="4"/>`),
+    carpeta: icono(`<path d="M10 26 L40 26 L48 36 L90 36 L90 84 L10 84Z" fill="#ff9f43"/><path d="M10 46 L90 46" fill="none"/>
+      <path d="M40 58 C30 50 36 40 44 46 C50 40 58 50 48 58 L44 64Z" fill="#ff5a5f" stroke-width="3"/>`),
   };
 
   return { DIBUJOS, ICONOS };

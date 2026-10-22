@@ -187,7 +187,7 @@ const Juegos = (() => {
   });
   document.addEventListener("click", e => {
     const casa = e.target.closest?.(".btn-casa");
-    if (!casa || !G()) return;
+    if (!casa || !G() || e.defaultPrevented) return; // un juego que la usa para otra cosa (Pintar: volver a la galería) ya la atendió
     e.preventDefault();
     rebotar(casa);
     irA(casa.href);

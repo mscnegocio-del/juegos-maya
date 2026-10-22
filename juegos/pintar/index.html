@@ -32,6 +32,22 @@
     }
     .tarjeta:active { transform: translateY(6px); }
     .tarjeta svg { position: absolute; inset: 8%; width: 84%; height: 84%; overflow: visible; }
+    /* Sorpresa del día: la tarjeta viene envuelta como regalo hasta que Maya la toca */
+    .tarjeta .regalo { position: absolute; inset: 0; border-radius: var(--radius); background: var(--rosa); overflow: hidden; z-index: 2;
+                       background-image: radial-gradient(circle at 25% 30%, #ffffff55 0 6px, transparent 7px), radial-gradient(circle at 70% 70%, #ffffff55 0 6px, transparent 7px);
+                       background-size: 40px 40px; }
+    .tarjeta .regalo::before { content: ""; position: absolute; left: 42%; width: 16%; top: 0; bottom: 0; background: var(--amarillo); }
+    .tarjeta .regalo::after { content: ""; position: absolute; top: 42%; height: 16%; left: 0; right: 0; background: var(--amarillo); }
+    .tarjeta .rotulo { position: absolute; left: 0; right: 0; bottom: -2px; text-align: center; font-weight: 800; font-size: 18px; color: var(--ink); }
+    .tarjeta.especial { background: #fff3c4; }
+
+    /* Elegir: seguir pintando o empezar en blanco */
+    .eleccion { position: fixed; inset: 0; z-index: 40; background: rgba(59, 42, 74, .55); display: grid; place-items: center; padding: 16px; }
+    .eleccion .caja { display: flex; gap: 22px; background: #fff; border-radius: 32px; padding: 22px; box-shadow: 0 10px 0 rgba(0, 0, 0, .15); }
+    .eleccion button { width: clamp(120px, 36vw, 190px); aspect-ratio: 1 / 1; border-radius: 28px; background: #fff7ec; position: relative;
+                       box-shadow: 0 6px 0 rgba(0, 0, 0, .12); }
+    .eleccion button svg { position: absolute; inset: 10%; width: 80%; height: 80%; }
+    .barrido { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, #fff 30% 70%, transparent); z-index: 5; pointer-events: none; }
 
     /* ---------- Editor ---------- */
     .editor {
@@ -129,6 +145,20 @@
     const clave = id => `maya.colorear.${id}`;
     function leer(id) { try { return JSON.parse(localStorage.getItem(clave(id))) || {}; } catch { return {}; } }
     function escribir(id, datos) { try { localStorage.setItem(clave(id), JSON.stringify(datos)); } catch {} }
+    const borrar = id => { try { localStorage.removeItem(clave(id)); } catch {} };
+    const pintado = datos => !!(datos.trazo || Object.keys(datos.rellenos || {}).length);
+
+    // "Mis dibujos": copias guardadas antes de limpiar una hoja (máx. 20; la más antigua se va)
+    const MAX_COPIAS = 20;
+    const leerCopias = () => { const c = leer("copias"); return Array.isArray(c) ? c : []; };
+    function guardarCopia(id, datos) {
+      if (!pintado(datos)) return;
+      const copias = leerCopias(), t = Date.now();
+      escribir("copia:" + t, { ...datos, base: id });
+      copias.unshift({ t, id });
+      while (copias.length > MAX_COPIAS) { borrar("copia:" + copias.pop().t); Juegos.decir("Guardé tu dibujo. El más viejito se fue"); }
+      escribir("copias", copias);
+    }
 
     // Contornos visibles: cada zona oculta (con una máscara) la parte de su borde que queda debajo de
     // las zonas siguientes, como en un libro de colorear donde no se ven las líneas tapadas
@@ -154,27 +184,85 @@
       return `<svg viewBox="0 0 200 200" ${TRAZO} aria-hidden="true">${rellenos}${trazo}${lineas}${borde}</svg>`;
     }
 
+    // Sorpresa del día: el mismo dibujo todo el día, distinto cada día
+    const hoy = new Date().toISOString().slice(0, 10);
+    const sorpresaDeHoy = () => DIBUJOS[[...hoy].reduce((s, ch) => s * 31 + ch.charCodeAt(0), 7) % DIBUJOS.length];
+
+    function tarjeta(html, etiqueta, alTocar, clase = "") {
+      const b = document.createElement("button");
+      b.className = "tarjeta pop " + clase;
+      b.setAttribute("aria-label", etiqueta);
+      b.innerHTML = html;
+      b.addEventListener("click", () => alTocar(b));
+      galeria.appendChild(b);
+      return b;
+    }
+    const decirNombre = d => Juegos.decir(`¡${d.nombre[0].toUpperCase()}${d.nombre.slice(1)}!`);
+
+    // Hoja en blanco y "mis dibujos" siempre al inicio; luego la sorpresa del día y el resto en orden aleatorio
     function mostrarGaleria() {
       galeria.innerHTML = "";
-      TODOS.forEach(d => {
-        const b = document.createElement("button");
-        b.className = "tarjeta pop";
-        b.setAttribute("aria-label", d.nombre);
-        b.innerHTML = svgCompleto(d, leer(d.id));
-        b.addEventListener("click", () => { Juegos.decir(`¡${d.nombre[0].toUpperCase()}${d.nombre.slice(1)}!`); abrir(d); });
-        galeria.appendChild(b);
+      tarjeta(svgCompleto(HOJA, leer(HOJA.id)), HOJA.nombre, () => { decirNombre(HOJA); abrir(HOJA); });
+      if (leerCopias().length) tarjeta(ICONOS.carpeta + `<span class="rotulo"></span>`, "mis dibujos", mostrarCopias, "especial");
+      const sorpresa = sorpresaDeHoy(), abierta = leer("sorpresa") === hoy;
+      const ts = tarjeta(svgCompleto(sorpresa, leer(sorpresa.id)) + (abierta ? "" : `<span class="regalo"></span>`), "sorpresa del día", b => {
+        const regalo = b.querySelector(".regalo");
+        if (!regalo) { decirNombre(sorpresa); return abrir(sorpresa); }
+        escribir("sorpresa", hoy);
+        Juegos.decir(`¡Sorpresa! ¡${sorpresa.nombre}!`); Juegos.fiesta();
+        if (window.gsap && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+          gsap.to(regalo, { y: -40, rotation: 20, scale: 1.2, opacity: 0, duration: .6, ease: "back.in(1.6)", onComplete: () => { regalo.remove(); setTimeout(() => abrir(sorpresa), 500); } });
+        else { regalo.remove(); setTimeout(() => abrir(sorpresa), 500); }
       });
+      Juegos.mezclar(DIBUJOS.filter(d => d !== sorpresa)).forEach(d =>
+        tarjeta(svgCompleto(d, leer(d.id)), d.nombre, () => { decirNombre(d); abrir(d); }));
+      if (window.gsap && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+        gsap.from(galeria.children, { scale: .6, opacity: 0, duration: .4, stagger: .03, ease: "back.out(1.8)", clearProps: "transform,opacity" });
       editor.hidden = true;
       galeria.hidden = false;
       casa.setAttribute("aria-label", "Volver al menú");
+      vista = "galeria";
+    }
+
+    // Mis dibujos: las copias guardadas; tocar una la abre para seguir pintándola
+    function mostrarCopias() {
+      Juegos.decir("¡Mis dibujos!");
+      galeria.innerHTML = "";
+      leerCopias().forEach(({ t, id }) => {
+        const d = TODOS.find(x => x.id === id);
+        if (d) tarjeta(svgCompleto(d, leer("copia:" + t)), d.nombre, () => { decirNombre(d); abrir(d, "copia:" + t, true); });
+      });
+      vista = "copias";
+      editor.hidden = true; galeria.hidden = false;
+      casa.setAttribute("aria-label", "Volver a los dibujos");
     }
 
     // ---------- Editor ----------
-    let actual, rellenos, color = COLORES[0][0], herramienta = "balde", grosor = GROSORES[1], historial = [];
+    let actual, doc, vista = "galeria", rellenos, color = COLORES[0][0], herramienta = "balde", grosor = GROSORES[1], historial = [];
 
-    function abrir(d) {
-      actual = d;
-      const datos = leer(d.id);
+    // Si el dibujo ya tiene pintura, primero se elige: seguir pintando o empezar en blanco
+    function abrir(d, id = d.id, directo = false) {
+      const datos = leer(id);
+      if (directo || !pintado(datos)) return cargar(d, id);
+      const el = document.createElement("div");
+      el.className = "eleccion";
+      el.innerHTML = `<div class="caja"><button data-o="seguir" aria-label="seguir pintando">${svgCompleto(d, datos)}</button>
+        <button data-o="blanco" aria-label="empezar en blanco">${svgCompleto(d)}</button></div>`;
+      document.body.appendChild(el);
+      Juegos.decir("¿Seguimos pintando, o empezamos en blanco?");
+      el.addEventListener("click", e => {
+        const o = e.target.closest("button")?.dataset.o;
+        if (!o) return;
+        el.remove();
+        if (o === "blanco") { guardarCopia(d.id, datos); borrar(id); Juegos.decir("¡Hoja nueva! Tu dibujo quedó guardado"); }
+        else Juegos.decir("¡A seguir pintando!");
+        cargar(d, id);
+      });
+    }
+
+    function cargar(d, id) {
+      actual = d; doc = id;
+      const datos = leer(id);
       rellenos = datos.rellenos ? { ...datos.rellenos } : {};
       historial = [];
       svgZonas.innerHTML = d.zonas.map((z, i) => `<${z} data-zona="${i}" fill="${rellenos[i] || "#fff"}"/>`).join("");
@@ -191,7 +279,7 @@
     function guardar() {
       if (!actual) return;
       const vacio = !ctx.getImageData(0, 0, 800, 800).data.some((v, i) => i % 4 === 3 && v);
-      escribir(actual.id, { rellenos, trazo: vacio ? null : canvas.toDataURL("image/png") });
+      escribir(doc, { ...leer(doc), rellenos, trazo: vacio ? null : canvas.toDataURL("image/png") });
     }
 
     // La casita: desde el editor vuelve a la galería (guardando); desde la galería, al menú
@@ -199,11 +287,11 @@
       if (editor.hidden) return;
       e.preventDefault();
       guardar();
-      mostrarGaleria();
+      vista === "copias" ? mostrarCopias() : mostrarGaleria();
     });
     addEventListener("pagehide", guardar);
 
-    function recordar(paso) { historial.push(paso); if (historial.length > 8) historial.shift(); }
+    function recordar(paso) { historial.push(paso); if (historial.length > 20) historial.shift(); }
 
     // Balde: rellenar la zona tocada
     svgZonas.addEventListener("pointerdown", e => {
@@ -281,13 +369,39 @@
     function deshacer() {
       const paso = historial.pop();
       if (!paso) { Juegos.animar(document.querySelector('[data-herr="deshacer"]'), "wiggle"); return; }
-      if (paso.tipo === "zona") {
+      if (paso.tipo === "todo") {
+        rellenos = paso.rellenos;
+        svgZonas.querySelectorAll("[data-zona]").forEach(z => z.setAttribute("fill", rellenos[z.dataset.zona] || "#fff"));
+        ctx.putImageData(paso.imagen, 0, 0);
+      } else if (paso.tipo === "zona") {
         if (paso.antes) rellenos[paso.i] = paso.antes; else delete rellenos[paso.i];
         svgZonas.querySelector(`[data-zona="${paso.i}"]`).setAttribute("fill", paso.antes || "#fff");
       } else {
         ctx.putImageData(paso.imagen, 0, 0);
       }
       Juegos.tono(300, 0.15, "triangle", 0.15);
+    }
+
+    // Hoja nueva: guarda una copia en "mis dibujos", barre la hoja y la deja en blanco (se puede deshacer)
+    function hojaNueva() {
+      const vacio = !Object.keys(rellenos).length && !ctx.getImageData(0, 0, 800, 800).data.some((v, i) => i % 4 === 3 && v);
+      if (vacio) { Juegos.decir("¡La hoja ya está en blanco!"); return; }
+      guardar();
+      guardarCopia(actual.id, leer(doc));
+      recordar({ tipo: "todo", rellenos: { ...rellenos }, imagen: ctx.getImageData(0, 0, 800, 800) });
+      const limpiar = () => {
+        rellenos = {};
+        svgZonas.querySelectorAll("[data-zona]").forEach(z => z.setAttribute("fill", "#fff"));
+        ctx.clearRect(0, 0, 800, 800);
+        guardar();
+      };
+      Juegos.decir("¡Hoja nueva!");
+      Juegos.tono(900, .25, "sine", .12);
+      if (window.gsap && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const b = document.createElement("div"); b.className = "barrido"; lienzo.appendChild(b);
+        gsap.fromTo(b, { xPercent: -100 }, { xPercent: 100, duration: .7, ease: "power1.inOut", onComplete: () => b.remove() });
+        setTimeout(limpiar, 350);
+      } else limpiar();
     }
 
     // Terminado: el dibujo "cobra vida" (se mueve y suena su animal si lo tiene)
@@ -300,7 +414,7 @@
     }
 
     // ---------- Barra de herramientas ----------
-    const NOMBRES_HERR = { balde: "¡A rellenar!", pincel: "¡Pincel!", estrellas: "¡Estrellitas!", goma: "¡Goma!" };
+    const NOMBRES_HERR = { balde: "¡A rellenar!", pincel: "¡Pincel!", estrellas: "¡Estrellitas!", goma: "¡Goma! Toca o frota para despintar" };
     function elegirHerramienta(h, silencio) {
       herramienta = h;
       lienzo.classList.toggle("balde", h === "balde");
@@ -332,14 +446,19 @@
       $("grosores").appendChild(b);
     });
 
-    [["balde", "rellenar"], ["pincel", "pincel"], ["estrellas", "estrellitas"], ["goma", "goma"], ["deshacer", "deshacer"], ["listo", "terminar"]]
+    [["balde", "rellenar"], ["pincel", "pincel"], ["estrellas", "estrellitas"], ["goma", "goma"], ["deshacer", "deshacer"], ["escoba", "hoja nueva"], ["listo", "terminar"]]
       .forEach(([h, etiqueta]) => {
         const b = document.createElement("button");
         b.className = "herr" + (h === "listo" ? " listo" : "");
         b.dataset.herr = h;
         b.setAttribute("aria-label", etiqueta);
         b.innerHTML = ICONOS[h];
-        b.addEventListener("click", () => h === "deshacer" ? deshacer() : h === "listo" ? terminar() : elegirHerramienta(h));
+        if (h === "deshacer") {
+          // mantener presionado deshace varios pasos seguidos
+          let repetir;
+          b.addEventListener("pointerdown", () => { deshacer(); repetir = setTimeout(function otra() { deshacer(); repetir = setTimeout(otra, 280); }, 600); });
+          ["pointerup", "pointerleave", "pointercancel"].forEach(ev => b.addEventListener(ev, () => clearTimeout(repetir)));
+        } else b.addEventListener("click", () => h === "listo" ? terminar() : h === "escoba" ? hojaNueva() : elegirHerramienta(h));
         $("botones").appendChild(b);
       });
 

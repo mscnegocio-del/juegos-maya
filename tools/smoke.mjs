@@ -117,13 +117,33 @@ const PAGINAS = {
     await p.click("#nav-dormitorio"); await p.click("#lampara"); await p.waitForTimeout(1500);
   },
   "juegos/pintar/": async p => {
-    await p.locator(".tarjeta").nth(1).click();                       // abre la vaca
+    // Colorear 2.0 (SPEC-017). Parte 1: galería al azar, sorpresa del día, hoja nueva + deshacer, copias, elegir
+    const orden = () => p.evaluate(() => [...document.querySelectorAll(".tarjeta")].map(b => b.getAttribute("aria-label")).join("|"));
+    const o1 = await orden(); let distinto = false;
+    for (let i = 0; i < 4 && !distinto; i++) { await p.reload(); await p.waitForTimeout(600); distinto = (await orden()) !== o1; }
+    if (!distinto) errores.push("pintar: la galería no cambia de orden al entrar");
+    await p.locator('.tarjeta[aria-label="sorpresa del día"]').click(); await p.waitForTimeout(1300); // se desenvuelve y abre
+    if (await p.locator("#editor").isHidden()) errores.push("pintar: la sorpresa del día no abrió");
     const z = await p.locator("#zonas").boundingBox();
-    await p.mouse.click(z.x + z.width / 2, z.y + z.height / 2);      // balde en la cabeza
+    await p.mouse.click(z.x + z.width / 2, z.y + z.height / 2);      // balde
     await p.click('[data-herr="pincel"]');
     await p.mouse.move(z.x + 40, z.y + 40); await p.mouse.down(); await p.mouse.move(z.x + 120, z.y + 90); await p.mouse.up();
-    await p.click('[data-herr="deshacer"]');
-    await p.click('[data-herr="listo"]');
+    await p.click('[data-herr="escoba"]'); await p.waitForTimeout(900);  // hoja nueva
+    const limpio = await p.evaluate(() => !Object.keys(rellenos).length);
+    await p.click('[data-herr="deshacer"]');                           // vuelve lo pintado
+    const vuelve = await p.evaluate(() => Object.keys(rellenos).length > 0);
+    if (!limpio || !vuelve) errores.push(`pintar: hoja nueva ${limpio} / deshacer ${vuelve}`);
+    await p.click('[data-herr="goma"]'); await p.mouse.click(z.x + z.width / 2, z.y + z.height / 2);
+    await p.click('[data-herr="listo"]'); await p.waitForTimeout(500);
+    await p.click("#casa"); await p.waitForTimeout(500);
+    if (!(await p.locator('.tarjeta[aria-label="mis dibujos"]').count())) errores.push("pintar: no aparece mis dibujos");
+    await p.locator('.tarjeta[aria-label="sorpresa del día"]').click(); await p.waitForTimeout(400);
+    if (!(await p.locator(".eleccion").count())) errores.push("pintar: no pregunta seguir o en blanco");
+    await p.click('.eleccion [data-o="blanco"]'); await p.waitForTimeout(300);
+    await p.click("#casa"); await p.waitForTimeout(300);
+    await p.locator('.tarjeta[aria-label="mis dibujos"]').click(); await p.waitForTimeout(300);
+    if ((await p.locator(".tarjeta").count()) < 2) errores.push("pintar: faltan copias en mis dibujos");
+    await p.locator(".tarjeta").first().click(); await p.waitForTimeout(300);
   },
 };
 
