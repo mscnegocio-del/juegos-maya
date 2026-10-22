@@ -26,7 +26,7 @@ Juegos web educativos para una niña de 3 años (Maya), con un menú principal, 
   `../../assets/css/base.css`, `../../assets/vendor/gsap/gsap.min.js`, `../../assets/js/common.js` y el botón `.btn-casa` (volver al menú)
 - Todo juego nuevo se agrega como tarjeta en `index.html` y copia del `<head>` de otro juego los tags de manifest/íconos
 - Dibujos: reutilizar o agregar en `assets/js/dibujos.js` (nunca SVG duplicado en un juego); no usar emojis en la interfaz
-- Reutilizar `Juegos.decir()`, `Juegos.fiesta()`, `Juegos.pop()`, `Juegos.rebotar()`, `Juegos.premio()`, `Juegos.azar()`… antes de crear utilidades nuevas
+- Reutilizar `Juegos.decir()`, `Juegos.fiesta()`, `Juegos.pop()`, `Juegos.rebotar()`, `Juegos.premio()`, `Juegos.progreso` (niveles guardados), `Juegos.azar()`… antes de crear utilidades nuevas
 - Nombres de variables/funciones y textos en español; comentarios breves solo donde aporten el "por qué"
 - Diseño para 3 años: nada depende de leer (todo se dice en voz alta), objetivos táctiles grandes (≥ 72 px),
   respuesta inmediata a cada toque, sin "perder" ni castigos, sin temporizadores que presionen,

@@ -193,6 +193,60 @@ const Juegos = (() => {
     irA(casa.href);
   });
 
+  // Progreso por juego en una sola clave (maya.progreso). Sube de nivel con 5 aciertos seguidos o 80 % en las
+  // últimas 10 rondas; tras 3 fallos seguidos baja uno en silencio. Si el almacenamiento falla, queda en memoria
+  const progreso = (() => {
+    const CLAVE = "maya.progreso";
+    let todo;
+    const cargarTodo = () => {
+      if (todo) return todo;
+      try { todo = JSON.parse(localStorage.getItem(CLAVE)) || {}; } catch { todo = {}; }
+      return todo;
+    };
+    const escribirTodo = () => { try { localStorage.setItem(CLAVE, JSON.stringify(todo)); } catch {} };
+    const nuevo = () => ({ nivel: 1, max: 99, aciertos: 0, racha: 0, fallos: 0, ultimas: [], stickers: [] });
+
+    function leer(juego) { return { ...nuevo(), ...cargarTodo()[juego] }; }
+    function guardar(juego, datos) { cargarTodo()[juego] = { ...leer(juego), ...datos }; escribirTodo(); }
+    // Cada juego declara al iniciar cuántos niveles tiene; devuelve el nivel guardado
+    function configurar(juego, { maxNivel }) {
+      const d = leer(juego);
+      guardar(juego, { max: maxNivel, nivel: Math.min(d.nivel, maxNivel) });
+      return leer(juego).nivel;
+    }
+    const cambiarNivel = (d, delta) => {
+      d.nivel = Math.max(1, Math.min(d.max, d.nivel + delta));
+      d.racha = 0; d.fallos = 0; d.ultimas = []; // cada nivel empieza de nuevo la cuenta
+    };
+
+    function acierto(juego) {
+      const d = leer(juego), antes = d.nivel;
+      d.aciertos++; d.racha++; d.fallos = 0;
+      d.ultimas = [...d.ultimas, 1].slice(-10);
+      const bien = d.ultimas.reduce((s, x) => s + x, 0);
+      if (d.racha >= 5 || (d.ultimas.length === 10 && bien >= 8)) cambiarNivel(d, 1);
+      guardar(juego, d);
+      const subio = d.nivel > antes;
+      if (subio) { fiesta(); decir("¡Subiste de nivel!"); }
+      return { nivel: d.nivel, subio, bajo: false };
+    }
+    function fallo(juego) {
+      const d = leer(juego), antes = d.nivel;
+      d.racha = 0; d.fallos++;
+      d.ultimas = [...d.ultimas, 0].slice(-10);
+      if (d.fallos >= 3) cambiarNivel(d, -1); // sin aviso: para ella nunca hay "perder"
+      guardar(juego, d);
+      return { nivel: d.nivel, subio: false, bajo: d.nivel < antes };
+    }
+    function reiniciar(juego) {
+      cargarTodo();
+      if (juego) delete todo[juego]; else todo = {};
+      escribirTodo();
+    }
+    const juegos = () => Object.keys(cargarTodo());
+    return { leer, guardar, configurar, acierto, fallo, reiniciar, juegos };
+  })();
+
   const azar = arr => arr[Math.floor(Math.random() * arr.length)];
   const mezclar = arr => [...arr].sort(() => Math.random() - 0.5);
 
@@ -240,5 +294,5 @@ const Juegos = (() => {
     });
   }
 
-  return { decir, tono, nota, pop, fiesta, confeti, rebotar, premio, irA, azar, mezclar, animar, cargar, sonar, callar, COLORES };
+  return { decir, tono, nota, pop, fiesta, confeti, rebotar, premio, irA, progreso, azar, mezclar, animar, cargar, sonar, callar, COLORES };
 })();

@@ -11,7 +11,32 @@ import { mkdirSync } from "node:fs";
 
 const BASE = process.env.BASE || "http://localhost:8765/";
 const PAGINAS = {
-  "": null,
+  "": async p => {
+    // Progreso (SPEC-012): 5 aciertos suben de nivel, 3 fallos bajan, el máximo se respeta y queda guardado al recargar
+    const r = await p.evaluate(() => {
+      const P = Juegos.progreso, out = [];
+      P.reiniciar("prueba"); P.configurar("prueba", { maxNivel: 2 });
+      for (let i = 0; i < 5; i++) out.push(P.acierto("prueba").nivel);
+      for (let i = 0; i < 6; i++) P.acierto("prueba");      // ya está en el máximo
+      out.push(P.leer("prueba").nivel);
+      P.fallo("prueba"); P.fallo("prueba"); out.push(P.fallo("prueba").bajo, P.leer("prueba").nivel);
+      P.reiniciar("prueba80"); P.configurar("prueba80", { maxNivel: 5 }); // 80 %: 8 de 10 sin racha de 5
+      [1, 1, 1, 1, 0, 1, 1, 1, 1].forEach(x => (x ? P.acierto : P.fallo)("prueba80"));
+      out.push(P.leer("prueba80").nivel, P.acierto("prueba80").subio);
+      return out.join(",");
+    });
+    await p.reload(); await p.waitForTimeout(500);
+    const guardado = await p.evaluate(() => Juegos.progreso.leer("prueba").nivel + "," + Juegos.progreso.leer("prueba80").nivel);
+    if (r !== "1,1,1,1,2,2,true,1,1,true" || guardado !== "1,2") errores.push(`progreso: ${r} / guardado ${guardado}`);
+    const rincon = await p.locator("#rincon").boundingBox();             // rincón de papá: mantener 3 s
+    await p.mouse.move(rincon.x + 40, rincon.y + 40); await p.mouse.down(); await p.waitForTimeout(3200); await p.mouse.up();
+    if (await p.locator("#panel").isHidden()) errores.push("el rincón de papá no se abrió");
+    await p.waitForTimeout(500);
+    await p.screenshot({ path: "tools/capturas/rincon-papa.png" });
+    await p.click('#panel [data-accion="todo"]'); await p.click('#panel [data-accion="todo"]');
+    if ((await p.evaluate(() => Juegos.progreso.juegos().length)) !== 0) errores.push("reiniciar todo no borró el progreso");
+    await p.click('#panel [data-accion="cerrar"]');
+  },
   "juegos/globos/": null,
   "juegos/animales/": p => p.click(".animal"),
   "juegos/colores/": p => p.click(".opcion"),

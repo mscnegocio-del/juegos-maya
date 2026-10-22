@@ -72,6 +72,22 @@
     .juego .icono .foto { width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 8%;
                           border-radius: 50%; transform: scale(1.18); pointer-events: none; }
     .juego:hover .icono svg { animation: wiggle .5s; }
+
+    /* Rincón de papá: esquina invisible (mantener 3 s) que abre el panel de progreso. Lo leen los adultos */
+    #rincon { position: fixed; top: 0; right: 0; width: 90px; height: 90px; z-index: 60; touch-action: none; -webkit-touch-callout: none; }
+    #panel[hidden] { display: none; }
+    #panel { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: rgba(59, 42, 74, .55); padding: 16px; }
+    #panel .caja { background: #fff; border-radius: 24px; padding: 20px; width: min(440px, 100%); max-height: 90dvh; overflow: auto;
+                   box-shadow: 0 10px 0 rgba(0, 0, 0, .15); }
+    #panel h2 { margin: 0 0 4px; font-size: 26px; }
+    #panel p { margin: 0 0 12px; opacity: .7; font-size: 16px; line-height: 1.3; }
+    #panel .fila { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 0; border-top: 2px solid #f3ebe0; font-size: 20px; }
+    #panel .fila b { flex: 1 0 100%; }
+    #panel .fila span { min-width: 104px; text-align: center; }
+    #panel .fila .peligro { margin-left: auto; }
+    #panel button { min-width: 48px; height: 48px; border-radius: 14px; background: #fff3c4; font-weight: 800; font-size: 20px; padding: 0 12px; }
+    #panel .peligro { background: #ffe0e1; }
+    #panel .acciones { display: flex; gap: 10px; justify-content: space-between; margin-top: 14px; }
   </style>
 </head>
 <body>
@@ -104,6 +120,9 @@
     </a>
   </main>
 
+  <div id="rincon" aria-hidden="true"></div>
+  <div id="panel" hidden></div>
+
   <script src="assets/vendor/gsap/gsap.min.js"></script>
   <script src="assets/js/common.js"></script>
   <script src="assets/js/dibujos.js"></script>
@@ -127,6 +146,50 @@
         else Juegos.animar(dibujo, "wiggle");
         setTimeout(() => Juegos.irA(a.href), 650);
       });
+    });
+
+    // ---------- Rincón de papá ----------
+    const NOMBRES = Object.fromEntries([...document.querySelectorAll(".juego")].map(a => [a.getAttribute("href").split("/")[1], a.textContent.trim()]));
+    const panel = document.getElementById("panel"), rincon = document.getElementById("rincon");
+    let espera;
+    rincon.addEventListener("pointerdown", e => { e.preventDefault(); espera = setTimeout(abrirPanel, 3000); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(ev => rincon.addEventListener(ev, () => clearTimeout(espera)));
+    rincon.addEventListener("contextmenu", e => e.preventDefault());
+
+    function abrirPanel() {
+      Juegos.tono(880, .12);
+      pintarPanel();
+      panel.hidden = false;
+      if (window.gsap && !calma) gsap.from("#panel .caja", { scale: .8, opacity: 0, duration: .4, ease: "back.out(2)" });
+    }
+    function pintarPanel() {
+      const juegos = Juegos.progreso.juegos();
+      panel.innerHTML = `<div class="caja" role="dialog" aria-label="Rincón de papá">
+        <h2>Rincón de papá</h2>
+        <p>Nivel de cada juego. Sube solo con 5 aciertos seguidos (u 8 de 10) y baja en silencio tras 3 fallos.</p>
+        ${juegos.length ? juegos.map(j => { const d = Juegos.progreso.leer(j); return `<div class="fila" data-juego="${j}">
+          <b>${NOMBRES[j] || j}</b><button data-accion="bajar" aria-label="bajar nivel">−</button>
+          <span>Nivel ${d.nivel} de ${d.max}</span><button data-accion="subir" aria-label="subir nivel">+</button>
+          <button class="peligro" data-accion="reiniciar">Reiniciar</button></div>`; }).join("")
+        : `<p>Todavía no hay juegos con niveles guardados.</p>`}
+        <div class="acciones"><button class="peligro" data-accion="todo">Reiniciar todo</button><button data-accion="cerrar">Cerrar</button></div>
+      </div>`;
+    }
+    panel.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (e.target === panel) return (panel.hidden = true);
+      if (!b) return;
+      const j = b.closest(".fila")?.dataset.juego, accion = b.dataset.accion;
+      if (accion === "cerrar") return (panel.hidden = true);
+      if (accion === "todo") {
+        if (!b.dataset.seguro) { b.dataset.seguro = 1; b.textContent = "¿Seguro? Toca otra vez"; return; }
+        Juegos.progreso.reiniciar();
+      } else if (accion === "reiniciar") Juegos.progreso.reiniciar(j);
+      else {
+        const d = Juegos.progreso.leer(j);
+        Juegos.progreso.guardar(j, { nivel: Math.max(1, Math.min(d.max, d.nivel + (accion === "subir" ? 1 : -1))), racha: 0, fallos: 0, ultimas: [] });
+      }
+      pintarPanel();
     });
 
     // Entrada del menú con GSAP: letras que caen rebotando y tarjetas que aparecen en cascada.
