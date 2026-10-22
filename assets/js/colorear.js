@@ -103,11 +103,31 @@ const Colorear = (() => {
     deshacer: icono(`<path d="M30 40 Q66 22 80 52 Q86 74 62 84" fill="none" stroke-width="9"/><path d="M14 40 L38 22 L40 52Z" fill="${T}"/>`),
     listo: icono(`<circle cx="50" cy="50" r="40" fill="#4cd17a"/><path d="M30 52 L44 66 L72 36" fill="none" stroke="#fff" stroke-width="10"/>`),
     hoja: icono(`<path d="M24 10 L64 10 L80 26 L80 90 L24 90Z" fill="#fff"/><path d="M64 10 L64 26 L80 26" fill="none"/>`),
+    arcoiris: icono(`<path d="M10 74 A40 40 0 0 1 90 74" fill="none" stroke="#ff5a5f" stroke-width="9"/><path d="M20 74 A30 30 0 0 1 80 74" fill="none" stroke="#ffd23f" stroke-width="9"/>
+      <path d="M30 74 A20 20 0 0 1 70 74" fill="none" stroke="#4cd17a" stroke-width="9"/><path d="M40 74 A10 10 0 0 1 60 74" fill="none" stroke="#3fa7ff" stroke-width="9"/>`),
+    brillitos: icono(`<path d="M36 14 L42 34 L62 40 L42 46 L36 66 L30 46 L10 40 L30 34Z" fill="#ffd23f"/>
+      <path d="M72 50 L76 62 L88 66 L76 70 L72 82 L68 70 L56 66 L68 62Z" fill="#ff7eb6"/><circle cx="74" cy="22" r="6" fill="#3fa7ff"/>`),
+    magico: icono(`<path d="M20 84 L62 42" fill="none" stroke-width="10"/><path d="M20 84 L62 42" fill="none" stroke="#a66bff" stroke-width="5"/>
+      <path d="M70 12 L75 27 L90 30 L75 34 L70 48 L65 34 L50 30 L65 27Z" fill="#ffd23f"/>`),
+    sellos: icono(`<path d="M36 12 L64 12 L60 44 L40 44Z" fill="#ff7eb6"/><path d="M18 50 L82 50 L82 66 L18 66Z" fill="#a0673f"/>
+      <path d="M38 76 C26 68 30 58 38 62 C42 56 52 60 46 70 L42 80Z" fill="#ff5a5f" stroke-width="3"/>`),
     escoba: icono(`<path d="M70 8 L56 48" fill="none" stroke="#a0673f" stroke-width="9"/>
       <path d="M44 44 L70 54 L60 92 Q40 92 18 80Z" fill="#ffd23f"/><path d="M34 62 L28 82 M46 66 L42 88 M56 68 L54 90" fill="none" stroke-width="4"/>`),
     carpeta: icono(`<path d="M10 26 L40 26 L48 36 L90 36 L90 84 L10 84Z" fill="#ff9f43"/><path d="M10 46 L90 46" fill="none"/>
       <path d="M40 58 C30 50 36 40 44 46 C50 40 58 50 48 58 L44 64Z" fill="#ff5a5f" stroke-width="3"/>`),
   };
 
-  return { DIBUJOS, ICONOS };
+  // Sellos: se pegan con un toque (SVG completos para poder dibujarlos en el canvas)
+  const sello = cuerpo => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" stroke="${T}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">${cuerpo}</svg>`;
+  const SELLOS = {
+    estrella: { nombre: "estrellita", svg: sello(`<path d="M50 8 L62 36 L92 38 L69 58 L77 88 L50 72 L23 88 L31 58 L8 38 L38 36Z" fill="#ffd23f"/>`) },
+    corazon: { nombre: "corazón", svg: sello(`<path d="M50 86 C14 62 6 40 18 24 C30 10 46 18 50 30 C54 18 70 10 82 24 C94 40 86 62 50 86Z" fill="#ff5a5f"/>`) },
+    huella: { nombre: "huellita de gato", svg: sello(`<ellipse cx="50" cy="66" rx="22" ry="18" fill="#ff9fb8"/>
+      <ellipse cx="24" cy="40" rx="9" ry="12" fill="#ff9fb8"/><ellipse cx="42" cy="26" rx="9" ry="12" fill="#ff9fb8"/>
+      <ellipse cx="60" cy="26" rx="9" ry="12" fill="#ff9fb8"/><ellipse cx="77" cy="40" rx="9" ry="12" fill="#ff9fb8"/>`) },
+    flor: { nombre: "florcita", svg: sello(`${[0, 72, 144, 216, 288].map(a => `<ellipse cx="50" cy="26" rx="14" ry="20" fill="#ff7eb6" transform="rotate(${a} 50 50)"/>`).join("")}
+      <circle cx="50" cy="50" r="15" fill="#ffd23f"/>`) },
+  };
+
+  return { DIBUJOS, ICONOS, SELLOS };
 })();

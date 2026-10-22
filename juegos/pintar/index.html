@@ -57,7 +57,7 @@
     }
     .lienzo {
       position: relative; flex: none;
-      width: min(calc(100vw - 24px), calc(100dvh - 300px));
+      width: min(calc(100vw - 24px), calc(100dvh - 380px));
       aspect-ratio: 1 / 1;
       background: #fff; border-radius: 24px;
       box-shadow: 0 8px 0 rgba(0, 0, 0, .1);
@@ -77,29 +77,36 @@
       width: min(100%, 640px);
     }
     .fila { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    /* Colores y herramientas en una fila que se desliza: botones grandes (≥ 72 px) aunque haya muchos */
+    .fila.desliza { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; width: 100%; padding: 6px 8px 10px;
+                    scroll-snap-type: x proximity; touch-action: pan-x; scrollbar-width: none; }
+    .fila.desliza::-webkit-scrollbar { display: none; }
+    .fila.desliza > * { flex: none; scroll-snap-align: start; }
     .color, .herr {
-      width: 52px; height: 52px; border-radius: 50%;
+      width: 72px; height: 72px; border-radius: 50%;
       box-shadow: 0 4px 0 rgba(0, 0, 0, .15);
       transition: transform .12s;
     }
     .color.activo { transform: scale(1.22); outline: 4px solid #fff; outline-offset: -4px; }
     .herr { background: #fff; display: grid; place-items: center; }
-    .herr svg { width: 34px; height: 34px; }
+    .herr svg { width: 46px; height: 46px; }
+    .color.blanco { box-shadow: inset 0 0 0 3px #e5ded4, 0 4px 0 rgba(0, 0, 0, .15); }
+    .lienzo.brilla canvas { animation: titilar 1.6s ease-in-out infinite alternate; }
+    @keyframes titilar { to { filter: brightness(1.12) saturate(1.15); } }
     .herr.activo { background: var(--amarillo); transform: scale(1.12); }
     .herr:active, .color:active { transform: scale(.9); }
     .grosor { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center;
               box-shadow: 0 4px 0 rgba(0, 0, 0, .12); }
     .grosor span { display: block; border-radius: 50%; background: var(--ink); }
     .grosor.activo { background: var(--amarillo); }
-    .herr.listo { width: 64px; height: 64px; }
-    .herr.listo svg { width: 48px; height: 48px; }
+    .herr.listo { background: #e9fbef; }
 
     @media (orientation: landscape) and (min-width: 700px) {
       .editor { flex-direction: row; padding: 96px 16px 16px; gap: 20px; }
       .lienzo { width: min(calc(100dvh - 112px), calc(100vw - 360px)); }
       .herramientas { width: 300px; }
     }
-    @media (prefers-reduced-motion: reduce) { .lienzo.vivo { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .lienzo.vivo, .lienzo.brilla canvas { animation: none; } }
   </style>
 </head>
 <body>
@@ -114,9 +121,10 @@
       <svg class="lineas" id="lineas" viewBox="0 0 200 200"></svg>
     </div>
     <div class="herramientas">
-      <div class="fila" id="colores"></div>
+      <div class="fila desliza" id="colores"></div>
       <div class="fila" id="grosores"></div>
-      <div class="fila" id="botones"></div>
+      <div class="fila desliza" id="sellos" hidden></div>
+      <div class="fila desliza" id="botones"></div>
     </div>
   </section>
 
@@ -131,8 +139,16 @@
     const TODOS = [HOJA, ...DIBUJOS];
     const COLORES = [
       ["#ff5a5f", "rojo"], ["#ff9f43", "naranja"], ["#ffd23f", "amarillo"], ["#4cd17a", "verde"], ["#3fa7ff", "azul"],
-      ["#a66bff", "morado"], ["#ff7eb6", "rosado"], ["#a0673f", "marrón"], ["#f5c9a0", "color piel"], ["#3b2a4a", "negro"],
+      ["#a66bff", "morado"], ["#ff7eb6", "rosado"], ["#9fdcff", "celeste"], ["#ffc8dc", "rosado clarito"], ["#a0673f", "café"],
+      ["#f5c9a0", "color piel"], ["#a9a7b4", "gris"], ["#3b2a4a", "negro"], ["#ffffff", "blanco"],
     ];
+    const { SELLOS } = Colorear;
+    const conXmlns = s => s.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ');
+    SELLOS.pato = { nombre: "el pato", svg: conXmlns(Dibujos.ANIMALES.pato) };
+    SELLOS.michi = { nombre: "Michi", svg: conXmlns(Dibujos.ANIMALES.gato) };
+    // Cada sello se prepara una vez como imagen para pegarlo en el canvas al instante
+    Object.values(SELLOS).forEach(s => { s.img = new Image(); s.img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s.svg); });
+    let sello = "estrella", tono = 0, mascara = null;
     const GROSORES = [14, 28, 50]; // en unidades del canvas (800 px)
 
     const $ = id => document.getElementById(id);
@@ -263,6 +279,7 @@
     function cargar(d, id) {
       actual = d; doc = id;
       const datos = leer(id);
+      lienzo.classList.toggle("brilla", !!datos.brillo);
       rellenos = datos.rellenos ? { ...datos.rellenos } : {};
       historial = [];
       svgZonas.innerHTML = d.zonas.map((z, i) => `<${z} data-zona="${i}" fill="${rellenos[i] || "#fff"}"/>`).join("");
@@ -279,7 +296,7 @@
     function guardar() {
       if (!actual) return;
       const vacio = !ctx.getImageData(0, 0, 800, 800).data.some((v, i) => i % 4 === 3 && v);
-      escribir(doc, { ...leer(doc), rellenos, trazo: vacio ? null : canvas.toDataURL("image/png") });
+      escribir(doc, { ...leer(doc), rellenos, trazo: vacio ? null : canvas.toDataURL("image/png"), brillo: !vacio && lienzo.classList.contains("brilla") });
     }
 
     // La casita: desde el editor vuelve a la galería (guardando); desde la galería, al menú
@@ -333,14 +350,26 @@
       const [x, y] = punto(e);
       trazos.set(e.pointerId, { x, y, n: 0, movio: false });
       if (herramienta === "estrellas") { estrellita(x, y); Juegos.tono(800 + Math.random() * 600, 0.1); }
+      if (herramienta === "sellos") pegarSello(x, y);
+      mascara = herramienta === "magico" ? mascaraZona(e) : null;
     });
     canvas.addEventListener("pointermove", e => {
       const t = trazos.get(e.pointerId);
       if (!t) return;
       const [x, y] = punto(e);
       t.movio = true;
-      if (herramienta === "estrellas") {
+      if (herramienta === "sellos") { /* un sello por toque */ }
+      else if (herramienta === "estrellas") {
         if (++t.n % 5 === 0) estrellita(x, y);
+      } else if (herramienta === "brillitos") {
+        brillos(t.x, t.y, x, y);
+      } else if (herramienta === "magico" && mascara) {
+        trazoMagico(t.x, t.y, x, y);
+      } else if (herramienta === "arcoiris") {
+        tono = (tono + 14) % 360;
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = `hsl(${tono} 90% 60%)`; ctx.lineWidth = grosor;
+        ctx.beginPath(); ctx.moveTo(t.x, t.y); ctx.lineTo(x, y); ctx.stroke();
       } else {
         ctx.globalCompositeOperation = herramienta === "goma" ? "destination-out" : "source-over";
         ctx.strokeStyle = color;
@@ -353,7 +382,7 @@
       const t = trazos.get(e.pointerId);
       if (!t) return;
       trazos.delete(e.pointerId);
-      if (!t.movio && herramienta === "pincel") { // un toque sin mover deja un punto
+      if (!t.movio && (herramienta === "pincel" || herramienta === "magico" || herramienta === "arcoiris")) { // un toque sin mover deja un punto
         ctx.globalCompositeOperation = "source-over";
         ctx.fillStyle = color; ctx.beginPath(); ctx.arc(t.x, t.y, grosor / 2, 0, Math.PI * 2); ctx.fill();
       }
@@ -365,6 +394,69 @@
       }
     }
     ["pointerup", "pointercancel"].forEach(ev => canvas.addEventListener(ev, soltar));
+
+    // Sellos: estrellita, corazón, huellita, florcita, el pato y Michi, grandes y con "pop"
+    function pegarSello(x, y) {
+      const s = SELLOS[sello], tam = 150;
+      ctx.save(); ctx.globalCompositeOperation = "source-over";
+      ctx.translate(x, y); ctx.rotate((Math.random() - .5) * .5);
+      ctx.drawImage(s.img, -tam / 2, -tam / 2, tam, tam);
+      ctx.restore();
+      Juegos.pop(); Juegos.tono(700 + Math.random() * 300, .08, "triangle", .12);
+    }
+
+    // Brillitos: trazo suave del color elegido sembrado de destellos; la hoja titila un poquito
+    function brillos(x0, y0, x1, y1) {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = .65; ctx.strokeStyle = color; ctx.lineWidth = grosor;
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+      ctx.globalAlpha = 1;
+      for (let k = 0; k < 4; k++) {
+        const px = x1 + (Math.random() - .5) * grosor * 1.4, py = y1 + (Math.random() - .5) * grosor * 1.4, r = 6 + Math.random() * 10;
+        ctx.fillStyle = Juegos.azar(["#fff", "#fff8c4", "#ffd23f", "#ffc8dc", "#c8f0ff"]);
+        ctx.beginPath();
+        for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * .35 : r; ctx.lineTo(px + Math.cos(a) * rr, py + Math.sin(a) * rr); }
+        ctx.fill();
+      }
+      lienzo.classList.add("brilla");
+    }
+
+    // Pincel mágico: la forma de la zona donde empezó el trazo (menos las zonas que la tapan) hace de molde
+    const capa = document.createElement("canvas"); capa.width = capa.height = 800;
+    const cc = capa.getContext("2d"); cc.lineCap = cc.lineJoin = "round";
+    function formaZona(el) {
+      const p = new Path2D(), n = el.tagName;
+      if (n === "path") p.addPath(new Path2D(el.getAttribute("d")));
+      else {
+        const v = k => +el.getAttribute(k);
+        n === "circle" ? p.arc(v("cx"), v("cy"), v("r"), 0, Math.PI * 2) : p.ellipse(v("cx"), v("cy"), v("rx"), v("ry"), 0, 0, Math.PI * 2);
+      }
+      const m = el.transform.baseVal.consolidate()?.matrix;
+      const f = new Path2D(); f.addPath(p, new DOMMatrix().scale(4).multiply(m ? DOMMatrix.fromMatrix(m) : new DOMMatrix()));
+      return f;
+    }
+    function mascaraZona(e) {
+      canvas.style.pointerEvents = "none";
+      const zona = document.elementFromPoint(e.clientX, e.clientY)?.closest?.("[data-zona]");
+      canvas.style.pointerEvents = "";
+      if (!zona) return null;
+      const m = document.createElement("canvas"); m.width = m.height = 800;
+      const mc = m.getContext("2d");
+      mc.fillStyle = "#000"; mc.fill(formaZona(zona));
+      mc.globalCompositeOperation = "destination-out";
+      [...svgZonas.querySelectorAll("[data-zona]")].filter(z => +z.dataset.zona > +zona.dataset.zona).forEach(z => mc.fill(formaZona(z)));
+      return m;
+    }
+    function trazoMagico(x0, y0, x1, y1) {
+      cc.globalCompositeOperation = "source-over";
+      cc.clearRect(0, 0, 800, 800);
+      cc.strokeStyle = color; cc.lineWidth = grosor;
+      cc.beginPath(); cc.moveTo(x0, y0); cc.lineTo(x1, y1); cc.stroke();
+      cc.globalCompositeOperation = "destination-in";
+      cc.drawImage(mascara, 0, 0);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.drawImage(capa, 0, 0);
+    }
 
     function deshacer() {
       const paso = historial.pop();
@@ -393,6 +485,7 @@
         rellenos = {};
         svgZonas.querySelectorAll("[data-zona]").forEach(z => z.setAttribute("fill", "#fff"));
         ctx.clearRect(0, 0, 800, 800);
+        lienzo.classList.remove("brilla");
         guardar();
       };
       Juegos.decir("¡Hoja nueva!");
@@ -414,24 +507,26 @@
     }
 
     // ---------- Barra de herramientas ----------
-    const NOMBRES_HERR = { balde: "¡A rellenar!", pincel: "¡Pincel!", estrellas: "¡Estrellitas!", goma: "¡Goma! Toca o frota para despintar" };
+    const NOMBRES_HERR = { balde: "¡A rellenar!", pincel: "¡Pincel!", estrellas: "¡Estrellitas!", goma: "¡Goma! Toca o frota para despintar",
+      arcoiris: "¡Pincel arcoíris!", brillitos: "¡Brillitos!", magico: "¡Pincel mágico! No se sale de las líneas", sellos: "¡Sellos! Toca para pegar" };
     function elegirHerramienta(h, silencio) {
       herramienta = h;
       lienzo.classList.toggle("balde", h === "balde");
       document.querySelectorAll("[data-herr]").forEach(b => b.classList.toggle("activo", b.dataset.herr === h));
-      $("grosores").hidden = !(h === "pincel" || h === "goma");
+      $("grosores").hidden = !["pincel", "goma", "arcoiris", "brillitos", "magico"].includes(h);
+      $("sellos").hidden = h !== "sellos";
       if (!silencio) Juegos.decir(NOMBRES_HERR[h]);
     }
 
     COLORES.forEach(([c, nombre], i) => {
       const b = document.createElement("button");
-      b.className = "color" + (i === 0 ? " activo" : "");
+      b.className = "color" + (i === 0 ? " activo" : "") + (c === "#ffffff" ? " blanco" : "");
       b.style.background = c;
       b.setAttribute("aria-label", nombre);
       b.addEventListener("click", () => {
         color = c;
         document.querySelectorAll(".color").forEach(x => x.classList.toggle("activo", x === b));
-        if (herramienta === "goma" || herramienta === "estrellas") elegirHerramienta(actual?.hoja ? "pincel" : "balde", true);
+        if (["goma", "estrellas", "sellos", "arcoiris"].includes(herramienta)) elegirHerramienta(actual?.hoja ? "pincel" : "balde", true);
         Juegos.decir(nombre);
       });
       $("colores").appendChild(b);
@@ -446,7 +541,20 @@
       $("grosores").appendChild(b);
     });
 
-    [["balde", "rellenar"], ["pincel", "pincel"], ["estrellas", "estrellitas"], ["goma", "goma"], ["deshacer", "deshacer"], ["escoba", "hoja nueva"], ["listo", "terminar"]]
+    Object.entries(SELLOS).forEach(([id, s]) => {
+      const b = document.createElement("button");
+      b.className = "herr"; b.dataset.sello = id; b.setAttribute("aria-label", s.nombre);
+      b.innerHTML = s.svg;
+      b.addEventListener("click", () => {
+        sello = id; Juegos.decir(s.nombre);
+        document.querySelectorAll("[data-sello]").forEach(x => x.classList.toggle("activo", x === b));
+      });
+      $("sellos").appendChild(b);
+    });
+    document.querySelector("[data-sello]").classList.add("activo");
+
+    [["balde", "rellenar"], ["pincel", "pincel"], ["magico", "pincel mágico"], ["arcoiris", "pincel arcoíris"], ["brillitos", "brillitos"],
+     ["sellos", "sellos"], ["estrellas", "estrellitas"], ["goma", "goma"], ["deshacer", "deshacer"], ["escoba", "hoja nueva"], ["listo", "terminar"]]
       .forEach(([h, etiqueta]) => {
         const b = document.createElement("button");
         b.className = "herr" + (h === "listo" ? " listo" : "");
