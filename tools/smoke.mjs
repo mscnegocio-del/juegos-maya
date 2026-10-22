@@ -41,7 +41,8 @@ const PAGINAS = {
     // Globos (SPEC-013): en cada nivel se revienta un globo que sirve para la consigna y uno que no (debe quedar)
     for (let n = 1; n <= 6; n++) {
       await p.evaluate(n => Juegos.progreso.guardar("globos", { nivel: n, racha: 0, fallos: 0, ultimas: [] }), n);
-      await p.reload(); await p.waitForTimeout(2600);
+      await p.reload(); await p.waitForTimeout(1500);
+      await p.waitForFunction(() => [...document.querySelectorAll(".globo:not(.reventado)")].some(g => ronda.sirve(g.datos)), null, { timeout: 15000 });
       const r = await p.evaluate(() => {
         const gs = [...document.querySelectorAll(".globo:not(.reventado)")];
         const bueno = gs.find(g => ronda.sirve(g.datos)), malo = gs.find(g => !ronda.sirve(g.datos));
