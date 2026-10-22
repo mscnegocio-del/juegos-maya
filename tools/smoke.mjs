@@ -139,6 +139,7 @@ const PAGINAS = {
     await p.click('[data-herr="sellos"]'); await p.locator('[data-sello="pato"]').click();
     await p.mouse.click(z.x + z.width * .8, z.y + z.height * .2); await p.waitForTimeout(200);
     await p.click('[data-herr="escoba"]'); await p.waitForTimeout(900);
+    await p.evaluate(() => { guardar(); cargar(TODOS.find(d => d.id === "gato"), "gato"); }); // cara redonda al centro
     await p.click('[data-herr="magico"]');
     await rayar(z.x + z.width / 2, z.y + z.height / 2, z.x + 4, z.y + 4);   // desde el centro hacia la esquina vacía
     const esquina = await p.evaluate(() => ctx.getImageData(10, 10, 30, 30).data.some((v, i) => i % 4 === 3 && v));
@@ -148,7 +149,7 @@ const PAGINAS = {
     await p.click('[data-herr="listo"]'); await p.waitForTimeout(500);
     await p.click("#casa"); await p.waitForTimeout(500);
     if (!(await p.locator('.tarjeta[aria-label="mis dibujos"]').count())) errores.push("pintar: no aparece mis dibujos");
-    await p.locator('.tarjeta[aria-label="sorpresa del día"]').click(); await p.waitForTimeout(400);
+    await p.locator('.tarjeta[aria-label="el gatito Michi"]').click(); await p.waitForTimeout(400);
     if (!(await p.locator(".eleccion").count())) errores.push("pintar: no pregunta seguir o en blanco");
     await p.click('.eleccion [data-o="blanco"]'); await p.waitForTimeout(300);
     await p.click("#casa"); await p.waitForTimeout(300);
