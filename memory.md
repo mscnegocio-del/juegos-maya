@@ -37,6 +37,8 @@
 - SPEC-015 **implementada**: álbum (`juegos/album/`, tarjeta en el menú) y `stickers.js`
 - SPEC-013 **implementada**: Globos con 6 niveles; ya da stickers de la página Globos
 - SPEC-014 **implementada**: Colores con 8 niveles (clasificar, mezclar pinturas, "trae algo de la casa")
+- SPEC-017 **implementada** (Colorear 2.0): hoja nueva, mis dibujos, galería al azar, herramientas mágicas, 39 láminas,
+  4 niveles (modelo y trazar) y página Pintar en el álbum
 - SPEC-016 aprobada; 011 sigue en borrador
 - SPEC-016 hecha: GSAP 3.15.0 en `assets/vendor/`, menú animado, transiciones, confeti con física, `Juegos.rebotar/premio/irA`.
   Solo falta usar `Juegos.premio` cuando existan niveles (012) y álbum (015)
@@ -53,7 +55,7 @@
 - Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
-0. Que el usuario apruebe SPEC-017 (Colorear 2.0; Maya notó que no puede limpiar y repintar). Probar Globos y Colores; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
+0. Que Maya pruebe Colorear 2.0, Globos y Colores en el dispositivo; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
    Probar en iOS que la app instalada conserve el progreso.
    Preguntas abiertas: ¿orden entre niveles y juegos nuevos?
    ¿Premio como sticker, estrella en el menú o ambos?

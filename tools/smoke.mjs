@@ -156,6 +156,31 @@ const PAGINAS = {
     await p.locator('.tarjeta[aria-label="mis dibujos"]').click(); await p.waitForTimeout(300);
     if ((await p.locator(".tarjeta").count()) < 2) errores.push("pintar: faltan copias en mis dibujos");
     await p.locator(".tarjeta").first().click(); await p.waitForTimeout(300);
+    // Parte 4: niveles. 5 láminas terminadas suben de nivel y dan un sticker de la página Pintar
+    await p.evaluate(() => { Juegos.progreso.reiniciar("pintar"); localStorage.removeItem("maya.colorear.sol"); });
+    await p.reload(); await p.waitForTimeout(600);
+    const primeras = await p.evaluate(() => [...document.querySelectorAll(".tarjeta")].slice(3, 7).map(b => TODOS.find(d => d.nombre === b.getAttribute("aria-label"))?.nivel));
+    if (primeras.some(n => n !== 1)) errores.push(`pintar: en nivel 1 no se proponen primero las fáciles (${primeras})`);
+    const sube = await p.evaluate(() => {
+      let r;
+      for (let i = 0; i < 5; i++) { cargar(DIBUJOS[i], DIBUJOS[i].id); rellenos[0] = "#ff5a5f"; r = Juegos.progreso.acierto("pintar"); }
+      return r.nivel + "," + (r.sticker?.id || "");
+    });
+    if (sube !== "2,helado") errores.push(`pintar: subir de nivel/sticker ${sube}`);
+    await p.waitForTimeout(2500);
+    await p.evaluate(() => Juegos.progreso.guardar("pintar", { nivel: 4 }));
+    await p.reload(); await p.waitForTimeout(600);
+    await p.evaluate(() => abrir(DIBUJOS.find(d => d.id === "sol"))); await p.waitForTimeout(300);
+    const conModelo = await p.locator(".lienzo .modelo").count(), trazando = await p.evaluate(() => lienzo.classList.contains("trazando"));
+    const puntos = await p.evaluate(() => puntosTrazo.map(q => [q.x, q.y]));
+    const L = await p.locator("#lienzo").boundingBox(), k = L.width / 800;
+    await p.mouse.move(L.x + puntos[0][0] * k, L.y + puntos[0][1] * k); await p.mouse.down();
+    for (const [x, y] of puntos) await p.mouse.move(L.x + x * k, L.y + y * k);
+    await p.mouse.up(); await p.waitForTimeout(300);
+    const trazado = await p.evaluate(() => !lienzo.classList.contains("trazando") && herramienta === "balde");
+    if (!conModelo || !trazando || !trazado) errores.push(`pintar: modelo ${conModelo} trazando ${trazando} trazado ${trazado}`);
+    await p.screenshot({ path: "tools/capturas/pintar-nivel4.png" });
+    await p.evaluate(() => Juegos.progreso.reiniciar("pintar"));
   },
 };
 

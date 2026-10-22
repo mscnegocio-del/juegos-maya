@@ -23,6 +23,18 @@ const Stickers = (() => {
     ] },
   ];
 
+  // Página "Pintar": láminas de colorear ya pintadas (solo si la página cargó colorear.js)
+  if (typeof Colorear !== "undefined") {
+    const C = ["#ff5a5f", "#ffd23f", "#3fa7ff", "#4cd17a", "#a66bff", "#ff9f43", "#ff7eb6"];
+    const lamina = d => `<svg viewBox="0 0 200 200" stroke="#3b2a4a" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">${
+      d.zonas.map((z, i) => `<${z} fill="${C[(i * 3 + d.id.length) % C.length]}"/>`).join("")}${d.detalles}</svg>`;
+    const ids = ["helado", "cohete", "ballena", "arcoiris", "pulpo", "mariposa", "sol", "hongo", "cupcake", "barco", "michi", "tortuga"];
+    PAGINAS.push({ juego: "pintar", nombre: "Pintar", icono: Dibujos.crayon, stickers: ids.map(id => {
+      const d = Colorear.DIBUJOS.find(x => x.id === id);
+      return { id, nombre: d.nombre, dibujo: lamina(d), sonido: d.sonido ? `animales/${d.sonido}.mp3` : null };
+    }) });
+  }
+
   const pagina = juego => PAGINAS.find(p => p.juego === juego);
   const tiene = juego => Juegos.progreso.leer(juego).stickers;
 
