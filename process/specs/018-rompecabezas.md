@@ -91,3 +91,4 @@ redondeados, luz suave de estudio, pastel con acentos vivos, sin contornos negro
   dibujos por código (hoy son 9 cuadros). Falta ilustrar los 12 animales y otros temas para llegar a 28
 - Stickers de dinosaurio en el álbum con la ilustración recortada en círculo
 - `trex` y `trice` comparten fondo; se pueden regenerar con otro paisaje
+- Cada dinosaurio tiene su voz: palabra que se dice y se ve + sonido sintetizado propio (tiranosaurio ¡RAAAR!, tricerátops ¡BRRRU!, braquiosaurio ¡MUUUUU!, estegosaurio ¡GRUUU!, velociraptor ¡IIIK-IK!, anquilosaurio ¡HUMMM!, pterodáctilo ¡IIIIAAA!, espinosaurio ¡GROOAR!); sin rugidos reales (no hay CC0 verificados)
