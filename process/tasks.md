@@ -31,6 +31,7 @@
 | 13 | GSAP en la interfaz: menú animado, transiciones, confeti con física, rebote y premio | SPEC-016 | hecho (falta usar el premio en niveles) |
 | 14 | Progreso guardado y nivel adaptativo (`Juegos.progreso`) + rincón de papá en el menú | SPEC-012 | hecho |
 | 15 | Álbum de stickers (24 stickers, página por juego, premio al completar nivel) | SPEC-015 | hecho |
+| 16 | Globos con 6 niveles adaptativos y stickers | SPEC-013 | hecho |
 | 6 | Juego Contar hasta 5 (manzanas, estrellas, flores, pelotas; voz cuenta; dificultad progresiva) | SPEC-002 | hecho |
 
 ## Backlog (priorizado)
@@ -39,7 +40,6 @@
 | 1 | Michi parte 2: mesa de cocina con 3 platos, dormitorio con cama y mantita, juguetes en la bañera (faltan imágenes) | SPEC-009/010 | aprobada |
 | 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
 | 2a | Michi por capas animado con Rive (spike en rama aparte; faltan las capas del usuario) | SPEC-011 | borrador |
-| 2c | Globos con 6 niveles (color, cantidad, tamaño, sorpresas) | SPEC-013 | borrador |
 | 2d | Colores con 8 niveles (más opciones, colores nuevos, claro/oscuro, clasificar, mezclar) | SPEC-014 | borrador |
 | 2g | Juegos nuevos: patrones, ¿qué falta?, conceptos espaciales, emociones con Michi, trazar caminos, letras M-A-Y-A, números 1–10 | — | idea |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |

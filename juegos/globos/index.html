@@ -22,6 +22,8 @@
       animation: subir linear forwards;
       filter: drop-shadow(-6px 6px 0 rgba(0, 0, 0, .08));
     }
+    .globo.grande { width: 160px; height: 193px; }
+    .globo.chico { width: 84px; height: 101px; } /* "pequeño" relativo: sigue siendo ≥ 72 px para el dedo */
     .globo svg { width: 100%; height: 100%; overflow: visible; }
     @keyframes subir { to { transform: translateY(calc(-100vh - 260px)); } }
     /* Al reventar: partículas del color del globo que salen en todas direcciones */
@@ -31,31 +33,90 @@
       animation: estallar .55s ease-out forwards;
     }
     @keyframes estallar { to { transform: translate(var(--dx), var(--dy)) scale(.3); opacity: 0; } }
-    @media (prefers-reduced-motion: reduce) { .particula { display: none; } }
+    /* Sorpresa del nivel 6: el animal sale del globo y se va flotando */
+    .sorpresa { position: fixed; width: 110px; height: 110px; pointer-events: none; z-index: 20; animation: salir 1.4s ease-out forwards; }
+    .sorpresa svg { width: 100%; height: 100%; }
+    @keyframes salir { 0% { transform: scale(.2); } 25% { transform: scale(1.15); } 70% { transform: scale(1); opacity: 1; } 100% { transform: translateY(-60px); opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .particula { display: none; } .sorpresa { animation-duration: .01s; } }
     .contador {
-      position: fixed; top: 20px; right: 20px;
+      position: fixed; top: 20px; right: 20px; z-index: 10;
       font-size: 44px; font-weight: 800;
       background: #fff; border-radius: 40px; padding: 4px 22px;
       box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
       display: flex; align-items: center; gap: 6px;
     }
     .contador .mini svg { width: 44px; height: 52px; display: block; }
+    .puntos { display: flex; gap: 6px; }
+    .punto { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--ink); background: #fff; }
+    .punto.lleno { background: var(--amarillo); }
+    /* Consigna: botón grande con el dibujo de lo que hay que buscar; tocarlo la repite en voz alta */
+    .consigna { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10; width: 84px; height: 84px; border-radius: 50%;
+                background: #fff; box-shadow: 0 6px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; padding: 8px; }
+    .consigna svg { width: 100%; height: 100%; overflow: visible; }
+    .consigna .chico svg { transform: scale(.62); }
+    .consigna[hidden], .puntos[hidden] { display: none; }
+    @media (max-width: 480px) { .contador { top: 104px; right: 16px; font-size: 36px; } }
   </style>
 </head>
 <body>
   <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
-  <div class="contador" id="contador"><span class="mini" id="mini"></span><span id="numero">0</span></div>
+  <button class="consigna" id="consigna" aria-label="Repetir lo que hay que hacer" hidden></button>
+  <div class="contador" id="contador"><span class="mini" id="mini"></span><span id="numero">0</span><span class="puntos" id="puntos"></span></div>
 
   <script src="../../assets/vendor/gsap/gsap.min.js"></script>
   <script src="../../assets/js/common.js"></script>
   <script src="../../assets/js/dibujos.js"></script>
+  <script src="../../assets/js/stickers.js"></script>
   <script>
-    const NOMBRES = { "#ff5a5f": "rojo", "#3fa7ff": "azul", "#ffd23f": "amarillo", "#4cd17a": "verde",
-                      "#a66bff": "morado", "#ff9f43": "naranja", "#ff7eb6": "rosado" };
-    let total = 0;
-    const contador = document.getElementById("contador");
-    const numero = document.getElementById("numero");
-    document.getElementById("mini").innerHTML = Dibujos.globo("#ff5a5f");
+    const COLORES = { "#ff5a5f": ["rojo", "rojos"], "#3fa7ff": ["azul", "azules"], "#ffd23f": ["amarillo", "amarillos"],
+                      "#4cd17a": ["verde", "verdes"], "#a66bff": ["morado", "morados"], "#ff9f43": ["naranja", "naranjas"],
+                      "#ff7eb6": ["rosado", "rosados"] };
+    const ANIMALES = [["pato", "al pato"], ["vaca", "a la vaca"], ["perro", "al perrito"], ["gato", "al gatito"], ["chancho", "al chanchito"],
+                      ["gallina", "a la gallina"], ["oveja", "a la ovejita"], ["rana", "a la ranita"], ["leon", "al león"], ["elefante", "al elefante"]];
+    const NOMBRE_ANIMAL = { pato: "el pato", vaca: "la vaca", perro: "el perrito", gato: "el gatito", chancho: "el chanchito",
+                            gallina: "la gallina", oveja: "la ovejita", rana: "la ranita", leon: "el león", elefante: "el elefante" };
+    const NUMEROS = ["uno", "dos", "tres", "cuatro"];
+    const MAX_NIVEL = 6;
+    let nivel = Juegos.progreso.configurar("globos", { maxNivel: MAX_NIVEL });
+    let total = 0, ronda = null, pausa = false;
+    const contador = document.getElementById("contador"), numero = document.getElementById("numero");
+    const puntos = document.getElementById("puntos"), mini = document.getElementById("mini"), botonConsigna = document.getElementById("consigna");
+    const colorAzar = () => Juegos.azar(Object.keys(COLORES));
+
+    // Cada ronda es una consigna: cuántos globos hay que reventar y cuáles sirven
+    function nuevaRonda(anterior) {
+      const color = nivel === 3 && anterior ? Juegos.azar(Object.keys(COLORES).filter(c => c !== anterior.color)) : (nivel === 2 && anterior?.color) || colorAzar();
+      if (nivel === 1) return { meta: 1, sirve: () => true };
+      if (nivel === 2) return { color, meta: 2, sirve: g => g.color === color, texto: `¡Revienta los globos ${COLORES[color][1]}!` };
+      if (nivel === 3) return { color, meta: 5, sirve: g => g.color === color,
+                                texto: anterior ? `¡Ahora los ${COLORES[color][1]}!` : `¡Revienta los globos ${COLORES[color][1]}!` };
+      if (nivel === 4) { const n = Juegos.azar([2, 3, 4]); return { color, meta: n, contar: true, sirve: g => g.color === color,
+                                texto: `Revienta ${NUMEROS[n - 1]} globos ${COLORES[color][1]}` }; }
+      if (nivel === 5) {
+        const tam = Juegos.azar(["grande", "chico"]), conColor = Math.random() < .5;
+        const palabra = tam === "grande" ? "grandes" : "pequeños";
+        return { color: conColor ? color : null, tam, meta: 3, sirve: g => g.tam === tam && (!conColor || g.color === color),
+                 texto: conColor ? `Revienta los globos ${palabra} ${COLORES[color][1]}` : `Revienta los globos ${palabra}` };
+      }
+      const [animal, aQuien] = Juegos.azar(ANIMALES); // nivel 6: explorar no es error, solo se busca un animal
+      return { animal, meta: 1, explorar: true, sirve: g => g.animal === animal, texto: `¡Busca ${aQuien}!` };
+    }
+
+    function empezarRonda(anterior) {
+      ronda = { ...nuevaRonda(anterior), hechos: 0, errores: 0 };
+      pintarConsigna();
+      if (ronda.texto) Juegos.decir(ronda.texto);
+    }
+
+    function pintarConsigna() {
+      const r = ronda;
+      numero.hidden = nivel !== 1; puntos.hidden = nivel === 1 || r.meta === 1;
+      puntos.innerHTML = Array.from({ length: r.meta }, (_, i) => `<span class="punto${i < r.hechos ? " lleno" : ""}"></span>`).join("");
+      mini.innerHTML = r.animal ? Dibujos.ANIMALES[r.animal] : Dibujos.globo(r.color || (nivel === 1 ? "#ff5a5f" : "#ffffff"));
+      botonConsigna.hidden = nivel === 1;
+      botonConsigna.innerHTML = `<span class="${r.tam === "chico" ? "chico" : ""}" style="display:contents">${r.animal ? Dibujos.ANIMALES[r.animal] : Dibujos.globo(r.color || "#ffffff")}</span>`;
+    }
+    botonConsigna.addEventListener("click", () => { Juegos.rebotar(botonConsigna); Juegos.decir(ronda.texto); });
 
     function estallar(g, color) {
       const r = g.getBoundingClientRect();
@@ -69,30 +130,75 @@
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 600);
       }
+      return [cx, cy];
     }
 
+    function tocarGlobo(g) {
+      const d = g.datos;
+      if (g.classList.contains("reventado") || pausa) return;
+      if (!ronda.sirve(d) && !ronda.explorar) {
+        // No es el pedido: rebota suave y se repite la consigna (sin sonido de error)
+        Juegos.animar(g.firstElementChild, "wiggle");
+        ronda.errores++;
+        if (Date.now() - (ronda.ultimoAviso || 0) > 2500) { ronda.ultimoAviso = Date.now(); Juegos.decir(ronda.texto); }
+        return;
+      }
+      Juegos.pop();
+      g.classList.add("reventado");
+      const [cx, cy] = estallar(g, d.color);
+      total++; numero.textContent = total;
+      Juegos.rebotar(contador);
+      if (d.animal) {
+        const s = document.createElement("div");
+        s.className = "sorpresa"; s.innerHTML = Dibujos.ANIMALES[d.animal];
+        s.style.cssText = `left:${cx - 55}px;top:${cy - 55}px`;
+        document.body.appendChild(s); setTimeout(() => s.remove(), 1400);
+      }
+      if (!ronda.sirve(d)) return Juegos.decir(NOMBRE_ANIMAL[d.animal]); // nivel 6: otro animal, sigue buscando
+      ronda.hechos++;
+      pintarConsigna();
+      if (nivel === 1) Juegos.decir(COLORES[d.color][0]);
+      else if (ronda.contar) Juegos.decir(NUMEROS[ronda.hechos - 1]);
+      else if (d.animal) Juegos.decir(`¡${NOMBRE_ANIMAL[d.animal]}!`);
+      else Juegos.tono(660 + ronda.hechos * 90, .12, "triangle");
+      if (ronda.hechos >= ronda.meta) terminarRonda();
+    }
+
+    // Ronda bien hecha si se equivocó a lo sumo una vez; si no, cuenta como fallo (solo para bajar de nivel en silencio)
+    function terminarRonda() {
+      const antes = nivel, anterior = ronda;
+      const r = ronda.errores <= 1 ? Juegos.progreso.acierto("globos") : Juegos.progreso.fallo("globos");
+      nivel = r.nivel;
+      if (nivel === 1 && antes === 1 && !r.subio) {
+        if (total % 10 === 0) { Juegos.fiesta(); Juegos.decir("¡Muy bien, Maya!"); }
+        return empezarRonda(anterior);
+      }
+      pausa = true;
+      const festejo = r.subio || r.sticker;
+      if (!festejo && antes > 1) { Juegos.decir("¡Muy bien!"); Juegos.confeti(14); }
+      setTimeout(() => { pausa = false; empezarRonda(nivel === antes ? anterior : null); }, festejo ? 3600 : 1300);
+    }
+
+    // Cerca de la mitad de los globos sirven para la consigna, así nunca hay que esperar mucho
     function crearGlobo() {
-      const color = Juegos.azar(Juegos.COLORES);
+      const r = ronda, conviene = nivel > 1 && Math.random() < .45;
+      const d = { color: colorAzar(), tam: nivel === 5 ? Juegos.azar(["grande", "chico"]) : null, animal: null };
+      if (nivel === 6) d.animal = conviene ? r.animal : Juegos.azar(ANIMALES)[0];
+      else if (conviene) { if (r.color) d.color = r.color; if (r.tam) d.tam = r.tam; }
       const g = document.createElement("div");
-      g.className = "globo";
-      g.innerHTML = Dibujos.globo(color);
-      g.style.left = Math.random() * (innerWidth - 120) + "px";
-      g.style.animationDuration = 6 + Math.random() * 4 + "s";
-      g.addEventListener("pointerdown", () => {
-        if (g.classList.contains("reventado")) return;
-        Juegos.pop();
-        Juegos.decir(NOMBRES[color]);
-        g.classList.add("reventado");
-        estallar(g, color);
-        total++;
-        numero.textContent = total;
-        Juegos.rebotar(contador);
-        if (total % 10 === 0) setTimeout(() => { Juegos.fiesta(); Juegos.decir("¡Muy bien, Maya!"); }, 400);
-      });
+      g.className = "globo" + (d.tam ? " " + d.tam : "");
+      g.datos = d;
+      Object.entries(d).forEach(([k, v]) => v && (g.dataset[k] = v));
+      g.innerHTML = Dibujos.globo(d.color);
+      g.style.left = Math.random() * (innerWidth - 160) + "px";
+      const rapidez = 1 - (nivel - 1) * .04; // un poquito más rápido por nivel, nunca con apuro
+      g.style.animationDuration = (6 + Math.random() * 4) * rapidez + "s";
+      g.addEventListener("pointerdown", () => tocarGlobo(g));
       g.addEventListener("animationend", e => e.animationName === "subir" && g.remove());
       document.body.appendChild(g);
     }
 
+    empezarRonda();
     setInterval(crearGlobo, 1100);
     crearGlobo();
   </script>
