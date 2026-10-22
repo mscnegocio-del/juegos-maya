@@ -37,6 +37,29 @@ const PAGINAS = {
     if ((await p.evaluate(() => Juegos.progreso.juegos().length)) !== 0) errores.push("reiniciar todo no borró el progreso");
     await p.click('#panel [data-accion="cerrar"]');
   },
+  "juegos/rompecabezas/": async p => {
+    // Rompecabezas (SPEC-018): empieza en el nivel 3 (10 piezas); armar uno entero con el dedo sube la racha y da sticker
+    await p.evaluate(() => { localStorage.removeItem("maya.rompecabezas"); Juegos.progreso.reiniciar("rompecabezas"); });
+    await p.reload(); await p.waitForTimeout(1000);
+    const inicio = await p.evaluate(() => [nivel, piezas.length]);
+    if (inicio.join() !== "3,10") errores.push(`rompecabezas: nivel/piezas al empezar ${inicio}`);
+    const primero = await p.evaluate(() => cuadro.dino);
+    if (!primero) errores.push("rompecabezas: el primero del día no es de dinosaurio");
+    await p.evaluate(() => { Juegos.progreso.guardar("rompecabezas", { nivel: 1, racha: 4 }); });
+    await p.reload(); await p.waitForTimeout(2200);                       // nivel 1 = 4 piezas
+    for (let pasada = 0; pasada < 4; pasada++) for (let i = 0; i < 4; i++) {
+      if (await p.evaluate(i => piezas[i]?.puesta ?? true, i)) continue;
+      const r = await p.evaluate(i => { const q = piezas[i], o = origen(q), el = q.el.getBoundingClientRect(); return { fx: el.left + el.width / 2, fy: el.top + el.height / 2, tx: o.x + el.width / 2, ty: o.y + el.height / 2 }; }, i);
+      await p.mouse.move(r.fx, r.fy); await p.mouse.down(); await p.mouse.move(r.tx + 8, r.ty + 6, { steps: 6 }); await p.mouse.up(); await p.waitForTimeout(120);
+    }
+    await p.waitForTimeout(6500);                                          // final + registro del progreso
+    const fin = await p.evaluate(() => Juegos.progreso.leer("rompecabezas"));
+    if (!fin.stickers.length || fin.nivel !== 2) errores.push(`rompecabezas: tras armar ${JSON.stringify(fin)}`);
+    // la bolsa no repite hasta ver los 28
+    const vistos = await p.evaluate(() => { localStorage.removeItem("maya.rompecabezas"); const s = []; for (let i = 0; i < 28; i++) s.push(siguiente().id); return new Set(s).size; });
+    if (vistos !== 28) errores.push(`rompecabezas: la bolsa repitió (${vistos} distintos de 28)`);
+    await p.evaluate(() => Juegos.progreso.reiniciar("rompecabezas"));
+  },
   "juegos/globos/": async p => {
     // Globos (SPEC-013): en cada nivel se revienta un globo que sirve para la consigna y uno que no (debe quedar)
     for (let n = 1; n <= 6; n++) {

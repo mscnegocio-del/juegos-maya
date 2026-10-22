@@ -1,5 +1,5 @@
 // Plantilla del service worker. NO editar sw.js a mano: se genera con tools/actualizar-sw.py
-const VERSION = "maya-648a273810";
+const VERSION = "maya-c3a7fcc41c";
 const ARCHIVOS = [
   "./",
   "juegos/album/",
@@ -10,6 +10,7 @@ const ARCHIVOS = [
   "juegos/globos/",
   "juegos/piano/",
   "juegos/pintar/",
+  "juegos/rompecabezas/",
   "index.html",
   "manifest.webmanifest",
   "assets/css/base.css",
@@ -34,11 +35,13 @@ const ARCHIVOS = [
   "assets/img/michi/saltando.webp",
   "assets/img/michi/satisfecho.webp",
   "assets/img/michi/sorprendido.webp",
+  "assets/img/rompecabezas/dinosaurios/.gitkeep",
   "assets/js/colorear.js",
   "assets/js/common.js",
   "assets/js/dibujos.js",
   "assets/js/michi-casa.js",
   "assets/js/michi.js",
+  "assets/js/rompecabezas-catalogo.js",
   "assets/js/stickers.js",
   "assets/sonidos/animales/caballo.mp3",
   "assets/sonidos/animales/chancho.mp3",
@@ -62,7 +65,8 @@ const ARCHIVOS = [
   "juegos/gato/index.html",
   "juegos/globos/index.html",
   "juegos/piano/index.html",
-  "juegos/pintar/index.html"
+  "juegos/pintar/index.html",
+  "juegos/rompecabezas/index.html"
 ];
 
 self.addEventListener("install", e => {

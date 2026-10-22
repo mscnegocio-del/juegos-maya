@@ -118,6 +118,9 @@
     <a class="juego" href="juegos/gato/" data-voz="Michi" style="background: var(--turquesa)">
       <span class="icono" data-dibujo="michi"></span>Michi
     </a>
+    <a class="juego" href="juegos/rompecabezas/" data-voz="Rompecabezas" style="background: #6c8cff">
+      <span class="icono" data-dibujo="rompecabezas"></span>Rompecabezas
+    </a>
     <a class="juego" href="juegos/album/" data-voz="Mi álbum" style="background: var(--amarillo); color: var(--ink)">
       <span class="icono" data-dibujo="album"></span>Álbum
     </a>
@@ -132,7 +135,7 @@
   <script>
     const ICONOS = {
       globo: Dibujos.globo("#ff5a5f"), vaca: Dibujos.ANIMALES.vaca, paleta: Dibujos.paleta,
-      crayon: Dibujos.crayon, manzana: Dibujos.OBJETOS_CONTAR[0].dibujo, piano: Dibujos.piano, album: Dibujos.album,
+      crayon: Dibujos.crayon, manzana: Dibujos.OBJETOS_CONTAR[0].dibujo, piano: Dibujos.piano, album: Dibujos.album, rompecabezas: Dibujos.rompecabezas,
       michi: '<img class="foto" src="assets/img/michi/feliz.webp" alt="">', // la misma imagen que en el juego
     };
     document.querySelectorAll(".icono").forEach(i => (i.innerHTML = ICONOS[i.dataset.dibujo]));

@@ -238,6 +238,70 @@ const Dibujos = (() => {
     <path d="M142 112 C124 98 118 82 130 74 C138 69 142 76 142 80 C142 76 146 69 154 74 C166 82 160 98 142 112Z" fill="#ff7eb6" stroke-width="4"/>
     ${ojos(138, 14, 100)}${boca(152, 8, 100)}`, { cabeza: false });
 
+  // ---- Los 8 dinosaurios (Rompecabezas y stickers). Sin clases animables: se clonan con <use> ----
+  const OJO = (x, y, r = 7) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${T}" stroke="none"/><circle cx="${x + r * .35}" cy="${y - r * .35}" r="${r * .3}" fill="#fff" stroke="none"/>`;
+  const lunares = (pts, c) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="7" fill="${c}" stroke="none"/>`).join("");
+  const DINOSAURIOS = {
+    trex: svg(`<path d="M30 126 Q8 132 4 168 Q30 146 50 150Z" fill="#6fcf7f"/>
+      <path d="M70 168 L66 192 L92 192 L92 172Z" fill="#5bb96c"/><path d="M112 168 L112 192 L138 192 L128 168Z" fill="#5bb96c"/>
+      <ellipse cx="96" cy="124" rx="56" ry="46" fill="#6fcf7f"/><ellipse cx="104" cy="144" rx="30" ry="26" fill="#d8f5c8" stroke="none"/>
+      <path d="M120 132 L136 138 M120 144 L134 148" stroke-width="4" fill="none"/>
+      <path d="M112 96 Q132 66 156 66 L170 96 Q146 128 112 136Z" fill="#6fcf7f"/>
+      <path d="M146 84 Q150 40 184 42 Q198 46 196 72 Q194 98 164 98 Q150 100 146 84Z" fill="#6fcf7f"/>
+      <path d="M164 92 L190 88 L192 96 L166 100Z" fill="#fff" stroke-width="3"/><path d="M174 90 l3 7 l3 -7 M182 88 l3 7 l3 -7" fill="#fff" stroke-width="2"/>
+      <path d="M112 108 L136 116 L130 128 L110 120Z" fill="#6fcf7f"/>${OJO(172, 60)}${lunares([[70, 92], [96, 84], [122, 90], [54, 120]], "#4aa85d")}`, { cabeza: false }),
+    trice: svg(`<path d="M168 132 Q196 142 198 168 Q170 150 156 152Z" fill="#8ec9f0"/>
+      <path d="M76 160 L72 190 L98 190 L96 164Z" fill="#6bb4e0"/><path d="M122 160 L122 190 L148 190 L142 162Z" fill="#6bb4e0"/>
+      <ellipse cx="116" cy="128" rx="60" ry="38" fill="#8ec9f0"/>${lunares([[100, 112], [126, 106], [150, 120], [116, 140]], "#6bb4e0")}
+      <circle cx="62" cy="96" r="44" fill="#ffb24d"/><path d="M62 54 L66 66 M92 66 L84 74 M30 70 L40 78 M20 98 L32 98 M104 98 L92 98" stroke-width="4" fill="none"/>
+      <ellipse cx="48" cy="124" rx="32" ry="26" fill="#8ec9f0"/>
+      <path d="M34 82 L22 40 L50 76Z" fill="#fff"/><path d="M62 80 L62 34 L78 82Z" fill="#fff"/><path d="M16 126 L4 114 L26 112Z" fill="#fff"/>
+      ${OJO(46, 108)}<path d="M36 134 Q48 142 60 134" fill="none" stroke-width="4"/>`, { cabeza: false }),
+    bronto: svg(`<path d="M44 132 Q14 142 6 176 Q32 154 54 152Z" fill="#b9e07a"/>
+      <path d="M70 160 L68 192 L94 192 L92 164Z" fill="#a0cc60"/><path d="M118 160 L118 192 L144 192 L136 164Z" fill="#a0cc60"/>
+      <ellipse cx="98" cy="132" rx="60" ry="36" fill="#b9e07a"/><path d="M128 114 Q164 94 152 54 L176 52 Q170 100 148 138Z" fill="#b9e07a"/>
+      <ellipse cx="172" cy="46" rx="22" ry="17" fill="#b9e07a"/>${OJO(176, 42, 6)}<path d="M168 56 Q178 62 190 54" fill="none" stroke-width="4"/>
+      ${lunares([[70, 122], [96, 112], [110, 142], [80, 146]], "#a0cc60")}`, { cabeza: false }),
+    estego: svg(`<path d="M38 134 Q8 130 4 160 Q30 146 46 152Z" fill="#ffb86b"/><path d="M10 148 l-6 -10 M18 142 l-6 -10" stroke-width="4" fill="none"/>
+      <path d="M60 160 L56 190 L82 190 L82 164Z" fill="#f0a050"/><path d="M122 162 L122 190 L148 190 L142 164Z" fill="#f0a050"/>
+      <ellipse cx="100" cy="132" rx="62" ry="34" fill="#ffb86b"/>
+      ${[[56, 108, 22], [80, 92, 28], [106, 88, 30], [130, 96, 26], [150, 112, 20]].map(([x, y, h]) => `<path d="M${x - 14} ${y + 16} L${x} ${y - h + 16} L${x + 14} ${y + 16}Z" fill="#ff7eb6"/>`).join("")}
+      <ellipse cx="162" cy="140" rx="30" ry="22" fill="#ffb86b"/>${OJO(172, 134, 6)}<path d="M162 150 Q176 156 190 148" fill="none" stroke-width="4"/>`, { cabeza: false }),
+    rapto: svg(`<path d="M56 116 Q22 118 4 86 Q32 106 58 134Z" fill="#ff9f6b"/>
+      <path d="M84 146 L74 190 L102 190 L100 150Z" fill="#f08a52"/><path d="M110 146 L110 190 L138 190 L128 146Z" fill="#f08a52"/>
+      <path d="M72 190 l-8 -4 M80 190 l-6 -8" stroke-width="4" fill="none"/>
+      <ellipse cx="98" cy="122" rx="46" ry="32" fill="#ff9f6b"/><ellipse cx="104" cy="134" rx="24" ry="18" fill="#ffe0c4" stroke="none"/>
+      <path d="M122 104 Q154 84 150 58 L176 62 Q178 92 140 130Z" fill="#ff9f6b"/>
+      <ellipse cx="164" cy="56" rx="28" ry="17" fill="#ff9f6b"/><path d="M178 62 L194 62" stroke-width="4" fill="none"/>
+      <path d="M118 120 L140 134 L136 142 L116 132Z" fill="#ff9f6b"/><path d="M142 134 l6 8 m-2 -10 l8 4" stroke-width="3" fill="none"/>
+      ${OJO(168, 52, 6)}<path d="M64 98 L72 112 M86 92 L92 108 M108 94 L112 110" stroke="#e0703a" stroke-width="6" fill="none"/>`, { cabeza: false }),
+    anqui: svg(`<path d="M44 150 Q18 150 14 140" fill="none"/><path d="M40 146 L16 150" stroke="#b58a5c" stroke-width="16"/><circle cx="20" cy="150" r="18" fill="#b58a5c"/>
+      <path d="M62 160 L60 188 L84 188 L84 164Z" fill="#a47a4c"/><path d="M118 162 L118 188 L142 188 L138 164Z" fill="#a47a4c"/>
+      <path d="M36 140 Q40 78 102 76 Q164 78 168 140 Q100 158 36 140Z" fill="#c9a06d"/>
+      ${lunares([[70, 106], [100, 96], [132, 106], [88, 128], [120, 130]], "#a47a4c")}
+      <ellipse cx="170" cy="138" rx="24" ry="18" fill="#c9a06d"/>${OJO(176, 132, 5)}<path d="M164 146 Q176 152 188 146" fill="none" stroke-width="4"/>
+      <path d="M56 100 L50 80 L68 90Z M84 84 L84 64 L98 82Z M114 84 L120 64 L130 88Z M144 96 L156 78 L158 102Z" fill="#8c633a"/>`, { cabeza: false }),
+    ptero: svg(`<path d="M92 88 L6 56 Q24 104 66 116Z" fill="#c78be0"/><path d="M108 88 L194 56 Q176 104 134 116Z" fill="#c78be0"/>
+      <path d="M44 74 L40 100 M24 66 L26 90 M156 74 L160 100 M176 66 L174 90" stroke-width="3" fill="none"/>
+      <path d="M90 150 L84 186 M110 150 L116 186" stroke-width="5" fill="none"/>
+      <ellipse cx="100" cy="116" rx="26" ry="38" fill="#e0b0f0"/><ellipse cx="100" cy="126" rx="14" ry="24" fill="#f6e4fb" stroke="none"/>
+      <path d="M92 56 L84 20 L108 50Z" fill="#c78be0"/><ellipse cx="100" cy="66" rx="20" ry="17" fill="#e0b0f0"/>
+      <path d="M112 66 L168 76 L112 80Z" fill="#ffd36b"/>${OJO(94, 62, 5)}${OJO(108, 62, 5)}`, { cabeza: false }),
+    espino: svg(`<path d="M42 138 Q10 134 4 164 Q32 150 50 156Z" fill="#5fc8c0"/>
+      <path d="M62 160 L58 190 L84 190 L84 164Z" fill="#48b0a8"/><path d="M122 162 L122 190 L148 190 L142 164Z" fill="#48b0a8"/>
+      <ellipse cx="98" cy="134" rx="58" ry="30" fill="#5fc8c0"/>
+      <path d="M50 116 Q58 52 98 46 Q138 52 146 112Z" fill="#ff7a8a"/><path d="M70 112 L72 66 M90 108 L92 54 M110 108 L112 54 M128 110 L126 66" stroke-width="4" fill="none"/>
+      <path d="M130 138 Q156 112 180 118 Q198 122 196 136 Q192 150 168 150 Q144 152 130 138Z" fill="#5fc8c0"/>
+      <path d="M150 140 l4 8 l4 -8 M164 140 l4 8 l4 -8" fill="#fff" stroke-width="2"/>${OJO(172, 124, 5)}`, { cabeza: false }),
+  };
+  const DINO_NOMBRES = { trex: "el tiranosaurio", trice: "el tricerátops", bronto: "el braquiosaurio", estego: "el estegosaurio",
+                         rapto: "el velociraptor", anqui: "el anquilosaurio", ptero: "el pterodáctilo", espino: "el espinosaurio" };
+
+  // Ícono del juego Rompecabezas: pieza con lengüetas y carita
+  const rompecabezas = svg(`
+    <path d="M36 52 L82 52 Q80 34 96 32 Q118 32 116 52 L164 52 L164 94 Q184 92 184 110 Q184 128 164 126 L164 168 L36 168Z" fill="#6c8cff"/>
+    ${ojos(104, 22)}${mejillas(124, 40)}${boca(126, 12)}`, { cabeza: false });
+
   // Nota musical (botón "canción" del piano), sin carita para que se lea como símbolo
   const notaMusical = `<svg viewBox="0 0 100 100" stroke="${T}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
     <path d="M40 74 L40 22 L80 14 L80 64" fill="none"/>
@@ -254,7 +318,7 @@ const Dibujos = (() => {
   </svg>`;
 
   return { T, svg, plano, ojos, mejillas, boca, carita, ANIMALES, OBJETOS_CONTAR,
-           globo, pelota, flor, estrella, paleta, crayon, piano, album, notaMusical, casita };
+           globo, pelota, flor, estrella, paleta, crayon, piano, album, rompecabezas, DINOSAURIOS, DINO_NOMBRES, notaMusical, casita };
 })();
 
 // El botón "volver al menú" muestra la casita SVG (el emoji queda solo como respaldo sin JS)

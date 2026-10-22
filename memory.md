@@ -55,7 +55,12 @@
 - Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
-0. Que Maya pruebe Colorear 2.0, Globos y Colores en el dispositivo; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
+0. Menú animado: prototipo en `prototipos/menu-animado.html` APROBADO por el usuario; falta pasarlo a `index.html`
+   (hay un parche listo en el scratchpad de la sesión; si se perdió, rehacerlo desde el prototipo). Orden aleatorio de juegos incluido
+0b. SPEC-018 Rompecabezas IMPLEMENTADO (rama, sin PR) con dibujos provisionales. Falta que el usuario genere las 8 ilustraciones de
+   dinosaurios (prompt en `assets/img/rompecabezas/LEEME.md`) y ponga los .webp en `assets/img/rompecabezas/dinosaurios/`. No fusionar a
+   main antes de decidir con el usuario (se ve provisional). Menú animado: sigue sin aplicarse.
+0c. Que Maya pruebe Colorear 2.0, Globos y Colores en el dispositivo; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
    Probar en iOS que la app instalada conserve el progreso.
    Preguntas abiertas: ¿orden entre niveles y juegos nuevos?
    ¿Premio como sticker, estrella en el menú o ambos?
