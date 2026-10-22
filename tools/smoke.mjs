@@ -37,7 +37,25 @@ const PAGINAS = {
     if ((await p.evaluate(() => Juegos.progreso.juegos().length)) !== 0) errores.push("reiniciar todo no borró el progreso");
     await p.click('#panel [data-accion="cerrar"]');
   },
-  "juegos/globos/": null,
+  "juegos/globos/": async p => {
+    // Globos (SPEC-013): en cada nivel se revienta un globo que sirve para la consigna y uno que no (debe quedar)
+    for (let n = 1; n <= 6; n++) {
+      await p.evaluate(n => Juegos.progreso.guardar("globos", { nivel: n, racha: 0, fallos: 0, ultimas: [] }), n);
+      await p.reload(); await p.waitForTimeout(1500);
+      await p.waitForFunction(() => [...document.querySelectorAll(".globo:not(.reventado)")].some(g => ronda.sirve(g.datos)), null, { timeout: 15000 });
+      const r = await p.evaluate(() => {
+        const gs = [...document.querySelectorAll(".globo:not(.reventado)")];
+        const bueno = gs.find(g => ronda.sirve(g.datos)), malo = gs.find(g => !ronda.sirve(g.datos));
+        const antes = ronda.hechos + "/" + ronda.meta;
+        bueno?.dispatchEvent(new PointerEvent("pointerdown"));
+        if (nivel > 1 && nivel < 6) malo?.dispatchEvent(new PointerEvent("pointerdown"));
+        return { nivel, bueno: !!bueno, malo: !malo || nivel === 1 || nivel === 6 || document.contains(malo), antes, ahora: ronda.hechos + "/" + ronda.meta, texto: ronda.texto || "" };
+      });
+      if (r.nivel !== n || !r.bueno || !r.malo) errores.push(`globos nivel ${n}: ${JSON.stringify(r)}`);
+      if (n === 5) await p.screenshot({ path: "tools/capturas/globos-nivel5.png" });
+    }
+    await p.evaluate(() => Juegos.progreso.reiniciar("globos"));
+  },
   "juegos/album/": async p => {
     // Álbum (SPEC-015): completar un nivel da el siguiente sticker de la página del juego y se ve pegado en el álbum
     const r = await p.evaluate(() => {
