@@ -28,6 +28,7 @@
 | 10 | Colorear: galería de 12 dibujos, balde por zonas, pincel, goma, deshacer, guardado, "cobra vida" | SPEC-008 | hecho |
 | 11 | Michi, mascota virtual: reacciones, 4 cuartos, necesidades, detalles visuales | SPEC-006 | hecho (falta risa real) |
 | 12 | Michi con imágenes (10 poses), fondos de sala y baño, barra inferior, escenas del baño (inodoro, lavamanos, bañera, dientes) | SPEC-009/010 | hecho (parte 1) |
+| 13 | GSAP en la interfaz: menú animado, transiciones, confeti con física, rebote y premio | SPEC-016 | hecho (falta usar el premio en niveles) |
 | 6 | Juego Contar hasta 5 (manzanas, estrellas, flores, pelotas; voz cuenta; dificultad progresiva) | SPEC-002 | hecho |
 
 ## Backlog (priorizado)
@@ -36,11 +37,10 @@
 | 1 | Michi parte 2: mesa de cocina con 3 platos, dormitorio con cama y mantita, juguetes en la bañera (faltan imágenes) | SPEC-009/010 | aprobada |
 | 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
 | 2a | Michi por capas animado con Rive (spike en rama aparte; faltan las capas del usuario) | SPEC-011 | borrador |
-| 2b | Progreso guardado y nivel adaptativo en `common.js` (`Juegos.progreso`) | SPEC-012 | borrador |
+| 2b | Progreso guardado y nivel adaptativo en `common.js` (`Juegos.progreso`) | SPEC-012 | aprobada |
 | 2c | Globos con 6 niveles (color, cantidad, tamaño, sorpresas) | SPEC-013 | borrador |
 | 2d | Colores con 8 niveles (más opciones, colores nuevos, claro/oscuro, clasificar, mezclar) | SPEC-014 | borrador |
 | 2e | Álbum de stickers compartido entre juegos | SPEC-015 | borrador |
-| 2f | GSAP en la interfaz (menú, transiciones, premios) | SPEC-016 | borrador |
 | 2g | Juegos nuevos: patrones, ¿qué falta?, conceptos espaciales, emociones con Michi, trazar caminos, letras M-A-Y-A, números 1–10 | — | idea |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |

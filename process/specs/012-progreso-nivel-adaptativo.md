@@ -1,5 +1,6 @@
 # SPEC-012 — Progreso guardado y nivel adaptativo compartido (`Juegos.progreso`)
-Estado: borrador
+Estado: aprobada
+> Aprobada por el usuario en el chat el 2026-10-22.
 > Base de SPEC-013, SPEC-014 y SPEC-015. Origen: plan-mejoras-juegos-maya.md.
 
 ## Qué

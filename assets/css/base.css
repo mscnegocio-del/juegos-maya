@@ -88,6 +88,17 @@ button { font: inherit; color: inherit; border: 0; cursor: pointer; }
   .pop, .wiggle, .confeti { animation: none; }
 }
 
+/* Chispitas de Juegos.pop(el) y premio de Juegos.premio() (animados con GSAP desde common.js) */
+.chispa { position: fixed; width: 14px; height: 14px; border-radius: 50%; pointer-events: none; z-index: 100; }
+.premio {
+  position: fixed; left: 50%; top: 45%; z-index: 110; pointer-events: none;
+  width: min(60vw, 280px); aspect-ratio: 1 / 1; margin: calc(min(60vw, 280px) / -2) 0 0 calc(min(60vw, 280px) / -2);
+  background: #fff; border-radius: 50%; padding: 8%;
+  box-shadow: 0 0 0 10px var(--amarillo), 0 18px 0 rgba(0, 0, 0, .15);
+  animation: pop .5s cubic-bezier(.3, 1.6, .5, 1);
+}
+.premio svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
 /* Partes animables de los dibujos (assets/js/dibujos.js). El estado .sonando las activa */
 .ojos, .cabeza, .oreja-i, .oreja-d { transform-box: fill-box; }
 .ojos { transform-origin: center; animation: parpadeo 4.5s infinite; }
