@@ -53,7 +53,7 @@
 - Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
-0. Que el usuario pruebe Globos y Colores con niveles en su dispositivo; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
+0. Que el usuario apruebe SPEC-017 (Colorear 2.0; Maya notó que no puede limpiar y repintar). Probar Globos y Colores; también 011 y Rive. Los juegos con niveles deben cargar `stickers.js`.
    Probar en iOS que la app instalada conserve el progreso.
    Preguntas abiertas: ¿orden entre niveles y juegos nuevos?
    ¿Premio como sticker, estrella en el menú o ambos?
