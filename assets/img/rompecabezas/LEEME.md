@@ -20,20 +20,22 @@ Para agregarlos: poner la imagen en `assets/img/rompecabezas/animales/<id>.webp`
 > Ilustración infantil con apariencia de **juguete 3D de vinilo suave** de un **dinosaurio bebé adorable**, para un juego
 > educativo de preescolares (3 años). Volúmenes muy redondeados, cabeza grande, ojos grandes brillantes y expresivos,
 > sonrisa amable, piel suave con textura sutil, colores **pastel con acentos vivos**. Iluminación suave de estudio con
-> sombra suave en el suelo. Fondo sencillo y limpio: paisaje pastel desenfocado (cielo claro, colinas suaves, un pequeño
-> volcán lejano). **Sin contornos negros, sin texto, sin figuras geométricas planas, no estilo icono.** Personaje de frente
-> o 3/4, **centrado, ocupando el 55 % del alto**, con espacio alrededor. **Formato horizontal 3:2, 1536×1024.**
-> Mantén exactamente el mismo estilo, iluminación, proporciones y paisaje para toda la serie.
+> sombra suave en el suelo. El **fondo cambia en cada dinosaurio** (te indico cuál), siempre sencillo, limpio y un poco
+> desenfocado para que el personaje destaque, y con colores distintos a los de otros fondos de la serie.
+> **Sin contornos negros, sin texto, sin figuras geométricas planas, no estilo icono.** Personaje de frente o 3/4,
+> **centrado, ocupando el 55 % del alto**, con espacio alrededor. **Formato horizontal 3:2, 1536×1024.**
+> Mantén el mismo estilo de juguete 3D, la misma iluminación y las mismas proporciones infantiles en toda la serie;
+> lo único que cambia es el personaje y su fondo.
 
-Después, una por una (cambia solo esta línea):
-1. `trex` — tiranosaurio rex bebé, verde menta, panza crema, bracitos pequeños.
-2. `trice` — tricerátops bebé, azul cielo, gola naranja durazno, tres cuernitos cortos y redondeados.
-3. `bronto` — braquiosaurio bebé, verde lima suave, cuello largo y curvo, manchitas.
-4. `estego` — estegosaurio bebé, naranja durazno, placas rosadas redondeadas en el lomo.
-5. `rapto` — velociraptor bebé, coral con rayitas, cola larga, sin garras afiladas (aspecto tierno).
-6. `anqui` — anquilosaurio bebé, marrón arena, coraza con bultitos redondeados y cola con maza pequeña.
-7. `ptero` — pterodáctilo bebé volando con las alas abiertas, lila, cresta pequeña, mirando de frente.
-8. `espino` — espinosaurio bebé, turquesa, vela rosada en el lomo, hocico corto y sonriente.
+Después, una por una (cambia solo esta parte; cada fondo es distinto):
+1. `trex` — tiranosaurio rex bebé, verde menta, panza crema, bracitos pequeños. **Fondo:** selva suave con helechos grandes y luz dorada.
+2. `trice` — tricerátops bebé, azul cielo, gola naranja durazno, tres cuernitos cortos y redondeados. **Fondo:** pradera con flores y cielo celeste con nubes.
+3. `bronto` — braquiosaurio bebé, verde lima suave, cuello largo y curvo, manchitas. **Fondo:** orilla de un lago tranquilo con palmeras.
+4. `estego` — estegosaurio bebé, naranja durazno, placas rosadas redondeadas en el lomo. **Fondo:** atardecer rosado con colinas lilas.
+5. `rapto` — velociraptor bebé, coral con rayitas, cola larga, sin garras afiladas (aspecto tierno). **Fondo:** bosque con hojas otoñales amarillas y naranjas.
+6. `anqui` — anquilosaurio bebé, marrón arena, coraza con bultitos redondeados y cola con maza pequeña. **Fondo:** desierto suave con cactus redondeados y cielo durazno.
+7. `ptero` — pterodáctilo bebé volando con las alas abiertas, lila, cresta pequeña, mirando de frente. **Fondo:** cielo azul con nubes grandes y un arcoíris suave.
+8. `espino` — espinosaurio bebé, turquesa, vela rosada en el lomo, hocico corto y sonriente. **Fondo:** playa con agua celeste, arena clara y conchitas.
 
-Reglas: sin dientes grandes ni expresión feroz; nada oscuro; todas con la misma luz y el mismo paisaje.
+Reglas: sin dientes grandes ni expresión feroz; nada oscuro; misma luz y mismo estilo 3D, pero **fondos diferentes**.
 Al convertir a WebP (por ejemplo con squoosh.app) conserva 1536×1024.

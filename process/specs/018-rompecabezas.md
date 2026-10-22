@@ -71,8 +71,8 @@ Pedido del usuario: aspecto de juego educativo comercial para preescolares; dino
 redondeados, luz suave de estudio, pastel con acentos vivos, sin contornos negros ni formas geométricas básicas.
 - **Imágenes** en `assets/img/rompecabezas/<tema>/<id>.webp` (o .png), **3:2 horizontal 1536×1024**, ≤ 250 KB, personaje centrado
   (zona segura ~55 % del alto) porque el tablero recorta bordes según el nivel sin deformar (`preserveAspectRatio="slice"`)
-- Se generan con IA (ChatGPT, como las de Michi) con el prompt de `assets/img/rompecabezas/LEEME.md`; la misma dirección de arte
-  para toda la serie. No se usan imágenes de Internet ni emojis
+- Se generan con IA (ChatGPT, como las de Michi) con el prompt de `assets/img/rompecabezas/LEEME.md`; la misma dirección de arte (estilo, luz,
+  proporciones) para toda la serie, pero **un fondo distinto por cuadro** (selva, pradera, lago, atardecer, bosque, desierto, cielo, playa) No se usan imágenes de Internet ni emojis
 - **Catálogo** `assets/js/rompecabezas-catalogo.js`; el juego solo ofrece un cuadro si su imagen carga de verdad. Mientras haya
   menos de 8 ilustraciones, completa con los dibujos por código (marcados `provisional`) para no dejar el juego vacío;
   con 8 o más, los provisionales se retiran solos
