@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="theme-color" content="#fff7ec">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Rompecabezas</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../assets/iconos/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../assets/iconos/icono-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Maya">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <style>
+    html, body { height: 100%; overflow: hidden; touch-action: none; }
+    body { background: linear-gradient(#efe4ff, #fff7ec); }
+    #escenario { position: fixed; inset: 0; }
+    #tablero { position: absolute; border-radius: 18px; background: #fff; box-shadow: 0 8px 0 rgba(0, 0, 0, .1); }
+    #tablero > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    #fantasma { filter: grayscale(1); }
+    .puntos { position: fixed; top: 98px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 5; pointer-events: none; }
+    .punto { width: clamp(9px, calc((100vw - 40px) / var(--n) - 6px), 20px); aspect-ratio: 1; border-radius: 50%; border: 3px solid var(--ink); background: #fff; transition: background .3s; }
+    .punto.lleno { background: var(--amarillo); }
+    .pieza { position: absolute; touch-action: none; cursor: grab; filter: drop-shadow(0 4px 3px rgba(59, 42, 74, .28)); will-change: transform; }
+    .pieza svg { display: block; overflow: visible; pointer-events: none; }
+    .pieza.puesta { cursor: default; pointer-events: none; filter: none; }
+    .pieza.arrastra { filter: drop-shadow(0 14px 8px rgba(59, 42, 74, .3)); }
+    #ayuda { position: fixed; top: 16px; right: 16px; width: 72px; height: 72px; border-radius: 50%; background: #fff; z-index: 50;
+             box-shadow: 0 6px 0 rgba(0, 0, 0, .12); display: grid; place-items: center; }
+    #ayuda svg { width: 44px; height: 44px; }
+    #ayuda.apagada { background: #e5ded4; }
+    .chispa-pz, .lava, .humo, .huella, .grito, .destello-fondo { position: fixed; pointer-events: none; }
+    .chispa-pz { width: 12px; height: 12px; border-radius: 50%; z-index: 60; }
+    .lava { border-radius: 50%; z-index: 55; }
+    .humo { border-radius: 50%; background: #cfc7d6; border: 3px solid var(--ink); z-index: 54; }
+    .huella { z-index: 30; }
+    .grito { z-index: 62; font: 800 34px var(--font); color: #fff; letter-spacing: 3px; white-space: nowrap;
+             text-shadow: 0 5px 0 var(--ink), 3px 3px 0 var(--ink), -3px 3px 0 var(--ink), 0 -3px 0 var(--ink); }
+    .destello-fondo { inset: 0; z-index: 20; background: radial-gradient(circle at 80% 30%, #ff9f43, transparent 60%); opacity: 0; }
+    @media (prefers-reduced-motion: reduce) { .pieza { will-change: auto; } }
+  </style>
+</head>
+<body>
+  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
+  <button id="ayuda" aria-label="Mostrar u ocultar el dibujo de ayuda"></button>
+  <div class="puntos" id="puntos"></div>
+  <svg style="position:absolute;width:0;height:0" aria-hidden="true"><defs id="defs"></defs></svg>
+  <main id="escenario"><div id="tablero"></div></main>
+
+  <script src="../../assets/vendor/gsap/gsap.min.js"></script>
+  <script src="../../assets/js/common.js"></script>
+  <script src="../../assets/js/dibujos.js"></script>
+  <script src="../../assets/js/colorear.js"></script>
+  <script src="../../assets/js/stickers.js"></script>
+  <script src="../../assets/js/rompecabezas-catalogo.js"></script>
+  <script>
+    const T = "#3b2a4a", P = 14;
+    const calma = matchMedia("(prefers-reduced-motion: reduce)").matches, R = gsap.utils.random;
+    // El nivel 3 (10 piezas) es el que Maya ya sabe armar, y por eso se empieza ahí
+    // Niveles: [columnas, filas, ancho, alto] del tablero en unidades. Las ilustraciones son 3:2 y el personaje va centrado: el tablero
+    // nunca es más estrecho que 4:3 (así no se corta), y las piezas salen casi cuadradas; las de 10 piezas son altas (5×2 sobre 3:2)
+    const NIVELES = { 1: [2, 2, 120, 90], 2: [3, 2, 180, 135], 3: [5, 2, 300, 200], 4: [4, 3, 240, 180], 5: [4, 4, 240, 180] };
+    const FANTASMA = { 1: .18, 2: .18, 3: .16, 4: .09, 5: .06 };
+
+    // ---------- Cuadros: 12 animales, 8 dinosaurios y 8 más (28) ----------
+    const ANIMALES = [["vaca", "la vaca", "#d9f0ff"], ["perro", "el perrito", "#ffe9c9"], ["gato", "el gatito", "#e9dcff"], ["chancho", "el chanchito", "#ffe0ec"],
+      ["gallina", "la gallina", "#fff0c4"], ["gallo", "el gallo", "#ffe3c4"], ["oveja", "la ovejita", "#e0f0ff"], ["pato", "el pato", "#bfe6ff"],
+      ["caballo", "el caballo", "#e8f6d4"], ["leon", "el león", "#fff0c4"], ["rana", "la ranita", "#d4f5dd"], ["elefante", "el elefante", "#e3ecff"]];
+    const VIDA = { pato: "nadar", gato: "latir", rana: "saltar", leon: "latir", elefante: "latir", ballena: "nadar", tortuga: "avanzar", auto: "avanzar", bus: "avanzar", avion: "volar", cohete: "volar", helado: "saltar" };
+    const CIELOS_DINO = ["#ffe3c4", "#d4efff", "#e3f6d0", "#ffe0ec", "#fff0c4", "#e9dcff", "#d9f0ff", "#ffe9c9"];
+    const COLOR = ["#ff5a5f", "#ffd23f", "#3fa7ff", "#4cd17a", "#a66bff", "#ff9f43", "#ff7eb6"];
+    // Láminas de colorear pintadas (la misma lámina de la galería de Pintar, con colores fijos)
+    const pintada = id => { const d = Colorear.DIBUJOS.find(x => x.id === id);
+      return `<svg viewBox="0 0 200 200" stroke="${T}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">${d.zonas.map((z, i) => `<${z} fill="${COLOR[(i * 3 + id.length) % 7]}"/>`).join("")}${d.detalles}</svg>`; };
+    // Provisionales: dibujos por código. Se usan solo mientras haya menos de 8 ilustraciones reales (ver LEEME.md)
+    const PROVISIONALES = [
+      ...ANIMALES.map(([id, nombre, cielo]) => ({ id, nombre, cielo, dibujo: Dibujos.ANIMALES[id], sonido: `animales/${id}.mp3`, vida: VIDA[id] || "saltar", provisional: true })),
+      ...Object.keys(Dibujos.DINOSAURIOS).map((id, i) => ({ id, nombre: Dibujos.DINO_NOMBRES[id], cielo: CIELOS_DINO[i], dibujo: Dibujos.DINOSAURIOS[id], dino: true, provisional: true })),
+      ...[["auto", "el auto", "#d9f0ff"], ["bus", "el bus", "#ffe9c9"], ["avion", "el avión", "#bfe6ff"], ["cohete", "el cohete", "#e9dcff"],
+          ["helado", "el helado", "#ffe0ec"], ["ballena", "la ballena", "#bfe6ff"], ["tortuga", "la tortuga", "#d4f5dd"]]
+        .map(([id, nombre, cielo]) => ({ id, nombre, cielo, dibujo: pintada(id), vida: VIDA[id], provisional: true })),
+    ];
+    let CUADROS = [];
+    // Solo cuenta un cuadro ilustrado si su imagen carga de verdad (webp, o png si no hay webp)
+    function probar(c) {
+      const urls = c.archivo ? [c.archivo] : [`../../assets/img/rompecabezas/${c.tema}/${c.id}.webp`, `../../assets/img/rompecabezas/${c.tema}/${c.id}.png`];
+      return new Promise(ok => { const sig = i => { if (i >= urls.length) return ok(null); const im = new Image(); im.onload = () => ok({ ...c, archivo: urls[i], imagen: true }); im.onerror = () => sig(i + 1); im.src = urls[i]; }; sig(0); });
+    }
+    async function cargarCuadros() {
+      const reales = (await Promise.all(RompecabezasCatalogo.map(probar))).filter(Boolean).map(c => ({ cielo: "#e8f4ff", vida: c.dino ? undefined : "latir", ...c }));
+      const sinReal = PROVISIONALES.filter(p => !reales.some(r => r.id === p.id));
+      CUADROS = reales.length >= 8 ? reales : [...reales, ...sinReal];
+    }
+    const dinos = () => CUADROS.filter(c => c.dino);
+
+    // ---------- Qué rompecabezas sigue: una "bolsa" al azar sin repetir hasta ver todos ----------
+    const CLAVE = "maya.rompecabezas";
+    const hoy = new Date().toISOString().slice(0, 10);
+    const leerBolsa = () => { try { return JSON.parse(localStorage.getItem(CLAVE)) || {}; } catch { return {}; } };
+    const guardarBolsa = b => { try { localStorage.setItem(CLAVE, JSON.stringify(b)); } catch {} };
+    function siguiente() {
+      const b = leerBolsa(); b.vistos ||= []; b.n ||= 0;
+      let pool = CUADROS.filter(c => !b.vistos.includes(c.id));
+      if (!pool.length) { pool = CUADROS.filter(c => c.id !== b.ultimo); b.vistos = []; } // vuelve a barajar, sin repetir el último
+      // A Maya le encantan los dinosaurios: el primero de cada día y uno de cada 3 son de dinosaurio
+      const quiereDino = b.dia !== hoy || b.n % 3 === 2;
+      const dePool = quiereDino ? pool.filter(c => c.dino) : pool;
+      const c = Juegos.azar(dePool.length ? dePool : pool);
+      Object.assign(b, { dia: hoy, n: b.n + 1, ultimo: c.id, vistos: [...b.vistos, c.id] });
+      guardarBolsa(b);
+      return c;
+    }
+
+    // ---------- Escena: el cuadro dibujado a la medida del tablero ----------
+    function escena(c, W, H) {
+      const f = H / 120, S = Math.min(H, W * .9), ax = (W - S) / 2, ay = H - S;
+      // Ilustración real: ocupa todo el tablero sin deformarse (recorta bordes, nunca estira); si es transparente lleva un fondo suave
+      if (c.imagen) return c.transparente
+        ? `<defs><radialGradient id="fgsuave" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#fff8e8"/><stop offset="1" stop-color="${c.cielo}"/></radialGradient></defs>
+           <rect width="${W}" height="${H}" fill="url(#fgsuave)"/><image href="${c.archivo}" x="${ax}" y="${H - S}" width="${S}" height="${S}" preserveAspectRatio="xMidYMax meet"/>`
+        : `<image href="${c.archivo}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>`;
+      const animal = c.dibujo.replace("<svg ", `<svg x="${ax}" y="${ay}" width="${S}" height="${S}" `);
+      const flores = [[.07, .88], [.2, .93], [.8, .91], [.93, .94], [.74, .96]].filter((_, i) => W > 150 || i < 3)
+        .map(([x, y], i) => `<circle cx="${W * x}" cy="${H * y}" r="${Math.max(3, 5 * f)}" fill="${COLOR[i + 1]}" stroke="${T}" stroke-width="2"/>`).join("");
+      const volcan = c.dino && W >= 240 ? `<g transform="translate(${W - 78 * f} ${H * .3}) scale(${f})"><path d="M0 60 L30 4 L60 60Z" fill="#c98b5b" stroke="${T}" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M21 16 L30 4 L39 16 Q30 22 21 16Z" fill="#ff7a3d" stroke="${T}" stroke-width="2"/></g>` : "";
+      return `<rect width="${W}" height="${H}" fill="${c.cielo}"/>
+        <circle cx="${W * .13}" cy="${H * .24}" r="${Math.min(15 * f, W * .08)}" fill="#ffd23f" stroke="${T}" stroke-width="3"/>
+        <g transform="translate(${W * .72} ${H * .16}) scale(${f * .8})" fill="#fff" stroke="${T}" stroke-width="3.5" stroke-linejoin="round"><path d="M0 36 q-4 -14 12 -14 q6 -12 22 -4 q18 -2 16 14 q-2 6 -10 6 h-30 q-10 0 -10 -2z"/></g>
+        ${volcan}<path d="M0 ${H * .8} Q${W * .27} ${H * .55} ${W * .5} ${H * .77} T${W} ${H * .7} L${W} ${H} L0 ${H}Z" fill="#7fd68a" stroke="${T}" stroke-width="3"/>${flores}${animal}`;
+    }
+
+    // ---------- Piezas con lengüetas ----------
+    const horiz = (c, r) => ((c + r) % 2 ? 1 : -1), vert = (c, r) => ((c + r) % 2 ? -1 : 1);
+    let CW = 60, CH = 60, W0 = 300, H0 = 120;   // tamaño de cada pieza y del tablero, en unidades
+    // Borde con lengüeta de tamaño fijo (u) sin importar el largo del borde: d = +1 sale, -1 entra, 0 plano
+    function borde(A, B, d, u) {
+      if (!d) return ` L ${B[0]} ${B[1]}`;
+      const L = Math.hypot(B[0] - A[0], B[1] - A[1]), ux = (B[0] - A[0]) / L, uy = (B[1] - A[1]) / L, nx = uy * d, ny = -ux * d;
+      const p = (a, h) => `${(A[0] + ux * (L / 2 + a * u) + nx * h * u).toFixed(1)} ${(A[1] + uy * (L / 2 + a * u) + ny * h * u).toFixed(1)}`;
+      return ` L ${p(-6, 0)} C ${p(-6, 3.6)} ${p(-10.2, 4.2)} ${p(-10.2, 7.8)} C ${p(-10.2, 12)} ${p(10.2, 12)} ${p(10.2, 7.8)} C ${p(10.2, 4.2)} ${p(6, 3.6)} ${p(6, 0)} L ${B[0]} ${B[1]}`;
+    }
+    function trazado(c, r, COLS, ROWS) {
+      const x = c * CW, y = r * CH, u = Math.min(CW, CH) / 60;
+      const top = r > 0 ? -vert(c, r - 1) : 0, bottom = r < ROWS - 1 ? vert(c, r) : 0, right = c < COLS - 1 ? horiz(c, r) : 0, left = c > 0 ? -horiz(c - 1, r) : 0;
+      return `M ${x} ${y}` + borde([x, y], [x + CW, y], top, u) + borde([x + CW, y], [x + CW, y + CH], right, u) +
+             borde([x + CW, y + CH], [x, y + CH], bottom, u) + borde([x, y + CH], [x, y], left, u) + " Z";
+    }
+
+    // ---------- Estado ----------
+    const $ = id => document.getElementById(id);
+    let nivel, cuadro, COLS, ROWS, k = 1, piezas = [], puestas = 0, pistas = 0, ultimo = Date.now(), pista, capa = 10, ocupado = false;
+    const sinAyuda = () => { try { return localStorage.getItem("maya.rompecabezas.sinayuda") === "1"; } catch { return false; } };
+    if (!Juegos.progreso.juegos().includes("rompecabezas")) Juegos.progreso.guardar("rompecabezas", { nivel: 3 });
+    nivel = Juegos.progreso.configurar("rompecabezas", { maxNivel: 5 });
+
+    const origen = p => { const t = $("tablero"); return { x: t.offsetLeft + (p.c * CW - P) * k, y: t.offsetTop + (p.r * CH - P) * k }; };
+
+    function armar(c = siguiente()) {
+      clearInterval(pista);
+      cuadro = c; ocupado = false; puestas = 0; pistas = 0; ultimo = Date.now();
+      [COLS, ROWS, W0, H0] = NIVELES[nivel]; CW = W0 / COLS; CH = H0 / ROWS;
+      $("escenario").querySelectorAll(".pieza").forEach(x => x.remove()); piezas = [];
+      $("defs").innerHTML = `<g id="escena">${escena(c, W0, H0)}</g>`;
+      // Tamaño: el tablero cabe a lo ancho y deja sitio abajo para las piezas sueltas (la pieza mide ≥ 72 px)
+      // Se busca el tablero más grande que deja sitio para todas las piezas sueltas sin amontonarlas
+      const n = COLS * ROWS, kMax = Math.min((innerWidth - 24) / W0, 1.6);
+      let cols = 3; k = 1;
+      for (let kk = kMax; kk >= 1; kk -= .04) {
+        const tw1 = (P * 2 + CW) * kk, th1 = (P * 2 + CH) * kk, c1 = Math.max(3, Math.floor((innerWidth - 8) / (tw1 * .88))), filas1 = Math.ceil(n / c1);
+        k = kk; cols = c1;
+        if (filas1 * th1 * .9 <= innerHeight - 140 - H0 * kk - 28 - 24) break;
+      }
+      const t = $("tablero");
+      Object.assign(t.style, { width: W0 * k + "px", height: H0 * k + "px", left: (innerWidth - W0 * k) / 2 + "px", top: "140px" });
+      let huecos = "";
+      for (let r = 0; r < ROWS; r++) for (let col = 0; col < COLS; col++)
+        huecos += `<path data-h="${col}-${r}" d="${trazado(col, r, COLS, ROWS)}" fill="none" stroke="${T}" stroke-opacity=".28" stroke-width="1.6" stroke-dasharray="4 4"/>`;
+      t.innerHTML = `<svg viewBox="0 0 ${W0} ${H0}"><g id="fantasma" opacity="${sinAyuda() ? 0 : FANTASMA[nivel]}"><use href="#escena"/></g><g>${huecos}</g></svg>`;
+      $("puntos").style.setProperty("--n", COLS * ROWS);
+      $("puntos").innerHTML = Array.from({ length: COLS * ROWS }, () => `<span class="punto"></span>`).join("");
+      pintarAyuda();
+
+      // Piezas sueltas repartidas por la mitad de abajo, sin taparse del todo
+      const tw = (P * 2 + CW) * k, th = (P * 2 + CH) * k, zonaY = 140 + H0 * k + 28, alto0 = innerHeight - th - 24 - zonaY;
+      const filas = Math.ceil(n / cols), celdaW = (innerWidth - 8) / cols, celdaH = filas > 1 ? Math.min(th * 1.05, alto0 / (filas - 1)) : 0;
+      const celdas = gsap.utils.shuffle(Array.from({ length: cols * filas }, (_, i) => i));
+      for (let r = 0; r < ROWS; r++) for (let col = 0; col < COLS; col++) {
+        const d = trazado(col, r, COLS, ROWS), id = `c${col}-${r}`, el = document.createElement("div");
+        el.className = "pieza"; el.dataset.pieza = `${col}-${r}`;
+        el.innerHTML = `<svg width="${tw}" height="${th}" viewBox="${col * CW - P} ${r * CH - P} ${CW + 2 * P} ${CH + 2 * P}">
+          <defs><clipPath id="${id}"><path d="${d}"/></clipPath></defs>
+          <g clip-path="url(#${id})"><use href="#escena"/></g><path d="${d}" fill="none" stroke="${T}" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
+        $("escenario").appendChild(el);
+        const q = celdas.pop(), x = Math.min((q % cols) * celdaW + 4 + R(-4, 4), innerWidth - tw - 2), y = Math.min(zonaY + Math.floor(q / cols) * celdaH + R(-4, 4), innerHeight - th - 8);
+        const p = { c: col, r, el, puesta: false, rot: R(-8, 8) }; piezas.push(p);
+        gsap.set(el, { x, y, rotation: p.rot });
+        arrastrable(p, tw);
+      }
+      if (!calma) gsap.from(piezas.map(p => p.el), { y: "+=380", scale: .3, opacity: 0, rotation: () => R(-90, 90), duration: .8, stagger: { each: .05, from: "random" }, ease: "back.out(1.6)", clearProps: "opacity" });
+      Juegos.decir(`Arma ${c.nombre}`);
+      pista = setInterval(darPista, 2000);
+    }
+
+    // ---------- Arrastrar y encajar ----------
+    const IMAN = () => 70 * k / 1.2;
+    function arrastrable(p) {
+      let dx, dy, activo = false;
+      p.el.addEventListener("pointerdown", e => {
+        if (p.puesta || ocupado) return;
+        p.el.setPointerCapture(e.pointerId); activo = true; ultimo = Date.now();
+        p.el.classList.add("arrastra"); p.el.style.zIndex = ++capa; // z-index y no mover el nodo: mover el nodo suelta el dedo
+        dx = e.clientX - gsap.getProperty(p.el, "x"); dy = e.clientY - gsap.getProperty(p.el, "y");
+        gsap.to(p.el, { scale: 1.1, rotation: 0, duration: .15 }); Juegos.tono(520, .05, "sine", .1);
+      });
+      p.el.addEventListener("pointermove", e => {
+        if (!activo) return;
+        gsap.set(p.el, { x: e.clientX - dx, y: e.clientY - dy });
+        const o = origen(p), cerca = Math.hypot(gsap.getProperty(p.el, "x") - o.x, gsap.getProperty(p.el, "y") - o.y) < IMAN();
+        resaltar(p, cerca);
+      });
+      const soltar = () => {
+        if (!activo) return; activo = false; p.el.classList.remove("arrastra"); resaltar(p, false);
+        const o = origen(p);
+        if (Math.hypot(gsap.getProperty(p.el, "x") - o.x, gsap.getProperty(p.el, "y") - o.y) < IMAN()) encajar(p, o);
+        else gsap.to(p.el, { scale: 1, rotation: p.rot, duration: .3, ease: "back.out(2)" });
+      };
+      p.el.addEventListener("pointerup", soltar); p.el.addEventListener("pointercancel", soltar);
+    }
+    function resaltar(p, si) {
+      const h = document.querySelector(`[data-h="${p.c}-${p.r}"]`);
+      if (h) { h.setAttribute("stroke", si ? "#ffd23f" : T); h.setAttribute("stroke-opacity", si ? ".95" : ".28"); h.setAttribute("stroke-width", si ? 3 : 1.6); }
+    }
+    function chispas(x, y, n) {
+      if (calma) return;
+      for (let i = 0; i < n; i++) {
+        const c = document.createElement("div"); c.className = "chispa-pz"; c.style.background = COLOR[i % 7]; document.body.appendChild(c);
+        gsap.fromTo(c, { left: x, top: y }, { x: R(-70, 70), y: R(-70, 70), scale: 0, duration: .6, ease: "power3.out", onComplete: () => c.remove() });
+      }
+    }
+    function encajar(p, o) {
+      p.puesta = true; p.el.classList.add("puesta"); p.el.style.zIndex = 1; puestas++;
+      document.querySelectorAll(".punto")[puestas - 1]?.classList.add("lleno");
+      document.querySelector(`[data-h="${p.c}-${p.r}"]`)?.remove();
+      gsap.to(p.el, { x: o.x, y: o.y, scale: 1, rotation: 0, duration: .25, ease: "back.out(2)" });
+      Juegos.tono(660 + puestas * 40, .14, "triangle", .2);
+      if (!calma) {
+        gsap.fromTo(p.el.querySelector("svg"), { scale: 1.1 }, { scale: 1, duration: .4, ease: "elastic.out(1.2, .4)" });
+        gsap.fromTo($("escenario"), { y: 0 }, { y: "+=3", duration: .05, yoyo: true, repeat: 1, clearProps: "y" }); // un "pum" suave
+        chispas(o.x + (P + CW / 2) * k, o.y + (P + CH / 2) * k, 6);
+      }
+      if (puestas === COLS * ROWS) return terminar();
+      if (puestas === Math.round(COLS * ROWS / 3)) Juegos.decir("¡Muy bien!");
+      else if (puestas === Math.round(COLS * ROWS * 2 / 3)) Juegos.decir("¡Qué bonito va!");
+    }
+
+    // Pista suave: tras unos segundos sin tocar, una pieza que falta parpadea y su hueco brilla
+    function darPista() {
+      if (ocupado || Date.now() - ultimo < 9000) return;
+      const p = piezas.find(x => !x.puesta); if (!p) return;
+      ultimo = Date.now(); pistas++;
+      Juegos.decir("¿Dónde va esta pieza?");
+      if (!calma) gsap.fromTo(p.el, { scale: 1 }, { scale: 1.18, duration: .3, yoyo: true, repeat: 3 });
+      const h = document.querySelector(`[data-h="${p.c}-${p.r}"]`);
+      if (h) { resaltar(p, true); setTimeout(() => resaltar(p, false), 2500); }
+    }
+
+    // ---------- Final: dibujo vivo, despertar del dinosaurio y registro de progreso ----------
+    let ac;
+    function rugido() {
+      try {
+        ac ??= new (window.AudioContext || window.webkitAudioContext)(); const t = ac.currentTime;
+        const o = ac.createOscillator(), l = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain(), v = ac.createGain();
+        o.type = "sawtooth"; o.frequency.setValueAtTime(190, t); o.frequency.exponentialRampToValueAtTime(70, t + 1.1);
+        l.frequency.value = 22; v.gain.value = 18; l.connect(v).connect(o.frequency);
+        f.type = "lowpass"; f.frequency.setValueAtTime(900, t); f.frequency.exponentialRampToValueAtTime(260, t + 1.1);
+        g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.16, t + .12); g.gain.exponentialRampToValueAtTime(.0001, t + 1.2);
+        o.connect(f).connect(g).connect(ac.destination); o.start(t); l.start(t); o.stop(t + 1.25); l.stop(t + 1.25);
+      } catch {}
+    }
+    const paso = () => Juegos.tono(70, .2, "sine", .3);
+    const HUELLA = `<svg viewBox="0 0 60 60" width="46" height="46" fill="#a9825a" stroke="${T}" stroke-width="3" stroke-linejoin="round"><path d="M30 56 L18 40 Q30 34 42 40Z"/><path d="M16 36 L8 14 L22 22Z"/><path d="M30 32 L30 6 L40 28Z"/><path d="M44 36 L52 14 L38 22Z"/></svg>`;
+
+    function despertar() {
+      const tr = $("tablero").getBoundingClientRect();
+      const X = u => tr.left + u * k, Y = u => tr.top + u * k, esc = $("escenario");
+      [0, 1, 2, 3].forEach(i => gsap.delayedCall(.2 + i * .38, () => {
+        paso(); gsap.fromTo(esc, { y: 0 }, { y: "+=7", duration: .06, yoyo: true, repeat: 3, clearProps: "y" });
+        const h = document.createElement("div"); h.className = "huella"; h.innerHTML = HUELLA; document.body.appendChild(h);
+        gsap.set(h, { left: X(W0 * (.15 + i * .17)) - 23, top: Y(H0 * .86), rotation: i % 2 ? 12 : -12, scale: 0 });
+        gsap.to(h, { scale: 1, duration: .3, ease: "back.out(3)" }); gsap.to(h, { opacity: 0, duration: 1, delay: 2.4, onComplete: () => h.remove() });
+      }));
+      gsap.delayedCall(1.7, () => {     // el volcán erupciona (los dibujos provisionales) o lluvia de estrellas (las ilustraciones)
+        if (cuadro.imagen) { for (let i = 0; i < 18; i++) chispas(X(W0 * R(.2, .8)), Y(H0 * R(.3, .7)), 1); return; }
+        const fl = document.createElement("div"); fl.className = "destello-fondo"; document.body.appendChild(fl);
+        gsap.to(fl, { opacity: .7, duration: .15, yoyo: true, repeat: 1, onComplete: () => fl.remove() });
+        const bx = X(W0 - 48 * (H0 / 120)), by = Y(H0 * .32);
+        for (let i = 0; i < 26; i++) {
+          const e = document.createElement("div"); e.className = "lava"; const s = R(10, 20);
+          e.style.cssText = `width:${s}px;height:${s}px;background:${["#ff5a5f", "#ff9f43", "#ffd23f"][i % 3]};border:2px solid ${T}`; document.body.appendChild(e);
+          gsap.set(e, { left: bx - s / 2, top: by });
+          const dx = R(-110, 110), alto = R(50, 120);
+          gsap.timeline({ onComplete: () => e.remove() }).to(e, { x: dx * .55, y: -alto, duration: R(.5, .8), ease: "power2.out" })
+            .to(e, { x: dx, y: R(40, 140), opacity: 0, duration: R(.7, 1.1), ease: "power2.in" });
+        }
+        for (let i = 0; i < 7; i++) {
+          const h = document.createElement("div"); h.className = "humo"; const s = R(26, 50); h.style.cssText = `width:${s}px;height:${s}px`; document.body.appendChild(h);
+          gsap.set(h, { left: bx - s / 2 + R(-14, 14), top: by - 10, scale: .2, opacity: .9 });
+          gsap.to(h, { y: -R(60, 110), x: R(-60, 60), scale: R(1.4, 2.2), opacity: 0, duration: R(1.6, 2.4), delay: i * .1, ease: "power1.out", onComplete: () => h.remove() });
+        }
+      });
+      gsap.delayedCall(1.9, () => {     // rugido: letras que explotan sobre la cabeza y el dibujo se infla
+        rugido(); Juegos.decir("¡Raaar!");
+        const g = document.createElement("div"); g.className = "grito"; g.textContent = "¡RAAAR!"; document.body.appendChild(g);
+        const w = g.offsetWidth; gsap.set(g, { left: Math.max(8, Math.min(innerWidth - w - 8, X(W0 / 2) - w / 2)), top: Y(0) - 46 });
+        gsap.fromTo(g, { scale: 0, rotation: -14 }, { scale: 1.2, rotation: 6, duration: .45, ease: "back.out(3)" });
+        gsap.to(g, { x: "+=5", y: "+=3", duration: .05, repeat: 14, yoyo: true });
+        gsap.to(g, { opacity: 0, scale: 1.6, duration: .5, delay: 1.5, onComplete: () => g.remove() });
+        const todas = [$("tablero"), ...piezas.map(p => p.el)];
+        gsap.to(todas, { scale: 1.05, duration: .25, yoyo: true, repeat: 5, ease: "sine.inOut" });
+        gsap.to(todas, { rotation: 1.2, duration: .06, yoyo: true, repeat: 21, ease: "none" });
+      });
+    }
+
+    const MOVIMIENTOS = {
+      saltar: { y: "-=40", duration: .3, yoyo: true, repeat: 5, ease: "power2.out" }, nadar: { x: "+=26", duration: .35, yoyo: true, repeat: 5, ease: "sine.inOut" },
+      latir: { scale: 1.06, duration: .3, yoyo: true, repeat: 5, ease: "sine.inOut" }, avanzar: { x: "+=34", duration: .45, yoyo: true, repeat: 3, ease: "power1.inOut" },
+      volar: { y: "-=30", x: "+=12", duration: .5, yoyo: true, repeat: 3, ease: "sine.inOut" },
+    };
+
+    function terminar() {
+      ocupado = true; clearInterval(pista);
+      const c = cuadro;
+      document.querySelectorAll(".pieza path").forEach(x => x.setAttribute("stroke-opacity", 0)); // las líneas se funden: queda el dibujo entero
+      Juegos.decir(`¡Muy bien! Armaste ${c.nombre}`); Juegos.fiesta();
+      if (!calma) {
+        const todas = [$("tablero"), ...piezas.map(p => p.el)];
+        if (c.dino) despertar(); else gsap.to(todas, MOVIMIENTOS[c.vida || "saltar"]);
+      }
+      if (c.sonido && !c.dino) Juegos.sonar(`../../assets/sonidos/${c.sonido}`).catch(() => {});
+      setTimeout(registrar, c.dino && !calma ? 4300 : 1800);
+    }
+
+    // Ronda con a lo sumo 1 pista = acierto; con 3 o más pistas cuenta como fallo (solo para bajar en silencio); si no, no cambia nada
+    function registrar() {
+      let r = null;
+      if (pistas <= 1) r = Juegos.progreso.acierto("rompecabezas"); else if (pistas >= 3) r = Juegos.progreso.fallo("rompecabezas");
+      if (r) nivel = r.nivel;
+      const festejo = r?.subio || r?.sticker;
+      setTimeout(() => armar(), festejo ? 3800 : 1400);
+    }
+
+    // ---------- Ayuda (fantasma del dibujo) ----------
+    const OJO_ICONO = `<svg viewBox="0 0 100 100" stroke="${T}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"><path d="M8 50 Q50 8 92 50 Q50 92 8 50Z" fill="#fff"/><circle cx="50" cy="50" r="16" fill="${T}"/></svg>`;
+    function pintarAyuda() { $("ayuda").innerHTML = OJO_ICONO; $("ayuda").classList.toggle("apagada", sinAyuda()); }
+    $("ayuda").addEventListener("click", () => {
+      const nuevo = !sinAyuda();
+      try { localStorage.setItem("maya.rompecabezas.sinayuda", nuevo ? "1" : "0"); } catch {}
+      document.getElementById("fantasma")?.setAttribute("opacity", nuevo ? 0 : FANTASMA[nivel]);
+      pintarAyuda(); Juegos.decir(nuevo ? "Sin ayuda" : "Con ayuda");
+    });
+
+    cargarCuadros().then(() => armar());
+  </script>
+</body>
+</html>

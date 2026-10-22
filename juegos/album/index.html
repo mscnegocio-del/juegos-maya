@@ -27,6 +27,9 @@
     .hueco { position: relative; display: grid; place-items: center; border-radius: 50%; background: #fdf6ec; padding: 0; }
     .hueco svg { width: 86%; height: 86%; overflow: visible; display: block; }
     /* Sticker pegado: borde blanco recortado alrededor del dibujo y una sombrita, un poco torcido */
+    .hueco img { width: 86%; height: 86%; border-radius: 50%; object-fit: cover; object-position: 50% 55%; display: block; pointer-events: none; }
+    .hueco.tiene img { border: 4px solid #fff; box-shadow: 0 5px 5px rgba(59, 42, 74, .25); transform: rotate(var(--giro, 0deg)); }
+    .hueco:not(.tiene) img { filter: brightness(0); opacity: .08; }
     .hueco.tiene { background: none; }
     .hueco.tiene svg { filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff)
                                drop-shadow(0 5px 4px rgba(59, 42, 74, .25)); transform: rotate(var(--giro, 0deg)); }

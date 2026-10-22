@@ -43,6 +43,8 @@
 | 2 | Mascota virtual: ropa, minijuegos, crecimiento y álbum | SPEC-007 | borrador |
 | 2a | Michi por capas animado con Rive (spike en rama aparte; faltan las capas del usuario) | SPEC-011 | borrador |
 | 2g | Juegos nuevos: patrones, ¿qué falta?, conceptos espaciales, emociones con Michi, trazar caminos, letras M-A-Y-A, números 1–10 | — | idea |
+| 3b | Juego Rompecabezas con 8 ilustraciones de dinosaurios + Michi, 5 niveles, stickers (faltan ilustrar los 12 animales y más temas) | SPEC-018 | hecho |
+| 3c | Menú principal animado (fondo con paralaje, tarjetas al azar): **prototipo aprobado**, falta pasarlo a `index.html` | — | pendiente |
 | 4 | Sonidos reales en otros juegos (pop de globo, aplausos de premio) | — | idea |
 | 6 | Memoria de 4 cartas (2 pares) | — | idea |
 | 7 | Vestir al osito (arrastrar gorro, lentes, bufanda) | — | idea |

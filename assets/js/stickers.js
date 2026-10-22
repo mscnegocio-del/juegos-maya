@@ -35,6 +35,15 @@ const Stickers = (() => {
     }) });
   }
 
+  // Página "Rompecabezas": 4 dinosaurios intercalados con animales
+  if (Dibujos.DINOSAURIOS) {
+    const orden = [["trex", 1], ["pato"], ["trice", 1], ["vaca"], ["bronto", 1], ["gato"], ["estego", 1], ["perro"], ["rana"], ["elefante"], ["chancho"], ["oveja"]];
+    PAGINAS.push({ juego: "rompecabezas", nombre: "Rompecabezas", icono: Dibujos.rompecabezas, stickers: orden.map(([id, dino]) =>
+      dino ? { id, nombre: Dibujos.DINO_NOMBRES[id], sonido: null,   // ilustración real recortada en círculo (la misma del rompecabezas)
+               dibujo: `<img src="../../assets/img/rompecabezas/dinosaurios/${id}.webp" alt="" draggable="false">` }
+           : animal(id, { pato: "el pato", vaca: "la vaca", gato: "el gatito", perro: "el perrito", rana: "la ranita", elefante: "el elefante", chancho: "el chanchito", oveja: "la ovejita" }[id])) });
+  }
+
   const pagina = juego => PAGINAS.find(p => p.juego === juego);
   const tiene = juego => Juegos.progreso.leer(juego).stickers;
 
