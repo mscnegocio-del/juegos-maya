@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="theme-color" content="#fff7ec">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Mi álbum</title>
+  <link rel="manifest" href="../../manifest.webmanifest">
+  <link rel="icon" href="../../assets/iconos/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../assets/iconos/icono-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Maya">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+    body { display: flex; flex-direction: column; align-items: center; padding: 100px 16px 0; touch-action: pan-y;
+           background: radial-gradient(circle at 85% 8%, #ffe3f1 0 110px, transparent 111px),
+                       radial-gradient(circle at 8% 92%, #e1f2ff 0 150px, transparent 151px), var(--bg); }
+    h1 { position: fixed; top: 22px; left: 0; right: 0; margin: 0; text-align: center; font-size: clamp(32px, 8vw, 48px); font-weight: 800; pointer-events: none; }
+
+    /* Página del álbum: hoja con borde de puntitos y huecos para 12 stickers */
+    .hoja { width: min(100%, 560px, calc((100dvh - 230px) * .78)); aspect-ratio: 3 / 4; background: #fff; border-radius: 28px;
+            padding: 5%; box-shadow: 0 10px 0 rgba(0, 0, 0, .1); position: relative;
+            outline: 4px dashed #f1e2cc; outline-offset: -14px;
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 4%; }
+    .hueco { position: relative; display: grid; place-items: center; border-radius: 50%; background: #fdf6ec; padding: 0; }
+    .hueco svg { width: 86%; height: 86%; overflow: visible; display: block; }
+    /* Sticker pegado: borde blanco recortado alrededor del dibujo y una sombrita, un poco torcido */
+    .hueco.tiene { background: none; }
+    .hueco.tiene svg { filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff)
+                               drop-shadow(0 5px 4px rgba(59, 42, 74, .25)); transform: rotate(var(--giro, 0deg)); }
+    /* Aún no ganado: silueta suave (no es "falta", es una sorpresa por descubrir) */
+    .hueco:not(.tiene) svg { filter: brightness(0); opacity: .08; }
+    .hueco:not(.tiene) .ojos { animation: none; }
+
+    .pestanas { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 18px; padding: 12px 16px 18px;
+                background: linear-gradient(transparent, rgba(255, 247, 236, .95) 30%); }
+    .pestana { width: 76px; height: 76px; border-radius: 50%; background: #fff; display: grid; place-items: center;
+               box-shadow: 0 6px 0 rgba(0, 0, 0, .12); transition: transform .15s; position: relative; }
+    .pestana svg { width: 52px; height: 52px; }
+    .pestana.activa { background: var(--amarillo); transform: translateY(-6px); }
+    .pestana:active { transform: scale(.9); }
+    .flecha { position: fixed; top: 50%; width: 72px; height: 72px; border-radius: 50%; background: #fff; box-shadow: 0 6px 0 rgba(0, 0, 0, .12);
+              font-size: 40px; font-weight: 800; display: grid; place-items: center; z-index: 5; }
+    #anterior { left: 10px; } #siguiente { right: 10px; }
+    @media (max-width: 700px) { .flecha { display: none; } } /* en celular se cambia de página deslizando o con las pestañas */
+  </style>
+</head>
+<body>
+  <a class="btn-casa" href="../../" aria-label="Volver al menú">🏠</a>
+  <h1 id="titulo">Mi álbum</h1>
+  <main class="hoja" id="hoja"></main>
+  <button class="flecha" id="anterior" aria-label="Página anterior">‹</button>
+  <button class="flecha" id="siguiente" aria-label="Página siguiente">›</button>
+  <nav class="pestanas" id="pestanas"></nav>
+
+  <script src="../../assets/vendor/gsap/gsap.min.js"></script>
+  <script src="../../assets/js/common.js"></script>
+  <script src="../../assets/js/dibujos.js"></script>
+  <script src="../../assets/js/stickers.js"></script>
+  <script>
+    const hoja = document.getElementById("hoja"), pestanas = document.getElementById("pestanas");
+    const calma = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const anima = window.gsap && !calma;
+    const sonidoUrl = s => `../../assets/sonidos/${s}`;
+    let actual = 0, deslizo = false;
+
+    Stickers.PAGINAS.forEach((p, i) => {
+      const b = document.createElement("button");
+      b.className = "pestana"; b.innerHTML = p.icono; b.setAttribute("aria-label", p.nombre);
+      b.addEventListener("click", () => irPagina(i));
+      pestanas.appendChild(b);
+    });
+
+    function pintar() {
+      const p = Stickers.PAGINAS[actual], ya = Stickers.tiene(p.juego);
+      hoja.innerHTML = "";
+      p.stickers.forEach((s, i) => {
+        const h = document.createElement("button");
+        h.className = "hueco" + (ya.includes(s.id) ? " tiene" : "");
+        h.style.setProperty("--giro", ((i * 37) % 17 - 8) + "deg"); // torcido fijo, distinto para cada sticker
+        h.setAttribute("aria-label", ya.includes(s.id) ? s.nombre : "sticker sorpresa");
+        h.innerHTML = s.dibujo;
+        h.addEventListener("click", () => tocar(h, s, p));
+        hoja.appendChild(h);
+      });
+      pestanas.querySelectorAll(".pestana").forEach((b, i) => b.classList.toggle("activa", i === actual));
+      if (anima) gsap.from(".hueco.tiene", { scale: 0, rotation: -30, duration: .5, stagger: .05, ease: "back.out(2.4)", clearProps: "transform" });
+    }
+
+    function tocar(h, s, p) {
+      if (deslizo) return; // fue un deslizamiento para cambiar de página, no un toque
+      if (!h.classList.contains("tiene")) {
+        Juegos.animar(h, "wiggle");
+        return Juegos.decir(`¡Juega a ${p.nombre} para descubrirlo!`);
+      }
+      Juegos.rebotar(h);
+      h.classList.add("sonando"); // el dibujo abre la boca
+      const fin = () => { h.classList.remove("sonando"); Juegos.decir(s.nombre); };
+      if (s.sonido) Juegos.sonar(sonidoUrl(s.sonido)).then(fin, fin);
+      else { Juegos.tono(880, .15, "triangle"); fin(); }
+    }
+
+    function irPagina(i, direccion = Math.sign(i - actual) || 1) {
+      i = (i + Stickers.PAGINAS.length) % Stickers.PAGINAS.length;
+      if (i === actual && hoja.childElementCount) return;
+      Juegos.decir(Stickers.PAGINAS[i].nombre);
+      if (!anima) { actual = i; return pintar(); }
+      gsap.to(hoja, { x: -direccion * 60, opacity: 0, duration: .18, ease: "power1.in", onComplete: () => {
+        actual = i; pintar();
+        gsap.fromTo(hoja, { x: direccion * 60, opacity: 0 }, { x: 0, opacity: 1, duration: .3, ease: "back.out(1.6)" });
+      } });
+    }
+    document.getElementById("anterior").addEventListener("click", () => irPagina(actual - 1, -1));
+    document.getElementById("siguiente").addEventListener("click", () => irPagina(actual + 1, 1));
+
+    // Deslizar la hoja con el dedo cambia de página
+    let inicio = null;
+    hoja.addEventListener("pointerdown", e => (inicio = e.clientX));
+    addEventListener("pointerup", e => {
+      if (inicio !== null && Math.abs(e.clientX - inicio) > 70) {
+        const dir = e.clientX < inicio ? 1 : -1;
+        deslizo = true; setTimeout(() => (deslizo = false), 60);
+        irPagina(actual + dir, dir);
+      }
+      inicio = null;
+    });
+
+    pintar();
+    setTimeout(() => Juegos.decir("¡Tu álbum de stickers!"), 400);
+  </script>
+</body>
+</html>

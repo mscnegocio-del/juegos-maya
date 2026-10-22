@@ -230,6 +230,14 @@ const Dibujos = (() => {
     <circle cx="80" cy="76" r="2.5" fill="${T}"/><circle cx="124" cy="76" r="2.5" fill="${T}"/></g>
     <path d="M90 86 Q100 94 110 86" fill="none" stroke="#fff" stroke-width="4"/>`);
 
+  // Álbum de stickers: libro abierto con una estrella y un corazón pegados
+  const album = svg(`
+    <path d="M100 52 Q64 34 20 42 L20 162 Q64 152 100 170 Q136 152 180 162 L180 42 Q136 34 100 52Z" fill="#fff7ec"/>
+    <path d="M100 52 L100 170" fill="none"/>
+    <path d="M58 64 L65 80 L83 82 L69 93 L73 111 L58 102 L43 111 L47 93 L33 82 L51 80Z" fill="#ffd23f" stroke-width="4"/>
+    <path d="M142 112 C124 98 118 82 130 74 C138 69 142 76 142 80 C142 76 146 69 154 74 C166 82 160 98 142 112Z" fill="#ff7eb6" stroke-width="4"/>
+    ${ojos(138, 14, 100)}${boca(152, 8, 100)}`, { cabeza: false });
+
   // Nota musical (botón "canción" del piano), sin carita para que se lea como símbolo
   const notaMusical = `<svg viewBox="0 0 100 100" stroke="${T}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
     <path d="M40 74 L40 22 L80 14 L80 64" fill="none"/>
@@ -246,7 +254,7 @@ const Dibujos = (() => {
   </svg>`;
 
   return { T, svg, plano, ojos, mejillas, boca, carita, ANIMALES, OBJETOS_CONTAR,
-           globo, pelota, flor, estrella, paleta, crayon, piano, notaMusical, casita };
+           globo, pelota, flor, estrella, paleta, crayon, piano, album, notaMusical, casita };
 })();
 
 // El botón "volver al menú" muestra la casita SVG (el emoji queda solo como respaldo sin JS)

@@ -224,11 +224,15 @@ const Juegos = (() => {
       d.aciertos++; d.racha++; d.fallos = 0;
       d.ultimas = [...d.ultimas, 1].slice(-10);
       const bien = d.ultimas.reduce((s, x) => s + x, 0);
-      if (d.racha >= 5 || (d.ultimas.length === 10 && bien >= 8)) cambiarNivel(d, 1);
+      const completo = d.racha >= 5 || (d.ultimas.length === 10 && bien >= 8);
+      if (completo) cambiarNivel(d, 1); // en el último nivel no sube, pero completarlo también se premia
       guardar(juego, d);
       const subio = d.nivel > antes;
-      if (subio) { fiesta(); decir("¡Subiste de nivel!"); }
-      return { nivel: d.nivel, subio, bajo: false };
+      // Completar un nivel da un sticker del álbum (si el juego cargó stickers.js y aún quedan)
+      const sticker = completo && typeof Stickers !== "undefined" ? Stickers.ganar(juego) : null;
+      if (sticker) decir((subio ? "¡Subiste de nivel! " : "") + `¡Ganaste un sticker: ${sticker.nombre}!`);
+      else if (subio) { fiesta(); decir("¡Subiste de nivel!"); }
+      return { nivel: d.nivel, subio, bajo: false, sticker };
     }
     function fallo(juego) {
       const d = leer(juego), antes = d.nivel;
