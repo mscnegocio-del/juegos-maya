@@ -133,6 +133,17 @@ const PAGINAS = {
     await p.click('[data-herr="deshacer"]');                           // vuelve lo pintado
     const vuelve = await p.evaluate(() => Object.keys(rellenos).length > 0);
     if (!limpio || !vuelve) errores.push(`pintar: hoja nueva ${limpio} / deshacer ${vuelve}`);
+    // Parte 2: arcoíris, brillitos, sellos y pincel mágico (no debe pintar fuera de la zona donde empezó)
+    const rayar = async (x0, y0, x1, y1) => { await p.mouse.move(x0, y0); await p.mouse.down(); await p.mouse.move(x1, y1, { steps: 8 }); await p.mouse.up(); };
+    for (const h of ["arcoiris", "brillitos"]) { await p.click(`[data-herr="${h}"]`); await rayar(z.x + 30, z.y + z.height - 40, z.x + z.width - 30, z.y + z.height - 60); }
+    await p.click('[data-herr="sellos"]'); await p.locator('[data-sello="pato"]').click();
+    await p.mouse.click(z.x + z.width * .8, z.y + z.height * .2); await p.waitForTimeout(200);
+    await p.click('[data-herr="escoba"]'); await p.waitForTimeout(900);
+    await p.click('[data-herr="magico"]');
+    await rayar(z.x + z.width / 2, z.y + z.height / 2, z.x + 4, z.y + 4);   // desde el centro hacia la esquina vacía
+    const esquina = await p.evaluate(() => ctx.getImageData(10, 10, 30, 30).data.some((v, i) => i % 4 === 3 && v));
+    const centro = await p.evaluate(() => ctx.getImageData(380, 380, 40, 40).data.some((v, i) => i % 4 === 3 && v));
+    if (esquina || !centro) errores.push(`pintar: pincel mágico esquina ${esquina} centro ${centro}`);
     await p.click('[data-herr="goma"]'); await p.mouse.click(z.x + z.width / 2, z.y + z.height / 2);
     await p.click('[data-herr="listo"]'); await p.waitForTimeout(500);
     await p.click("#casa"); await p.waitForTimeout(500);
