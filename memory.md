@@ -32,7 +32,9 @@
   muebles y fondos en `assets/img/casa/`, capa invisible con zonas tocables y barro; escenas en `#capa`
 - SPEC-003: manifest, ícono (la vaca), fuente local, `sw.js` generado por `tools/actualizar-sw.py` (también en CI)
 
-- Plan de mejoras: SPEC-012 (progreso) y SPEC-016 (GSAP) **aprobadas**; 011, 013, 014 y 015 siguen en borrador
+- SPEC-012 **implementada**: `Juegos.progreso` en common.js (clave `maya.progreso`) y rincón de papá (mantener 3 s la esquina
+  superior derecha del menú). Ningún juego lo usa todavía: lo usarán Globos (013), Colores (014) y el álbum (015)
+- SPEC-016 aprobada; 011, 013, 014 y 015 siguen en borrador
 - SPEC-016 hecha: GSAP 3.15.0 en `assets/vendor/`, menú animado, transiciones, confeti con física, `Juegos.rebotar/premio/irA`.
   Solo falta usar `Juegos.premio` cuando existan niveles (012) y álbum (015)
 
@@ -48,7 +50,8 @@
 - Contar (SPEC-002) aún no se ha probado en un dispositivo real
 
 ## 📌 Próximos pasos (próxima sesión)
-0. Implementar SPEC-012 (`Juegos.progreso` + rincón de papá). Pendiente que apruebe 011, 013, 014, 015 y Rive.
+0. Que el usuario apruebe 013 (Globos) y/o 014 (Colores) para usar `Juegos.progreso`; también 011, 015 y Rive.
+   Probar en iOS que la app instalada conserve el progreso.
    Preguntas abiertas: ¿orden entre niveles y juegos nuevos?
    ¿Premio como sticker, estrella en el menú o ambos?
 1. Que el usuario pruebe Contar en un dispositivo real
